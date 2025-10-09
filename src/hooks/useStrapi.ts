@@ -14,7 +14,7 @@ export const useStrapi = <T>({ path, method = 'GET', body }: UseStrapiOptions) =
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://mppshop.by';
+        const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://api.mppshop.by';
         let url = `${baseUrl}${path}`;
         if (url.includes('?')) {
           url += '&populate=*';
