@@ -52,7 +52,7 @@ const StyledModalOverlay = styled.div<{ isOpen: boolean }>`
     }
 `
 
-const StyledFilterCard = styled.div`
+const StyledFilterCard = styled.div<{ isOpen: boolean }>`
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: ${rm(20)};
     padding: ${rm(32)};
@@ -315,7 +315,7 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
 
     return (
         <StyledModalOverlay isOpen={isOpen} onClick={handleOverlayClick}>
-            <StyledFilterCard>
+            <StyledFilterCard isOpen={isOpen}>
                 <StyledCloseButton onClick={onClose}>
                     ×
                 </StyledCloseButton>

@@ -393,7 +393,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                         category.products.length > 0 && (
                             <StyledSection key={`category-products-${category.id}`}>
                                 <StyledSectionTitle>
-                                    Товары в категории "{category.title}" ({category.products.length})
+                                    Товары в категории &quot;{category.title}&quot; ({category.products.length})
                                 </StyledSectionTitle>
                                 {category.products.map((product) => (
                                     <Link key={product.id} href={`/products/${product.id}`}>
@@ -490,7 +490,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                      searchData.products.length === 0 && 
                      searchData.tags.length === 0 && (
                         <StyledEmptyState>
-                            <p>По запросу "{searchQuery}" ничего не найдено</p>
+                            <p>По запросу &quot;{searchQuery}&quot; ничего не найдено</p>
                         </StyledEmptyState>
                     )}
                 </>

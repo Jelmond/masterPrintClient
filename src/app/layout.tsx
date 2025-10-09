@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Onest } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { Poppins } from "next/font/google";
+import { Suspense } from "react";
 
 import GlobalStyles, { SmartCSSGrid } from "@/styles";
 
@@ -51,11 +52,13 @@ export default function RootLayout({
             <GlobalStyles />
             <AssetsLoaderLayout>
               <Cookie />
-              <AnimatedRouterLayout>
-                  <Header/>
-                  {children}
-                  <Footer/>
-              </AnimatedRouterLayout>
+              <Suspense fallback={<div>Loading...</div>}>
+                <AnimatedRouterLayout>
+                    <Header/>
+                    {children}
+                    <Footer/>
+                </AnimatedRouterLayout>
+              </Suspense>
             </AssetsLoaderLayout>
           </ScrollLayout>
         </StyledComponentsLayout>
