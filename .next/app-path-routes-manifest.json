@@ -1,1 +1,1 @@
-{"/_not-found/page":"/_not-found","/api/search/route":"/api/search","/catalog/[id]/page":"/catalog/[id]","/cart/page":"/cart","/catalog/page":"/catalog","/products/[id]/page":"/products/[id]","/page":"/","/order/page":"/order","/promotions/page":"/promotions"}
+{"/_not-found/page":"/_not-found","/cart/page":"/cart","/catalog/[id]/page":"/catalog/[id]","/api/search/route":"/api/search","/catalog/page":"/catalog","/page":"/","/order/page":"/order","/products/[id]/page":"/products/[id]","/promotions/page":"/promotions"}
