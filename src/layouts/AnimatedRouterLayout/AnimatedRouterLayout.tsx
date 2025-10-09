@@ -33,8 +33,8 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
   const lastScrollPosition = useRef<Record<string, number>>({});
   const [isMounted, setIsMounted] = useState(false);
 
-  // const pathname = usePathname();
-  // const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const pathnameRef = useRef<string>("");
   const searchParamsRef = useRef<URLSearchParams | null>(null);
 
@@ -51,10 +51,10 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     if (typeof window === "undefined") return;
     if (!isMounted) return;
 
-    // routeChangeComplete();
-    // changing.current = false;
-    // document.body.style.cursor = "default";
-    // setRerouting(false);
+    routeChangeComplete();
+    changing.current = false;
+    document.body.style.cursor = "default";
+    setRerouting(false);
 
     const handleRouteChange = () => {
       pathnameRef.current = window.location.pathname;
@@ -73,8 +73,8 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     return () => {
       window.removeEventListener("popstate", handleRouteChange);
     };
-    // }, [pathname, searchParams, isMounted]);
-  }, [isMounted]);
+    }, [pathname, searchParams, isMounted]);
+  // }, [isMounted]);
 
   // Saves all the time, but could be desibled and then will be saved only on route
   useEffect(() => {
@@ -174,11 +174,9 @@ export const useAnimatedRouter = (): UseAnimatedRouter => {
   };
   // Return a safe version that won't cause errors during SSR
   return {
-    routeChangeStart: context.isMounted ? context.routeChangeStart : () => {},
-    routeChangeComplete: context.isMounted
-      ? context.routeChangeComplete
-      : () => {},
-    rerouting: context.isMounted ? context.rerouting : false,
+    routeChangeStart: context.routeChangeStart ,
+    routeChangeComplete:  context.routeChangeComplete,
+    rerouting: context.rerouting,
   };
 };
 
@@ -195,6 +193,7 @@ export const AnimLink = forwardRef<HTMLAnchorElement, Props>(
     const handleClick = (e: MouseEvent) => {
       routeChangeStart(props.href, props.backMode);
     };
+
     return (
       <Link
         ref={ref}
