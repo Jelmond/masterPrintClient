@@ -53,6 +53,7 @@ export const CatalogSwiper = () => {
 const StyledCatalogSwiper = styled.div`
     width: 100%;
     padding: ${rm(40)} 0;
+    margin-top: ${rm(100)};
 
     ${media.xsm`
         padding: 0;

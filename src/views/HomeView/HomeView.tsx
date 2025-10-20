@@ -36,7 +36,7 @@ export const HomeView = () => {
     <StyledHomeView ref={mainRef}>
       <Welcome />
       <Markets />
-      <Comfort />
+      {/* <Comfort /> */}
       <CatalogSwiper />
       <InfoCard />
       <Bestsellers />
