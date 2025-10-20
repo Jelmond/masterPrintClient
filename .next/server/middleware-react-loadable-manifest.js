@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST="{\"components/Cookie.tsx -> react-cookie-consent\":{\"id\":\"components/Cookie.tsx -> react-cookie-consent\",\"files\":[\"static/chunks/_app-pages-browser_node_modules_react-cookie-consent_dist_react-cookie-consent_esm_js.js\"]}}"
