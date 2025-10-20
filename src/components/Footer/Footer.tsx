@@ -84,7 +84,8 @@ const info = {
 export const Footer = () => {
     return (
         <StyledFooter>
-            <StyledBackgroundImage src="/assets/images/footerImage.png" alt="footer" width={1920} height={1080} />
+            {/* <StyledBackgroundImage src="/assets/images/footerImage.png" alt="footer" width={1920} height={1080} /> */}
+            <StyledBackground />
             <StyledTop>
                 <StyledSection>
                     <div className="title">
@@ -276,11 +277,11 @@ const StyledSection = styled.div`
     }
 `
 
-const StyledBackgroundImage = styled(Image)`
+const StyledBackground = styled.div`
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    background-color: white;
 `
