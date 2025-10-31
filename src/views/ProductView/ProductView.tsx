@@ -18,6 +18,8 @@ export const ProductView = ({ data }: { data: any }) => {
     const images = data.images || [];
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
+    console.log(data)
+
     const addToCart = useCartStore(state => state.addToCart);
 
     const handleAddToCart = () => {
@@ -111,7 +113,7 @@ export const ProductView = ({ data }: { data: any }) => {
                             p: ({ children }) => <p className="description-paragraph">{children}</p>,
                         }}
                     />
-                    <p className="category">Раздел: {data?.categories[0].title} {'   <   '} {data?.tags[0].title}</p>
+                    {data?.categories?.length > 0 && data?.tags?.length > 0 && <p className="category">Раздел: {data?.categories[0].title} {'   <   '} {data?.tags[0].title}</p>}
                     <p className="quantity">
                         В наличии: <span>{data.stock} {getWordForCount(data.stock)}</span>
                     </p>

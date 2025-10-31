@@ -30,9 +30,9 @@ export const About = () => {
                 <AnimatedText className="description">
                     MPP Shop — креативное направление при типографии «Мастерпинт-Пак». Мы не просто печатаем — мы сами придумываем, разрабатываем дизайн, производим и доставляем продукцию прямо в Ваши руки, без посредников.
                 </AnimatedText>
-                <p className="about">
+                {/* <p className="about">
                 Наши товары представлены на популярных маркетплейсах: <span>OZON, Wildberries, OZ.by</span> и других. Всё — от идеи до упаковки — мы делаем сами, чтобы вы получали качественный продукт по честной цене.
-                </p>
+                </p> */}
             </StyledLeft>
             <StyledRight>
                 <p className="title">
@@ -64,14 +64,20 @@ const StyledAbout = styled.div`
     background-color: #868686;
     width: 100%;
 
+    ${media.lg`
+        padding: ${rm(100)} ${rm(80)};
+        gap: ${rm(60)};
+    `}
+
     ${media.md`
-        padding: ${rm(130)} ${rm(25)} ${rm(130)} ${rm(25)};
+        padding: ${rm(80)} ${rm(40)};
+        gap: ${rm(50)};
     `}
 
     ${media.xsm`
         flex-direction: column;
-        padding: ${rm(50)} ${rm(30)} ${rm(110)} ${rm(30)};
-        gap: ${rm(40)};
+        padding: ${rm(50)} ${rm(20)} ${rm(80)} ${rm(20)};
+        gap: ${rm(30)};
     `}
 
     .title{
@@ -94,6 +100,14 @@ const StyledLeft = styled.div`
     position: relative;
     z-index: 1;
     width: ${rm(935)};
+
+    ${media.lg`
+        width: ${rm(700)};
+    `}
+
+    ${media.md`
+        width: ${rm(550)};
+    `}
 
     ${media.xsm`
         width: 100%;
@@ -132,10 +146,22 @@ const StyledRight = styled.div`
     position: relative;
     z-index: 1;
 
+    ${media.xsm`
+        width: 100%;
+    `}
+
     .info{
         ${fontGeist(400)};
         font-size: ${rm(36)};
         color: ${colors.white100};
+
+        ${media.lg`
+            font-size: ${rm(28)};
+        `}
+
+        ${media.md`
+            font-size: ${rm(24)};
+        `}
 
         ${media.xsm`
             font-size: ${rm(16)};

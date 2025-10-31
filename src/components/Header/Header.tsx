@@ -8,12 +8,16 @@ import styled from "styled-components"
 import { CartIcon } from "@/components/CartIcon"
 import { PhoneIcon } from "@/components/PhoneIcon"
 import { SearchDropdown } from "@/components/SearchDropdown/SearchDropdown"
+import { ContactDropdown } from "@/components/ContactDropdown/ContactDropdown"
 import { useState, useRef, useEffect } from "react"
+import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 
 export const Header = () => {
     const [searchQuery, setSearchQuery] = useState('')
     const [isSearchOpen, setIsSearchOpen] = useState(false)
+    const [isContactOpen, setIsContactOpen] = useState(false)
     const searchRef = useRef<HTMLDivElement>(null)
+    const contactRef = useRef<HTMLDivElement>(null)
 
     const navigationItems = [
         {
@@ -22,15 +26,18 @@ export const Header = () => {
         },
         {
             text: 'Актуальное',
-            href: '/popular'
+            href: '/actual'
         },
     ]
 
-    // Close search dropdown when clicking outside
+    // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
                 setIsSearchOpen(false)
+            }
+            if (contactRef.current && !contactRef.current.contains(event.target as Node)) {
+                setIsContactOpen(false)
             }
         }
 
@@ -61,9 +68,9 @@ export const Header = () => {
                 <StyledNavigationContainer>
                     {navigationItems.map((item, index) => (
                         <p key={index}>
-                            <Link href={item.href}>
+                            <AnimLink href={item.href}>
                                 {item.text}
-                            </Link>
+                            </AnimLink>
                         </p>
                     ))}
                 </StyledNavigationContainer>
@@ -95,7 +102,13 @@ export const Header = () => {
                     />
                 </StyledSearchContainer>
                 <CartIcon />
-                <PhoneIcon />
+                <StyledContactContainer ref={contactRef}>
+                    <PhoneIcon onClick={() => setIsContactOpen(!isContactOpen)} />
+                    <ContactDropdown 
+                        isOpen={isContactOpen}
+                        onClose={() => setIsContactOpen(false)}
+                    />
+                </StyledContactContainer>
             </StyledRightContainer>
         </StyledHeader>
     )
@@ -109,6 +122,7 @@ const StyledHeader = styled.div`
     position: fixed;
     width: 100%;
     z-index: 100;
+    background-color: ${colors.white100};
 
     ${media.lg`
         padding: ${rm(11)} ${rm(70)} ${rm(11)} ${rm(70)};
@@ -117,14 +131,23 @@ const StyledHeader = styled.div`
     ${media.md`
         padding: ${rm(11)} ${rm(25)} ${rm(11)} ${rm(25)};
     `}
+
+    ${media.xsm`
+        padding: ${rm(8)} ${rm(20)} ${rm(8)} ${rm(20)};
+    `}
 `
 
 const StyledLeftContainer = styled.div`
     display: flex;
     gap: ${rm(20)};
+    align-items: center;
 
     ${media.md`
         gap: ${rm(10)};
+    `}
+
+    ${media.xsm`
+        gap: 0;
     `}
 `
 
@@ -136,16 +159,26 @@ const StyledRightContainer = styled.div`
     ${media.md`
         gap: ${rm(10)};
     `}
+
+    ${media.xsm`
+        gap: ${rm(15)};
+    `}
 `
 
-const StyledLogo = styled(Link)`
+const StyledLogo = styled(AnimLink)`
     width: ${rm(236)};
     height: ${rm(42)};
     cursor: pointer;
+    flex-shrink: 0;
 
     ${media.md`
         width: ${rm(150)};
         height: ${rm(28)};
+    `}
+
+    ${media.xsm`
+        width: ${rm(120)};
+        height: ${rm(22)};
     `}
 
     img{
@@ -164,6 +197,10 @@ const StyledNavigationContainer = styled.div`
         display: none;
     `}
 
+    ${media.xsm`
+        display: none;
+    `}
+
     p{
         font-size: ${rm(26)};
         ${fontGeist(500)};
@@ -176,6 +213,14 @@ const StyledSearchContainer = styled.div`
     position: relative;
     width: ${rm(340)};
     z-index: 1001;
+
+    ${media.md`
+        width: ${rm(280)};
+    `}
+
+    ${media.xsm`
+        display: none;
+    `}
 `
 
 const StyledSearchInput = styled.input`
@@ -203,4 +248,8 @@ const StyledSearchIcon = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+`
+
+const StyledContactContainer = styled.div`
+    position: relative;
 `
