@@ -83,26 +83,23 @@ const StyledWelcome = styled.div`
     ${heightLvh(100)};
     padding: ${rm(80)} ${rm(48)};
 
-    // ${media.lg`
-    //     padding-left: ${rm(70)};
-    //     padding-top: ${rm(177)};
-    //     padding-bottom: ${rm(90)};
-    // `}
+    ${media.lg`
+        padding: ${rm(60)} ${rm(40)};
+    `}
 
-    // ${media.md`
-    //     padding-left: ${rm(25)};
-    //     padding-top: ${rm(100)};
-    //     padding-bottom: ${rm(50)};
-    // `}
+    ${media.md`
+        padding: ${rm(40)} ${rm(25)};
+        ${heightLvh(90)};
+    `}
 
     ${media.xsm`
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
-        padding-left: ${rm(0)};
-        padding-top: ${rm(100)};
-        padding-bottom: ${rm(50)};
+        padding: ${rm(30)} ${rm(20)};
+        ${heightLvh(85)};
+        min-height: ${rm(600)};
     `}
 `
 
@@ -118,6 +115,17 @@ const StyledContent = styled.div`
     flex-direction: column;
     align-items: flex-end;
     justify-content: space-between;
+
+    ${media.md`
+        padding: ${rm(30)} ${rm(25)};
+    `}
+
+    ${media.xsm`
+        padding: ${rm(20)};
+        align-items: center;
+        justify-content: flex-start;
+        gap: ${rm(20)};
+    `}
 `
 
 const StyledBackgroundImage = styled(Image)`
@@ -141,13 +149,13 @@ const StyledRight = styled.div`
     `}
 
     ${media.md`
-        width: ${rm(500)};
+        width: ${rm(550)};
     `}
 
     ${media.xsm`
-        width: ${rm(348)};   
-        position: relative;
-        z-index: 1;
+        width: 100%;
+        align-items: center;
+        text-align: center;
     `}
 
     .title{
@@ -157,9 +165,9 @@ const StyledRight = styled.div`
         color: ${colors.white100};
         text-align: right;
 
-        // ${media.lg`
-        //     font-size: ${rm(64)};
-        // `}
+        ${media.lg`
+            font-size: ${rm(64)};
+        `}
 
         ${media.md`
             font-size: ${rm(40)};
@@ -167,8 +175,10 @@ const StyledRight = styled.div`
         `}
 
         ${media.xsm`
-            font-size: ${rm(39)};
+            font-size: ${rm(28)};
             line-height: 130%;
+            text-align: center;
+            width: 100%;
         `}
     }
 `
@@ -182,12 +192,26 @@ const StyledDescription = styled.p`
     width: ${rm(846)};
     text-align: right;
 
-    // ${media.xsm`
-    //     font-size: ${rm(14)};
-    //     margin-top: ${rm(15)};
-    //     margin-bottom: ${rm(50)};
-    //     width: ${rm(302)};
-    // `}
+    ${media.lg`
+        font-size: ${rm(24)};
+        width: ${rm(650)};
+        margin-bottom: ${rm(100)};
+    `}
+
+    ${media.md`
+        font-size: ${rm(20)};
+        width: ${rm(480)};
+        margin-top: ${rm(30)};
+        margin-bottom: ${rm(60)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+        margin-top: ${rm(15)};
+        margin-bottom: ${rm(30)};
+        width: 100%;
+        text-align: center;
+    `}
 `
 
 const StyledCardsContainer = styled.div`
@@ -196,6 +220,16 @@ const StyledCardsContainer = styled.div`
     justify-content: space-between;
     width: 100%;
 
+    ${media.md`
+        gap: ${rm(15)};
+    `}
+
+    ${media.xsm`
+        flex-direction: column;
+        gap: ${rm(15)};
+        width: 100%;
+    `}
+
     .divider{
         width: ${rm(4)};
         height: 100%;
@@ -203,6 +237,10 @@ const StyledCardsContainer = styled.div`
         background: #FFFFFF45;
         position: relative;
         border-radius: ${rm(2)};
+
+        ${media.xsm`
+            display: none;
+        `}
     }
 `
 
@@ -217,6 +255,17 @@ const StyledCard = styled.div`
     border-top-right-radius: ${rm(16)};
     overflow: hidden;
 
+    ${media.md`
+        padding: ${rm(18)} ${rm(30)};
+        gap: ${rm(20)};
+    `}
+
+    ${media.xsm`
+        padding: ${rm(15)} ${rm(20)};
+        gap: ${rm(15)};
+        width: 100%;
+    `}
+
     .text{
         ${fontGeist(400)};
         font-size: ${rm(24)};
@@ -224,6 +273,16 @@ const StyledCard = styled.div`
         color: ${colors.white100};
         width: ${rm(425)};
         text-align: center;
+
+        ${media.md`
+            font-size: ${rm(18)};
+            width: ${rm(320)};
+        `}
+
+        ${media.xsm`
+            font-size: ${rm(14)};
+            width: 100%;
+        `}
     }
 
     a{
@@ -239,6 +298,18 @@ const StyledCard = styled.div`
         text-align: center;
         cursor: pointer;
         transition: opacity 0.3s ease-in-out;
+        white-space: nowrap;
+
+        ${media.md`
+            font-size: ${rm(20)};
+            padding: ${rm(6)} ${rm(15)};
+        `}
+
+        ${media.xsm`
+            font-size: ${rm(16)};
+            padding: ${rm(8)} ${rm(16)};
+            width: 100%;
+        `}
 
         &:hover{
             opacity: 0.7;

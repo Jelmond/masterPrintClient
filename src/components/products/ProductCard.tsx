@@ -1,5 +1,5 @@
 import { useCartStore } from "@/store/cartStore";
-import { colors, rm } from "@/styles";
+import { colors, media, rm } from "@/styles";
 import { fontGeist } from "@/styles/fonts";
 import Link from "next/link";
 import styled from "styled-components";
@@ -52,11 +52,36 @@ const StyledProductCard = styled.div`
     overflow: hidden;
     position: relative;
 
+    ${media.lg`
+        width: ${rm(280)};
+    `}
+
+    ${media.md`
+        width: ${rm(250)};
+    `}
+
+    ${media.xsm`
+        width: 100%;
+        max-width: ${rm(280)};
+    `}
+
     img{
         border-radius: ${rm(5)};
         width: 100%;
         height: ${rm(470)};
         object-fit: cover;
+
+        ${media.lg`
+            height: ${rm(400)};
+        `}
+
+        ${media.md`
+            height: ${rm(350)};
+        `}
+
+        ${media.xsm`
+            height: ${rm(300)};
+        `}
     }
 
     .content{
@@ -72,6 +97,16 @@ const StyledProductCard = styled.div`
             height: ${rm(50)};
             text-overflow: ellipsis;
             overflow: hidden;
+
+            ${media.md`
+                font-size: ${rm(16)};
+                height: ${rm(45)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(14)};
+                height: ${rm(40)};
+            `}
         }
 
         .priceContainer{
@@ -80,10 +115,19 @@ const StyledProductCard = styled.div`
             width: 100%;
             justify-content: space-between;
             margin-top: ${rm(10)};
+
             .price{
                 font-size: ${rm(24)};
                 ${fontGeist(400)};
                 color: ${colors.black100};
+
+                ${media.md`
+                    font-size: ${rm(20)};
+                `}
+
+                ${media.xsm`
+                    font-size: ${rm(18)};
+                `}
             }
 
             .button{
@@ -92,6 +136,11 @@ const StyledProductCard = styled.div`
                 cursor: pointer;
                 
                 transition: opacity .3s ease-in-out;
+
+                ${media.xsm`
+                    width: ${rm(32)};
+                    height: ${rm(32)};
+                `}
 
                 &:hover{
                     opacity: .7;

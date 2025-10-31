@@ -2,12 +2,12 @@ import { useStrapi } from "@/hooks/useStrapi"
 import { colors, media, rm } from "@/styles"
 import { fontGeist, fontPoppins } from "@/styles/fonts"
 import Image from "next/image"
-import Link from "next/link"
 import styled from "styled-components"
 import { SwiperSlide } from "swiper/react"
 import { Swiper } from "swiper/react"
 import { useCartStore } from "@/store/cartStore"
 import { useWindowWidth } from "@react-hook/window-size"
+import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 
 export const Bestsellers = () => {
 
@@ -99,9 +99,21 @@ const StyledTitle = styled.p`
     margin-bottom: ${rm(25)};
     margin-left: ${rm(125)};
 
+    ${media.lg`
+        font-size: ${rm(64)};
+        margin-left: ${rm(80)};
+    `}
+
+    ${media.md`
+        font-size: ${rm(48)};
+        margin-left: ${rm(40)};
+        margin-bottom: ${rm(20)};
+    `}
+
     ${media.xsm`
-        font-size: ${rm(40)};
-        margin-left: ${rm(10)};
+        font-size: ${rm(32)};
+        margin-left: ${rm(20)};
+        margin-bottom: ${rm(15)};
     `}
 `
 const StyledProductsSwiper = styled.div`
@@ -109,14 +121,28 @@ const StyledProductsSwiper = styled.div`
     padding: ${rm(40)} 0;
     margin-bottom: ${rm(140)};
 
+    ${media.lg`
+        padding: ${rm(35)} 0;
+        margin-bottom: ${rm(100)};
+    `}
+
+    ${media.md`
+        padding: ${rm(30)} 0;
+        margin-bottom: ${rm(80)};
+    `}
+
     ${media.xsm`
-        padding: ${rm(25)} 0;
+        padding: ${rm(20)} 0;
         margin-bottom: ${rm(50)};
     `}
     
     .swiper-button-next,
     .swiper-button-prev {
         color: ${colors.black100};
+
+        ${media.xsm`
+            display: none;
+        `}
     }
     
     .swiper-pagination-bullet-active {
@@ -127,13 +153,21 @@ const StyledProductsSwiper = styled.div`
         padding: 0 ${rm(50)};
         width: 100%;
 
+        ${media.lg`
+            padding: 0 ${rm(40)};
+        `}
+
+        ${media.md`
+            padding: 0 ${rm(30)};
+        `}
+
         ${media.xsm`
-            padding: 0 ${rm(25)};
+            padding: 0 ${rm(20)};
         `}
     }
 `
 
-const StyledSlide = styled(Link)<{ isUp: boolean }>`
+const StyledSlide = styled(AnimLink)<{ isUp: boolean }>`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -146,13 +180,22 @@ const StyledSlide = styled(Link)<{ isUp: boolean }>`
     border-radius: ${rm(20)};
     overflow: hidden;
 
+    ${media.lg`
+        height: ${rm(520)};
+        width: ${rm(300)};
+    `}
+
     ${media.md`
-        height: ${rm(480)};
+        height: ${rm(450)};
+        width: ${rm(280)};
+        gap: ${rm(15)};
     `}
 
     ${media.xsm`
         height: ${rm(350)} !important;
         width: 100%;
+        max-width: ${rm(280)};
+        gap: ${rm(12)};
     `}
     
     &:hover {

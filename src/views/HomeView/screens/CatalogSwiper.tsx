@@ -14,6 +14,7 @@ import { useWindowWidth } from "@react-hook/window-size"
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
+import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 
 
 export const CatalogSwiper = () => {
@@ -55,13 +56,28 @@ const StyledCatalogSwiper = styled.div`
     padding: ${rm(40)} 0;
     margin-top: ${rm(100)};
 
+    ${media.lg`
+        margin-top: ${rm(80)};
+        padding: ${rm(30)} 0;
+    `}
+
+    ${media.md`
+        margin-top: ${rm(60)};
+        padding: ${rm(20)} 0;
+    `}
+
     ${media.xsm`
+        margin-top: ${rm(40)};
         padding: 0;
     `}
     
     .swiper-button-next,
     .swiper-button-prev {
         color: ${colors.black100};
+
+        ${media.xsm`
+            display: none;
+        `}
     }
     
     .swiper-pagination-bullet-active {
@@ -71,13 +87,21 @@ const StyledCatalogSwiper = styled.div`
     .catalog-swiper{
         padding: 0 ${rm(100)};
 
+        ${media.lg`
+            padding: 0 ${rm(60)};
+        `}
+
+        ${media.md`
+            padding: 0 ${rm(40)};
+        `}
+
         ${media.xsm`
-            padding: ${rm(25)};
+            padding: 0 ${rm(20)};
         `}
     }
 `
 
-const StyledSlide = styled(Link)`
+const StyledSlide = styled(AnimLink)`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -96,8 +120,16 @@ const StyledSlideImage = styled.div`
     border-radius: 10px;
     overflow: hidden;
 
+    ${media.lg`
+        height: ${rm(400)};
+    `}
+
     ${media.md`
         height: ${rm(300)};
+    `}
+
+    ${media.xsm`
+        height: ${rm(200)};
     `}
 
     img{
@@ -114,4 +146,14 @@ const StyledSlideText = styled.div`
     font-size: ${rm(18)};
     text-align: center;
     color: ${colors.black100};
+
+    ${media.md`
+        font-size: ${rm(16)};
+        margin-top: ${rm(20)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+        margin-top: ${rm(15)};
+    `}
 `

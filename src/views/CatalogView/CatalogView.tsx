@@ -5,20 +5,27 @@ import { ProductsLayout } from "./components/ProductsLayout";
 import { FiltersBar } from "./components/FiltersBar";
 import { FilterModal } from "./components/FilterModal";
 import { useState, useMemo } from "react";
+import { media, rm } from "@/styles";
 
 interface CatalogViewProps {
     data: any;
     products: any;
     tags: any
     tagsProductsData: any
+    showCategories?: boolean
 }
 
 const StyledCatalogView = styled.div`
     min-height: 100vh;
     position: relative;
+    padding-top: ${rm(80)};
+
+    ${media.xsm`
+        padding-top: ${rm(60)};
+    `}
 `
 
-export const  CatalogView = ({ data, products, tags, tagsProductsData }: CatalogViewProps) => {
+export const  CatalogView = ({ data, products, tags, tagsProductsData, showCategories = true }: CatalogViewProps) => {
     // Filter state
     const [filters, setFilters] = useState({
         sales: '', // 'new', 'sale', 'popular'
@@ -108,14 +115,20 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData }: Catalog
         if (filters.sortBy) {
             filtered.sort((a, b) => {
                 switch (filters.sortBy) {
-                    case 'price-asc':
-                        return (a.price || 0) - (b.price || 0)
-                    case 'price-desc':
-                        return (b.price || 0) - (a.price || 0)
+                    case 'price-asc': {
+                        const priceA = typeof a.price === 'string' ? parseFloat(a.price) || 0 : (a.price || 0)
+                        const priceB = typeof b.price === 'string' ? parseFloat(b.price) || 0 : (b.price || 0)
+                        return priceA - priceB
+                    }
+                    case 'price-desc': {
+                        const priceA = typeof a.price === 'string' ? parseFloat(a.price) || 0 : (a.price || 0)
+                        const priceB = typeof b.price === 'string' ? parseFloat(b.price) || 0 : (b.price || 0)
+                        return priceB - priceA
+                    }
                     case 'name-asc':
-                        return (a.title || '').localeCompare(b.title || '')
+                        return (a.title || '').localeCompare(b.title || '', 'ru')
                     case 'name-desc':
-                        return (b.title || '').localeCompare(a.title || '')
+                        return (b.title || '').localeCompare(a.title || '', 'ru')
                     case 'newest':
                         // Sort by stock (higher stock = newer) or by id as fallback
                         return (b.stock || 0) - (a.stock || 0) || (b.id || 0) - (a.id || 0)
@@ -130,18 +143,22 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData }: Catalog
 
     // Group filtered products by tag for display
     const groupedFilteredProducts = useMemo(() => {
+        // If sorting is active, maintain the sort order when grouping
         const groups: { [key: string]: any[] } = {}
+        const groupOrder: string[] = []
         
         filteredProducts.forEach(product => {
             if (!groups[product.tag]) {
                 groups[product.tag] = []
+                groupOrder.push(product.tag)
             }
             groups[product.tag].push(product)
         })
 
-        return Object.entries(groups).map(([title, products]) => ({
+        // Return groups in the order they were encountered (which preserves sort order)
+        return groupOrder.map((title) => ({
             title,
-            products
+            products: groups[title]
         }))
     }, [filteredProducts])
 
@@ -200,11 +217,13 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData }: Catalog
                 onTagToggle={handleTagToggle}
                 onClearFilters={clearFilters}
                 onOpenFilterModal={handleOpenFilterModal}
+                showCategories={showCategories}
             />
             <ProductsLayout 
                 title={data.title} 
                 tagsProductsData={groupedFilteredProducts}
                 hasActiveFilters={!!(filters.sales || filters.selectedTags.length > 0 || filters.searchQuery)}
+                onOpenFilterModal={handleOpenFilterModal}
             />
             
             <FilterModal

@@ -21,6 +21,18 @@ const StyledMarkets = styled.div`
     padding-top: ${rm(126)};
     background-color: ${colors.white100};
     overflow: hidden;
+
+    ${media.lg`
+        padding-top: ${rm(100)};
+    `}
+
+    ${media.md`
+        padding-top: ${rm(80)};
+    `}
+
+    ${media.xsm`
+        padding-top: ${rm(50)};
+    `}
 `
 const StyledPromotionContainer = styled.div`
     width: 100%;

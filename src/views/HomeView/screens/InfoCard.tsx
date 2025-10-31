@@ -99,8 +99,16 @@ const StyledInfoCard = styled.div`
     will-change: transform;
     padding: ${rm(160)} ${rm(48)};
 
+    ${media.lg`
+        padding: ${rm(120)} ${rm(40)};
+    `}
+
+    ${media.md`
+        padding: ${rm(80)} ${rm(25)};
+    `}
+
     ${media.xsm`
-        width: 100%;
+        padding: ${rm(40)} ${rm(20)};
     `}
 `
 
@@ -115,6 +123,17 @@ const StyledContent = styled.div`
     align-items: center;
     justify-content: center;
 
+    ${media.md`
+        padding: ${rm(60)} 0;
+        flex-direction: column;
+        gap: ${rm(40)};
+    `}
+
+    ${media.xsm`
+        padding: ${rm(40)} 0;
+        gap: ${rm(30)};
+    `}
+
     .dividerMain{
         width: ${rm(6)};
         height: 100%;
@@ -123,6 +142,10 @@ const StyledContent = styled.div`
         position: relative;
         z-index: 1;
         border-radius: ${rm(6)};
+
+        ${media.md`
+            display: none;
+        `}
     }
 
     .backgroundImage{
@@ -133,11 +156,6 @@ const StyledContent = styled.div`
         height: 100%;
         object-fit: cover;
     }
-
-    ${media.md`
-        grid-template-columns: 1fr;
-        gap: ${rm(15)};
-    `}
 `
 
 const StyledRightContainer = styled.div`
@@ -145,6 +163,15 @@ const StyledRightContainer = styled.div`
     flex-direction: column;
     gap: ${rm(100)};
     align-items: flex-start;
+
+    ${media.md`
+        gap: ${rm(40)};
+        align-items: flex-start;
+    `}
+
+    ${media.xsm`
+        gap: ${rm(30)};
+    `}
 `
 
 const StyledLeftContainer = styled.div`
@@ -152,6 +179,15 @@ const StyledLeftContainer = styled.div`
     flex-direction: column;
     gap: ${rm(60)};
     align-items: flex-end;
+
+    ${media.md`
+        gap: ${rm(40)};
+        align-items: flex-start;
+    `}
+
+    ${media.xsm`
+        gap: ${rm(30)};
+    `}
 `
 
 const StyledCard = styled.div<{ $hasBorder: boolean; $gridPosition: number }>`
@@ -166,6 +202,19 @@ const StyledCard = styled.div<{ $hasBorder: boolean; $gridPosition: number }>`
     gap: ${rm(25)};
     position: relative;
     z-index: 1;
+    max-width: 100%;
+
+    ${media.md`
+        width: 100%;
+        max-width: ${rm(500)};
+    `}
+
+    ${media.xsm`
+        width: 100%;
+        padding: ${rm(15)} ${rm(15)};
+        padding-bottom: ${rm(20)};
+        gap: ${rm(15)};
+    `}
     
     .content{
         display: flex;

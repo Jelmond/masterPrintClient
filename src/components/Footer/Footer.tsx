@@ -5,12 +5,12 @@ import { media, rm } from "@/styles"
 import { colors } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import Image from "next/image"
-import Link from "next/link"
 import styled from "styled-components"
+import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 
 const adress = {
     title: 'Наш адрес',
-    list: ['ООО  «Мастерпринт-Пак»', 'УНП 591511468', 'Интернет-магазин включен в Торговый реестр Республики Беларусь 01.01.2001 за №111111', `Юридический  адрес: 231761,  г. Скидель, ул. Промышленная, 6Б   Свидетельство о государственной регистрации №100160363, выдано Минским горисполкомом 26.10.2015 г.`]
+    list: ['ООО  «Мастерпринт-Пак»', 'УНП 591511468', `Юридический  адрес: 231761,  г. Скидель, ул. Промышленная, 6Б   Свидетельство о государственной регистрации №100160363, выдано Минским горисполкомом 26.10.2015 г.`]
 }
 
 const contacts = {
@@ -26,37 +26,29 @@ const market = {
             url: '/catalog'
         },
         {
-            label: 'Новое',
-            url: '/new'
-        },
-        {
-            label: 'Популярное',
-            url: '/popular'
-        },
-        {
-            label: 'Акции',
-            url: '/promotions'
+            label: 'Актуальное',
+            url: '/actual'
         },
     ]
 }
 
-const help = {
-    title: 'Помощь',
-    list: [
-        {
-            label: 'Оплата и доставка',
-            url: '/delivery'
-        },
-        {
-            label: 'Заказы',
-            url: '/payment'
-        },
-        {
-            label: 'Аккаунт',
-            url: '/popular'
-        },
-    ]
-}
+// const help = {
+//     title: 'Помощь',
+//     list: [
+//         {
+//             label: 'Оплата и доставка',
+//             url: '/delivery'
+//         },
+//         {
+//             label: 'Заказы',
+//             url: '/payment'
+//         },
+//         {
+//             label: 'Аккаунт',
+//             url: '/popular'
+//         },
+//     ]
+// }
 
 const info = {
     title: 'Информация',
@@ -116,14 +108,14 @@ export const Footer = () => {
                     <div className="list">
                         {market.list.map((item, index) => (
                             <div className="item" key={index}>
-                                <Link href={item.url}>
+                                <AnimLink href={item.url}>
                                     {item.label}
-                                </Link>
+                                </AnimLink>
                             </div>
                         ))}
                     </div>
                 </StyledSection>
-                <StyledSection>
+                {/* <StyledSection>
                     <div className="title">
                         {help.title}
                     </div>
@@ -136,7 +128,7 @@ export const Footer = () => {
                             </div>
                         ))}
                     </div>
-                </StyledSection>
+                </StyledSection> */}
                 <StyledSection>
                     <div className="title">
                         {info.title}
@@ -144,7 +136,7 @@ export const Footer = () => {
                     <div className="list">
                         {info.list.map((item, index) => (
                             <div className="item" key={index}>
-                                <Link href={item.url}>{item.label}</Link>
+                                <AnimLink href={item.url}>{item.label}</AnimLink>
                             </div>
                         ))}
                     </div>
@@ -152,11 +144,11 @@ export const Footer = () => {
             </StyledTop>
             <StyledBottom>
                 <div className="text">
-                    © MPP Shop
+                    © MPP Shop {new Date().getFullYear()}
                 </div>
-                <div className="image">
+                {/* <div className="image">
                     <Image src='/assets/images/alphabank.png' alt="image" width={198} height={198}/>
-                </div>
+                </div> */}
             </StyledBottom>
         </StyledFooter>
     )
@@ -166,6 +158,7 @@ const StyledFooter = styled.div`
     width: 100%;
     background-color: ${colors.white100};
     position: relative;
+    z-index: 1;
 `
 
 const StyledTop = styled.div`
@@ -186,11 +179,12 @@ const StyledTop = styled.div`
 
 const StyledBottom = styled.div`
     width: 100%;
-    padding: ${rm(0)} ${rm(66)} ${rm(100)} ${rm(66)};
+    padding: ${rm(0)} ${rm(66)} ${rm(24)} ${rm(66)};
     display: flex;
     position: relative;
     align-items: center;
     position: relative;
+    justify-content: center;
     z-index: 1;
 
     ${media.xsm`
@@ -205,15 +199,6 @@ const StyledBottom = styled.div`
         font-size: ${rm(16)};
         ${fontGeist(400)};
         color: ${colors.black100};
-        margin-right: ${rm(148)};
-
-        ${media.lg`
-            margin-right: ${rm(100)};
-        `}
-
-        ${media.md`
-            margin-right: ${rm(50)};
-        `}
     }
 
     .image{

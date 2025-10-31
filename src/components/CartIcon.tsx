@@ -1,7 +1,8 @@
 'use client'
 
+import { AnimLink } from '@/layouts/AnimatedRouterLayout/AnimatedRouterLayout'
 import { useCartStore } from '@/store/cartStore'
-import { colors, rm } from '@/styles'
+import { colors, media, rm } from '@/styles'
 import { fontGeist } from '@/styles/fonts'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -29,7 +30,7 @@ export const CartIcon = () => {
     )
 }
 
-const StyledCartIcon = styled(Link)`
+const StyledCartIcon = styled(AnimLink)`
     position: relative;
     display: flex;
     align-items: center;
@@ -37,6 +38,17 @@ const StyledCartIcon = styled(Link)`
     cursor: pointer;
     width: ${rm(32)};
     height: ${rm(32)};
+    flex-shrink: 0;
+
+    ${media.xsm`
+        width: ${rm(28)};
+        height: ${rm(28)};
+    `}
+
+    svg {
+        width: 100%;
+        height: 100%;
+    }
 `
 
 const StyledBadge = styled.div`
