@@ -1,4 +1,4 @@
-import { colors, rm } from "@/styles"
+import { colors, media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
 
@@ -32,6 +32,12 @@ const StyledModalOverlay = styled.div<{ isOpen: boolean }>`
     opacity: ${props => props.isOpen ? 1 : 0};
     transition: opacity 0.3s ease-in-out;
     animation: ${props => props.isOpen ? 'fadeIn' : 'fadeOut'} 0.3s ease-in-out;
+
+    ${media.xsm`
+        padding: ${rm(60)} ${rm(15)} ${rm(15)} ${rm(15)};
+        align-items: flex-end;
+        justify-content: center;
+    `}
 
     @keyframes fadeIn {
         from {
@@ -67,6 +73,15 @@ const StyledFilterCard = styled.div<{ isOpen: boolean }>`
     transform: translateY(${props => props.isOpen ? '0' : '-20px'});
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     animation: ${props => props.isOpen ? 'slideIn' : 'slideOut'} 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    ${media.xsm`
+        min-width: 100%;
+        max-width: 100%;
+        max-height: 85vh;
+        overflow-y: auto;
+        border-radius: ${rm(20)} ${rm(20)} 0 0;
+        padding: ${rm(24)} ${rm(20)};
+    `}
 
     @keyframes slideIn {
         from {
@@ -120,23 +135,19 @@ const StyledCloseButton = styled.button`
 `
 
 const StyledModalHeader = styled.div`
-    margin-bottom: ${rm(32)};
-    padding-bottom: ${rm(20)};
+    margin-bottom: ${rm(28)};
+    padding-bottom: ${rm(16)};
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     
     h2 {
-        font-size: ${rm(24)};
-        ${fontGeist(700)};
-        color: #1a202c;
-        margin: 0 0 ${rm(8)} 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-size: ${rm(22)};
+        ${fontGeist(600)};
+        color: ${colors.black100};
+        margin: 0 0 ${rm(4)} 0;
     }
     
     p {
-        font-size: ${rm(14)};
+        font-size: ${rm(13)};
         ${fontGeist(400)};
         color: #718096;
         margin: 0;
@@ -224,14 +235,25 @@ const StyledCheckboxItem = styled.label`
     font-size: ${rm(14)};
     ${fontGeist(400)};
     color: #4a5568;
-    padding: ${rm(8)} ${rm(12)};
-    border-radius: ${rm(8)};
-    transition: all 0.2s ease;
+    padding: ${rm(10)} ${rm(14)};
+    border-radius: ${rm(10)};
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     
     &:hover {
-        background: rgba(102, 126, 234, 0.05);
+        background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
+        border-color: rgba(102, 126, 234, 0.2);
         color: #2d3748;
         transform: translateX(${rm(4)});
+        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.1);
+    }
+
+    &:has(input:checked) {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-color: rgba(102, 126, 234, 0.3);
+        color: #667eea;
+        ${fontGeist(600)};
     }
 `
 
@@ -240,10 +262,54 @@ const StyledCheckbox = styled.input`
     height: ${rm(18)};
     cursor: pointer;
     accent-color: #667eea;
-    transform: scale(1.1);
+    transform: scale(1.15);
+    transition: all 0.2s ease;
     
     &:checked {
         accent-color: #667eea;
+        transform: scale(1.2);
+    }
+
+    &:hover {
+        transform: scale(1.25);
+    }
+`
+
+const StyledClearAllButton = styled.button`
+    width: 100%;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    border: none;
+    border-radius: ${rm(12)};
+    padding: ${rm(12)} ${rm(20)};
+    font-size: ${rm(14)};
+    color: white;
+    ${fontGeist(600)};
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: ${rm(8)};
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+    margin-bottom: ${rm(12)};
+
+    svg {
+        transition: transform 0.2s ease;
+    }
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+        background: linear-gradient(135deg, #ff5252 0%, #e53935 100%);
+
+        svg {
+            transform: rotate(90deg);
+        }
+    }
+    
+    &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
     }
 `
 
@@ -261,7 +327,7 @@ const StyledShowResultsButton = styled.button`
     align-items: center;
     justify-content: center;
     gap: ${rm(10)};
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     position: relative;
     overflow: hidden;
@@ -290,6 +356,12 @@ const StyledShowResultsButton = styled.button`
         transform: translateY(0);
         box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
 `
 
 export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, filters, products }: FilterModalProps) => {
@@ -298,6 +370,14 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
     const availableMaterials = Array.from(new Set(products.map(p => p.material).filter(Boolean))).sort()
     const availableQuantities = Array.from(new Set(products.map(p => p.quantityInPack?.toString()).filter(Boolean))).sort((a, b) => parseInt(a) - parseInt(b))
 
+    // Calculate active filters count
+    const activeFiltersCount = [
+        filters.sortBy ? 1 : 0,
+        filters.cardSizes.length,
+        filters.tagSizes.length,
+        filters.quantities.length
+    ].reduce((sum, count) => sum + count, 0)
+
     const handleCheckboxChange = (filterType: string, value: string, checked: boolean) => {
         const currentValues = filters[filterType as keyof typeof filters] as string[]
         const newValues = checked 
@@ -305,6 +385,13 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
             : currentValues.filter(item => item !== value)
         
         onFilterChange(filterType, newValues)
+    }
+
+    const handleClearAllFilters = () => {
+        onFilterChange('sortBy', '')
+        onFilterChange('cardSizes', [])
+        onFilterChange('tagSizes', [])
+        onFilterChange('quantities', [])
     }
 
     const handleOverlayClick = (e: React.MouseEvent) => {
@@ -396,8 +483,16 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                     </StyledCheckboxGroup>
                 </StyledSection>
 
+                {activeFiltersCount > 0 && (
+                    <StyledClearAllButton onClick={handleClearAllFilters}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                        Очистить все фильтры
+                    </StyledClearAllButton>
+                )}
                 <StyledShowResultsButton onClick={onShowResults}>
-                    Показать результаты
+                    Показать результаты {activeFiltersCount > 0 && `(${activeFiltersCount})`}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>

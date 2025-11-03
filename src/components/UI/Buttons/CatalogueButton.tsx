@@ -1,3 +1,4 @@
+import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout";
 import { rm } from "@/styles";
 import { fontGeist } from "@/styles/fonts";
 import Link from "next/link";
@@ -18,7 +19,7 @@ export const CatalogueButton = ({ link, children, color, isArrowLeft }: Catalogu
     return (
         //@ts-expect-error
         <StyledAddButton color={textColor} backgroundColor={finalColor} isArrowLeft={isArrowLeft}>
-            <Link href={link}>
+            <AnimLink href={link}>
                 {isArrowLeft ? 
                 <svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_684_3341)">
@@ -44,7 +45,7 @@ export const CatalogueButton = ({ link, children, color, isArrowLeft }: Catalogu
                 
             }
                 {children}
-            </Link>
+            </AnimLink>
         </StyledAddButton>
     )
 }

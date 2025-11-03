@@ -1,10 +1,14 @@
-import { rm } from "@/styles"
+import { media, rm } from "@/styles"
 import styled from "styled-components"
 
-export const PhoneIcon = () => {    
+interface PhoneIconProps {
+    onClick: () => void
+}
+
+export const PhoneIcon = ({ onClick }: PhoneIconProps) => {    
 
     return (
-        <StyledPhoneIcon href="tel:+375259240768">
+        <StyledPhoneIcon onClick={onClick}>
             <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M28.5085 6.91932C28.2766 8.35238 27.8137 9.73615 26.8969 11.6186C26.6118 12.2037 25.9066 12.4471 25.3214 12.1623C24.7359 11.8772 24.4917 11.1708 24.7768 10.5854C25.6249 8.84405 25.9954 7.68515 26.1803 6.5426C26.3726 5.35438 26.3733 4.15876 26.4272 2.22728C26.4454 1.5765 26.9876 1.06297 27.6383 1.08094C28.2891 1.09911 28.8026 1.64138 28.7847 2.29207C28.7337 4.11827 28.7329 5.53226 28.5085 6.91932Z" fill="black"/>
             <path d="M25.7687 26.296C19.3368 32.5984 10.6169 36.5668 1.57506 35.8591C0.925881 35.8083 0.440595 35.2407 0.491408 34.5915C0.542309 33.9424 1.10994 33.457 1.75906 33.5079C9.98606 34.1517 18.0664 30.5418 24.1183 24.6115C30.1713 18.6803 34.0902 10.528 34.0902 2.25955C34.0902 1.60848 34.618 1.08071 35.2691 1.08065C35.9202 1.08065 36.4479 1.60844 36.448 2.25955C36.448 11.259 32.1997 19.9943 25.7687 26.296Z" fill="black"/>
@@ -18,14 +22,32 @@ export const PhoneIcon = () => {
     )
 }
 
-const StyledPhoneIcon = styled.a`
+const StyledPhoneIcon = styled.button`
     width: ${rm(33)};
     height: ${rm(33)};
     position: relative;
     margin-bottom: ${rm(-4)};
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    ${media.xsm`
+        width: ${rm(28)};
+        height: ${rm(28)};
+    `}
 
     svg{
         width: 100%;
         height: 100%;
+        transition: opacity 0.2s ease;
+    }
+
+    &:hover svg {
+        opacity: 0.7;
     }
 `

@@ -1,5 +1,6 @@
 import { CatalogView } from '@/views/CatalogView/CatalogView';
 import { notFound } from 'next/navigation';
+import { DynamicScrollRevealWrapper } from '@/components/ScrollRevealWrapper/DynamicScrollRevealWrapper';
 
 interface Product {
     id: number;
@@ -76,6 +77,8 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     const tags = Array.from(uniqueTagsMap.values());
 
     return (
-        <CatalogView data={categoryData} products={products} tags={tags} tagsProductsData={tagsProductsData} />
+        <DynamicScrollRevealWrapper>
+            <CatalogView data={categoryData} products={products} tags={tags} tagsProductsData={tagsProductsData} />
+        </DynamicScrollRevealWrapper>
     );
 } 
