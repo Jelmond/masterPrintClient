@@ -1,4 +1,4 @@
-import { rm } from '@/styles';
+import { rm, media } from '@/styles';
 import { colors } from '@/styles';
 import { fontGeist } from '@/styles/fonts';
 import React from 'react';
@@ -24,12 +24,20 @@ const StyledLabel = styled.label`
   color: ${colors.black100};
   ${fontGeist(400)};
   font-weight: 400;
+
+  ${media.xsm`
+    font-size: ${rm(14)};
+  `}
 `;
 
 const PhoneInputContainer = styled.div`
   display: flex;
   gap: ${rm(8)};
   width: 100%;
+
+  ${media.xsm`
+    gap: ${rm(6)};
+  `}
 `;
 
 const CountryCodeField = styled.div`
@@ -45,6 +53,12 @@ const CountryCodeField = styled.div`
   color: ${colors.black100};
   ${fontGeist(400)};
   flex-shrink: 0;
+
+  ${media.xsm`
+    width: ${rm(70)};
+    height: ${rm(48)};
+    font-size: ${rm(14)};
+  `}
 `;
 
 const PhoneNumberField = styled.input`
@@ -60,11 +74,21 @@ const PhoneNumberField = styled.input`
   color: #222;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 
+  ${media.xsm`
+    height: ${rm(48)};
+    padding: 0 ${rm(16)};
+    font-size: ${rm(14)};
+  `}
+
   &::placeholder {
     color: #A0A0A0;
     opacity: 0.6;
     font-size: ${rm(16)};
     ${fontGeist(400)};
+
+    ${media.xsm`
+      font-size: ${rm(14)};
+    `}
   }
 
   &:focus {

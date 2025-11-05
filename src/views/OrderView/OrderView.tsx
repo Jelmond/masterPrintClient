@@ -1,6 +1,6 @@
 'use client'
 
-import { colors } from "@/styles"
+import { colors, media } from "@/styles"
 import { rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
@@ -21,8 +21,9 @@ export const OrderView = () => {
 
     // To avoid hydration issues
     const [mounted, setMounted] = useState(false)
-    const [deliveryMethod, setDeliveryMethod] = useState('courier')
+    const [deliveryMethod, setDeliveryMethod] = useState<'dpd' | 'self-pickup' | 'alternative'>('dpd')
     const [showSuccessModal, setShowSuccessModal] = useState(false)
+    const [showAlternativeDelivery, setShowAlternativeDelivery] = useState(false) // Hidden by default
     
     // Form state
     const [formData, setFormData] = useState({
@@ -49,9 +50,50 @@ export const OrderView = () => {
 
     if (!mounted) return null
 
-    const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0)
-    const delivery = deliveryMethod === 'courier' ? 7.50 : 0
-    const total = subtotal + delivery
+    // Calculate totals
+    const productsTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0)
+    
+    // Step 1: Apply base discount (5% or 20% based on product total)
+    let baseDiscountPercent = 0
+    if (productsTotal >= 1500) {
+        baseDiscountPercent = 20
+    } else if (productsTotal >= 700) {
+        baseDiscountPercent = 5
+    }
+    
+    const baseDiscountAmount = productsTotal * (baseDiscountPercent / 100)
+    const productsTotalAfterBaseDiscount = productsTotal - baseDiscountAmount
+    
+    // Step 2: Apply self-pickup discount (3% additional) if applicable
+    const selfPickupDiscountPercent = deliveryMethod === 'self-pickup' ? 3 : 0
+    const selfPickupDiscountAmount = productsTotalAfterBaseDiscount * (selfPickupDiscountPercent / 100)
+    const productsTotalAfterAllDiscounts = productsTotalAfterBaseDiscount - selfPickupDiscountAmount
+
+    // Step 3: Calculate delivery cost based on final product total after all discounts
+    const calculateDeliveryCost = (): number => {
+        switch (deliveryMethod) {
+            case 'dpd':
+                if (productsTotalAfterAllDiscounts < 200) return 20
+                if (productsTotalAfterAllDiscounts < 400) return 10
+                return 0
+            case 'self-pickup':
+                return 0
+            case 'alternative':
+                if (productsTotalAfterAllDiscounts > 400) return 0
+                return 6
+            default:
+                return 0
+        }
+    }
+
+    const deliveryCost = calculateDeliveryCost()
+    
+    // Step 4: Final total
+    const finalTotal = productsTotalAfterAllDiscounts + deliveryCost
+    
+    // Step 5: Check minimum order amount
+    const minimumOrderAmount = 50
+    const isBelowMinimum = finalTotal < minimumOrderAmount
 
     // Validation functions
     const validateFirstName = (name: string) => {
@@ -144,6 +186,11 @@ export const OrderView = () => {
     }
 
     const handleSubmit = () => {
+        // Check minimum order amount
+        if (isBelowMinimum) {
+            return // Don't proceed if below minimum
+        }
+        
         if (validateForm()) {
             // Clear the cart when order is successfully submitted
             items.forEach(item => {
@@ -252,45 +299,77 @@ export const OrderView = () => {
                         <StyledDeliveryOption>
                             <StyledRadioInput 
                                 type="radio" 
-                                id="courier" 
+                                id="dpd" 
                                 name="delivery" 
-                                value="courier" 
-                                checked={deliveryMethod === 'courier'}
-                                onChange={(e) => setDeliveryMethod(e.target.value)}
+                                value="dpd" 
+                                checked={deliveryMethod === 'dpd'}
+                                onChange={(e) => setDeliveryMethod(e.target.value as 'dpd' | 'self-pickup' | 'alternative')}
                             />
-                            <StyledRadioLabel htmlFor="courier">
+                            <StyledRadioLabel htmlFor="dpd">
                                 <StyledOptionText>
-                                    <StyledOptionTitle>Курьер</StyledOptionTitle>
-                                    <StyledOptionPrice>+7.50 Руб.</StyledOptionPrice>
+                                    <div>
+                                        <StyledOptionTitle>Курьер DPD (дверь-в-дверь)</StyledOptionTitle>
+                                        <StyledOptionDescription>
+                                            {productsTotalAfterAllDiscounts < 200 ? '20 руб.' : 
+                                             productsTotalAfterAllDiscounts < 400 ? '10 руб.' : 
+                                             'Бесплатно'}
+                                        </StyledOptionDescription>
+                                    </div>
                                 </StyledOptionText>
                             </StyledRadioLabel>
                         </StyledDeliveryOption>
                         <StyledDeliveryOption>
                             <StyledRadioInput 
                                 type="radio" 
-                                id="pickup" 
+                                id="self-pickup" 
                                 name="delivery" 
-                                value="pickup" 
-                                checked={deliveryMethod === 'pickup'}
-                                onChange={(e) => setDeliveryMethod(e.target.value)}
+                                value="self-pickup" 
+                                checked={deliveryMethod === 'self-pickup'}
+                                onChange={(e) => setDeliveryMethod(e.target.value as 'dpd' | 'self-pickup' | 'alternative')}
                             />
-                            <StyledRadioLabel htmlFor="pickup">
+                            <StyledRadioLabel htmlFor="self-pickup">
                                 <StyledOptionText>
-                                    <StyledOptionTitle>Самовывоз</StyledOptionTitle>
-                                    <StyledOptionPrice>— бесплатно</StyledOptionPrice>
+                                    <div>
+                                        <StyledOptionTitle>Самовывоз (склад, Гродно)</StyledOptionTitle>
+                                        <StyledOptionDescription>Бесплатно + скидка 3%</StyledOptionDescription>
+                                    </div>
                                 </StyledOptionText>
                             </StyledRadioLabel>
                         </StyledDeliveryOption>
+                        {showAlternativeDelivery && (
+                            <StyledDeliveryOption>
+                                <StyledRadioInput 
+                                    type="radio" 
+                                    id="alternative" 
+                                    name="delivery" 
+                                    value="alternative" 
+                                    checked={deliveryMethod === 'alternative'}
+                                    onChange={(e) => setDeliveryMethod(e.target.value as 'dpd' | 'self-pickup' | 'alternative')}
+                                />
+                                <StyledRadioLabel htmlFor="alternative">
+                                    <StyledOptionText>
+                                        <div>
+                                            <StyledOptionTitle>Альтернативная доставка (Белпочта)</StyledOptionTitle>
+                                            <StyledOptionDescription>
+                                                {productsTotalAfterAllDiscounts > 400 ? 'Бесплатно' : '6 руб.'}
+                                            </StyledOptionDescription>
+                                        </div>
+                                    </StyledOptionText>
+                                </StyledRadioLabel>
+                            </StyledDeliveryOption>
+                        )}
                     </StyledDeliveryOptions>
-                    <StyledDeliveryTime>
-                        {deliveryMethod === 'courier' 
-                            ? 'Ориентировочное время доставки: через 2 дня, 22 ноября'
-                            : 'Самовывоз доступен в день заказа'
-                        }
-                    </StyledDeliveryTime>
                     <StyledSubtitle>
                         Комментарий к заказу (опционально)
                     </StyledSubtitle>
+                    {isBelowMinimum && (
+                        <StyledMinimumOrderWarning>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Минимальная сумма заказа — 50 руб. Добавьте товары, чтобы продолжить.
+                        </StyledMinimumOrderWarning>
+                    )}
                     <StyledCommentSection>
                         <StyledCommentTextarea 
                             placeholder="Добавьте свой комментарий..."
@@ -302,36 +381,49 @@ export const OrderView = () => {
                             <StyledBackButton onClick={() => router.push('/cart')}>
                                 Назад к корзине
                             </StyledBackButton>
-                            <StyledPaymentButton onClick={handleSubmit}>
+                            <StyledPaymentButton 
+                                onClick={handleSubmit}
+                                disabled={isBelowMinimum}
+                            >
                                 Перейти к оплате
                             </StyledPaymentButton>
                         </StyledButtonContainer>
                     </StyledCommentSection>
                 </StyledCart>
                 
-                <StyledOrderSummary>
+                <StyledOrderSummary className={isBelowMinimum ? 'below-minimum' : ''}>
                     <StyledSummaryTitle>Общая сумма заказа</StyledSummaryTitle>
                     <StyledSummaryRow>
-                        <StyledSummaryLabel>Промежуточный итог</StyledSummaryLabel>
-                        <StyledSummaryValue>{subtotal.toFixed(2)} руб.</StyledSummaryValue>
+                        <StyledSummaryLabel>Товары:</StyledSummaryLabel>
+                        <StyledSummaryValue>{productsTotal.toFixed(2)} руб.</StyledSummaryValue>
                     </StyledSummaryRow>
+                    {baseDiscountAmount > 0 && (
+                        <StyledSummaryRow className="discount">
+                            <StyledSummaryLabel>Скидка {baseDiscountPercent}%:</StyledSummaryLabel>
+                            <StyledSummaryValue>-{baseDiscountAmount.toFixed(2)} руб.</StyledSummaryValue>
+                        </StyledSummaryRow>
+                    )}
+                    {selfPickupDiscountAmount > 0 && (
+                        <StyledSummaryRow className="discount">
+                            <StyledSummaryLabel>Скидка за самовывоз 3%:</StyledSummaryLabel>
+                            <StyledSummaryValue>-{selfPickupDiscountAmount.toFixed(2)} руб.</StyledSummaryValue>
+                        </StyledSummaryRow>
+                    )}
                     <StyledSummaryRow>
-                        <StyledSummaryLabel>Доставка</StyledSummaryLabel>
+                        <StyledSummaryLabel>Доставка:</StyledSummaryLabel>
                         <StyledSummaryValue>
-                            {deliveryMethod === 'courier' ? `${delivery.toFixed(2)} руб.` : 'Бесплатно'}
+                            {deliveryCost === 0 ? 'Бесплатно' : `${deliveryCost.toFixed(2)} руб.`}
                         </StyledSummaryValue>
                     </StyledSummaryRow>
                     <StyledSummaryRow>
-                        <StyledSummaryLabel>Общая сумма заказа</StyledSummaryLabel>
-                        <StyledSummaryValue>{total.toFixed(2)} руб.</StyledSummaryValue>
+                        <StyledSummaryLabel>Итого:</StyledSummaryLabel>
+                        <StyledSummaryValue className="final">{finalTotal.toFixed(2)} руб.</StyledSummaryValue>
                     </StyledSummaryRow>
-                    <StyledSummaryFooter>
-                        <StyledFooterLink>Без регистрации</StyledFooterLink>
-                        <StyledFooterSeparator>|</StyledFooterSeparator>
-                        <StyledFooterLink>Защита перевода</StyledFooterLink>
-                        <StyledFooterSeparator>|</StyledFooterSeparator>
-                        <StyledFooterLink>Условия пользования</StyledFooterLink>
-                    </StyledSummaryFooter>
+                    {isBelowMinimum && (
+                        <StyledMinimumNotice>
+                            Минимальная сумма заказа — 50 руб.
+                        </StyledMinimumNotice>
+                    )}
                 </StyledOrderSummary>
             </StyledContainer>
             
@@ -384,12 +476,29 @@ const StyledContainer = styled.div`
     gap: ${rm(40)};
     padding: ${rm(110)} ${rm(125)} ${rm(125)} ${rm(125)};
     min-height: 60vh;
+
+    ${media.lg`
+        padding: ${rm(90)} ${rm(80)};
+        gap: ${rm(30)};
+    `}
+
+    ${media.md`
+        padding: ${rm(70)} ${rm(40)};
+        gap: ${rm(20)};
+        flex-direction: column;
+    `}
+
+    ${media.xsm`
+        padding: ${rm(60)} ${rm(20)};
+        gap: ${rm(20)};
+    `}
 `
 
 const StyledCart = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-width: 0;
 `
 
 const StyledAdressContainer = styled.div`
@@ -397,6 +506,21 @@ const StyledAdressContainer = styled.div`
     flex-direction: column;
     gap: ${rm(40)};
     width: ${rm(520)};
+
+    ${media.lg`
+        width: 100%;
+        max-width: ${rm(520)};
+    `}
+
+    ${media.md`
+        width: 100%;
+        gap: ${rm(30)};
+    `}
+
+    ${media.xsm`
+        width: 100%;
+        gap: ${rm(20)};
+    `}
 `
 
 const StyledPersonalInfo = styled.div`
@@ -404,7 +528,24 @@ const StyledPersonalInfo = styled.div`
     flex-direction: column;
     gap: ${rm(40)};
     width: ${rm(520)};
-    margin-bottom: ${rm(40)}
+    margin-bottom: ${rm(40)};
+
+    ${media.lg`
+        width: 100%;
+        max-width: ${rm(520)};
+    `}
+
+    ${media.md`
+        width: 100%;
+        gap: ${rm(30)};
+        margin-bottom: ${rm(30)};
+    `}
+
+    ${media.xsm`
+        width: 100%;
+        gap: ${rm(20)};
+        margin-bottom: ${rm(20)};
+    `}
 `
 
 const StyledTotal = styled.div`
@@ -434,6 +575,21 @@ const StyledTitle = styled.p`
     font-size: ${rm(48)};
     margin-bottom: ${rm(60)};
     color: ${colors.black100};
+
+    ${media.lg`
+        font-size: ${rm(40)};
+        margin-bottom: ${rm(40)};
+    `}
+
+    ${media.md`
+        font-size: ${rm(32)};
+        margin-bottom: ${rm(30)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(28)};
+        margin-bottom: ${rm(20)};
+    `}
 `
 
 const StyledSubtitle = styled.p`
@@ -441,6 +597,21 @@ const StyledSubtitle = styled.p`
     font-size: ${rm(36)};
     margin-bottom: ${rm(40)};
     color: ${colors.black100};
+
+    ${media.lg`
+        font-size: ${rm(30)};
+        margin-bottom: ${rm(30)};
+    `}
+
+    ${media.md`
+        font-size: ${rm(24)};
+        margin-bottom: ${rm(20)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(20)};
+        margin-bottom: ${rm(16)};
+    `}
 `
 
 
@@ -449,6 +620,21 @@ const StyledProducts = styled.div`
     flex-direction: column;
     gap: ${rm(25)};
     width: ${rm(781)};
+
+    ${media.lg`
+        width: 100%;
+        max-width: ${rm(781)};
+    `}
+
+    ${media.md`
+        width: 100%;
+        gap: ${rm(20)};
+    `}
+
+    ${media.xsm`
+        width: 100%;
+        gap: ${rm(15)};
+    `}
 `
 
 const StyledProduct = styled.div`
@@ -460,6 +646,17 @@ const StyledProduct = styled.div`
     background: #f8f9fa;
     border-radius: ${rm(12)};
     margin-bottom: ${rm(16)};
+    
+    ${media.md`
+        padding: ${rm(15)};
+        gap: ${rm(15)};
+    `}
+
+    ${media.xsm`
+        padding: ${rm(12)};
+        gap: ${rm(12)};
+        flex-wrap: wrap;
+    `}
     
     &:last-child {
         margin-bottom: 0;
@@ -474,6 +671,11 @@ const StyledImageBox = styled.div`
     position: relative;
     flex-shrink: 0;
     overflow: hidden;
+
+    ${media.xsm`
+        width: ${rm(60)};
+        height: ${rm(60)};
+    `}
 `
 
 const StyledImagePlaceholder = styled.div`
@@ -505,12 +707,20 @@ const StyledProductTitle = styled.div`
     color: ${colors.black100};
     ${fontGeist(500)};
     font-weight: 500;
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
 `
 
 const StyledQuantityText = styled.div`
     font-size: ${rm(14)};
     color: #666;
     ${fontGeist(400)};
+
+    ${media.xsm`
+        font-size: ${rm(12)};
+    `}
 `
 
 
@@ -521,6 +731,14 @@ const StyledPrice = styled.div`
     font-weight: 500;
     min-width: ${rm(80)};
     text-align: right;
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+        min-width: auto;
+        width: 100%;
+        text-align: left;
+        margin-top: ${rm(4)};
+    `}
 `
 
 const StyledOrderSummary = styled.div`
@@ -532,6 +750,40 @@ const StyledOrderSummary = styled.div`
     border-radius: ${rm(12)};
     padding: ${rm(32)};
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    ${media.lg`
+        width: ${rm(400)};
+        padding: ${rm(28)};
+    `}
+
+    ${media.md`
+        position: relative;
+        top: 0;
+        width: 100%;
+        padding: ${rm(24)};
+        margin-top: ${rm(30)};
+    `}
+
+    ${media.xsm`
+        padding: ${rm(20)};
+        margin-top: ${rm(20)};
+    `}
+
+    &.below-minimum {
+        border: 2px solid #ff6b6b;
+        background: #fff5f5;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        50% {
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+        }
+    }
 `
 
 const StyledSummaryTitle = styled.h3`
@@ -540,6 +792,11 @@ const StyledSummaryTitle = styled.h3`
     color: ${colors.black100};
     ${fontGeist(600)};
     margin: 0 0 ${rm(24)} 0;
+
+    ${media.xsm`
+        font-size: ${rm(20)};
+        margin-bottom: ${rm(16)};
+    `}
 `
 
 const StyledSummaryRow = styled.div`
@@ -559,6 +816,10 @@ const StyledSummaryLabel = styled.span`
     font-size: ${rm(18)};
     color: ${colors.black100};
     ${fontGeist(400)};
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
 `
 
 const StyledSummaryValue = styled.span`
@@ -566,6 +827,24 @@ const StyledSummaryValue = styled.span`
     color: ${colors.black100};
     ${fontGeist(500)};
     font-weight: 500;
+    
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
+    
+    &.final {
+        font-size: ${rm(24)};
+        ${fontGeist(600)};
+        font-weight: 600;
+
+        ${media.xsm`
+            font-size: ${rm(20)};
+        `}
+    }
+    
+    ${StyledSummaryRow}.discount & {
+        color: #28a745;
+    }
 `
 
 const StyledSummaryFooter = styled.div`
@@ -599,6 +878,11 @@ const StyledDeliveryOptions = styled.div`
     flex-direction: column;
     gap: ${rm(12)};
     margin-bottom: ${rm(20)};
+
+    ${media.xsm`
+        gap: ${rm(10)};
+        margin-bottom: ${rm(16)};
+    `}
 `
 
 const StyledDeliveryOption = styled.div`
@@ -635,6 +919,10 @@ const StyledRadioLabel = styled.label`
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
+
+    ${media.xsm`
+        padding: ${rm(12)} ${rm(16)};
+    `}
     
     &::before {
         content: '';
@@ -645,6 +933,12 @@ const StyledRadioLabel = styled.label`
         margin-right: ${rm(12)};
         transition: all 0.2s ease;
         flex-shrink: 0;
+
+        ${media.xsm`
+            width: ${rm(18)};
+            height: ${rm(18)};
+            margin-right: ${rm(10)};
+        `}
     }
     
     &::after {
@@ -659,6 +953,12 @@ const StyledRadioLabel = styled.label`
         border-radius: 50%;
         opacity: 0;
         transition: opacity 0.2s ease;
+
+        ${media.xsm`
+            left: ${rm(23)};
+            width: ${rm(6)};
+            height: ${rm(6)};
+        `}
     }
     
     &:hover {
@@ -669,23 +969,31 @@ const StyledRadioLabel = styled.label`
 
 const StyledOptionText = styled.div`
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: ${rm(4)};
     width: 100%;
 `
 
 const StyledOptionTitle = styled.span`
     font-size: ${rm(16)};
     color: ${colors.black100};
-    ${fontGeist(400)};
+    ${fontGeist(500)};
     font-weight: 500;
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
 `
 
-const StyledOptionPrice = styled.span`
-    font-size: ${rm(16)};
-    color: ${colors.black100};
+const StyledOptionDescription = styled.span`
+    font-size: ${rm(14)};
+    color: #666;
     ${fontGeist(400)};
-    font-weight: 500;
+    font-weight: 400;
+
+    ${media.xsm`
+        font-size: ${rm(12)};
+    `}
 `
 
 const StyledDeliveryTime = styled.p`
@@ -694,6 +1002,11 @@ const StyledDeliveryTime = styled.p`
     ${fontGeist(400)};
     margin: 0;
     margin-bottom: ${rm(20)};
+
+    ${media.xsm`
+        font-size: ${rm(12)};
+        margin-bottom: ${rm(16)};
+    `}
 `
 
 const StyledCommentSection = styled.div`
@@ -701,6 +1014,11 @@ const StyledCommentSection = styled.div`
     flex-direction: column;
     gap: ${rm(24)};
     margin-bottom: ${rm(40)};
+
+    ${media.xsm`
+        gap: ${rm(16)};
+        margin-bottom: ${rm(30)};
+    `}
 `
 
 const StyledCommentTextarea = styled.textarea`
@@ -717,10 +1035,20 @@ const StyledCommentTextarea = styled.textarea`
     resize: vertical;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
+    ${media.xsm`
+        min-height: ${rm(100)};
+        padding: ${rm(12)} ${rm(16)};
+        font-size: ${rm(14)};
+    `}
+
     &::placeholder {
         color: #A0A0A0;
         font-size: ${rm(16)};
         ${fontGeist(400)};
+
+        ${media.xsm`
+            font-size: ${rm(14)};
+        `}
     }
 
     &:focus {
@@ -738,6 +1066,12 @@ const StyledButtonContainer = styled.div`
     justify-content: space-between;
     align-items: center;
     gap: ${rm(20)};
+
+    ${media.xsm`
+        flex-direction: column;
+        gap: ${rm(12)};
+        width: 100%;
+    `}
 `
 
 const StyledBackButton = styled.button`
@@ -751,6 +1085,12 @@ const StyledBackButton = styled.button`
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease;
+
+    ${media.xsm`
+        width: 100%;
+        padding: ${rm(14)} ${rm(24)};
+        font-size: ${rm(14)};
+    `}
     
     &:hover {
         background: #DEE2E6;
@@ -771,14 +1111,25 @@ const StyledPaymentButton = styled.button`
     ${fontGeist(500)};
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+
+    ${media.xsm`
+        width: 100%;
+        padding: ${rm(14)} ${rm(24)};
+        font-size: ${rm(14)};
+    `}
     
-    &:hover {
+    &:hover:not(:disabled) {
         background: #5A6268;
     }
     
-    &:active {
+    &:active:not(:disabled) {
         background: #495057;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 `
 
@@ -901,4 +1252,57 @@ const StyledErrorMessage = styled.div`
     ${fontGeist(400)};
     margin-top: ${rm(8)};
     margin-bottom: ${rm(8)};
+`
+
+const StyledMinimumOrderWarning = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${rm(12)};
+    padding: ${rm(16)} ${rm(20)};
+    background: #fff5f5;
+    border: 2px solid #ff6b6b;
+    border-radius: ${rm(8)};
+    color: #dc3545;
+    font-size: ${rm(16)};
+    ${fontGeist(500)};
+    margin-bottom: ${rm(20)};
+
+    ${media.xsm`
+        padding: ${rm(12)} ${rm(16)};
+        font-size: ${rm(14)};
+        gap: ${rm(10)};
+        margin-bottom: ${rm(16)};
+        flex-wrap: wrap;
+    `}
+
+    svg {
+        width: ${rm(20)};
+        height: ${rm(20)};
+        flex-shrink: 0;
+
+        ${media.xsm`
+            width: ${rm(18)};
+            height: ${rm(18)};
+        `}
+    }
+`
+
+const StyledMinimumNotice = styled.div`
+    padding: ${rm(12)} ${rm(16)};
+    background: #fff5f5;
+    border: 1px solid #ff6b6b;
+    border-radius: ${rm(8)};
+    color: #dc3545;
+    font-size: ${rm(14)};
+    ${fontGeist(500)};
+    text-align: center;
+    margin-top: ${rm(16)};
+    margin-bottom: ${rm(16)};
+
+    ${media.xsm`
+        padding: ${rm(10)} ${rm(12)};
+        font-size: ${rm(12)};
+        margin-top: ${rm(12)};
+        margin-bottom: ${rm(12)};
+    `}
 `

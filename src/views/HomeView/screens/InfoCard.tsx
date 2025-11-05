@@ -8,22 +8,22 @@ import Image from "next/image"
 const cardsLeft = [
     {
         icon: 'delivery',
-        title: 'Бесплатная доставка белпочтой',
-        description: 'При оформлении заказа на сумму больше 100 руб.',
+        title: 'Бесплатная доставка курьером до двери',
+        description: 'при заказе от 400 рублей.',
         iconPosition: 'right',
         hasBorder: true,
     },
     {
         icon: 'quality',
-        title: 'Качественные материалы товаров',
-        description: 'Мы тщательно следим за качеством ассортимента.',
+        title: 'Скидка 20%',
+        description: 'при заказе от 1500 рублей.',
         iconPosition: 'right',
         hasBorder: false,
     },
     {
         icon: 'contact',
-        title: 'Остались вопросы? Свяжитесь с нами!',
-        description: 'Команда в кротчайшие сроки ответит вам на все вопросы.',
+        title: 'Скидка 3% на самовывоз',
+        description: 'со склада в Гродно.',
         iconPosition: 'right',
         hasBorder: false,
     }
@@ -33,14 +33,14 @@ const cardsRight = [
     {
         icon: 'discount',
         title: 'Скидка 5%',
-        description: 'При оформлении заказа на сумму больше 500 руб.',
+        description: 'при заказе от 700 рублей.',
         iconPosition: 'left',
         hasBorder: false,
     },
     {
         icon: 'fast',
-        title: 'Высылка заказа в кротчайшие сроки',
-        description: 'Наши сотрудники вышлют ваш заказ в течении двух дней.',
+        title: 'Мы — производители',
+        description: 'выпускаем нашу продукцию сами.',
         iconPosition: 'left',
         hasBorder: false,
     },
