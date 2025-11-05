@@ -1,4 +1,4 @@
-import { rm } from '@/styles';
+import { rm, media } from '@/styles';
 import { colors } from '@/styles';
 import { fontGeist } from '@/styles/fonts';
 import React, { InputHTMLAttributes } from 'react';
@@ -22,6 +22,10 @@ const StyledLabel = styled.label`
   color: ${colors.black100};
   ${fontGeist(400)};
   font-weight: 400;
+
+  ${media.xsm`
+    font-size: ${rm(14)};
+  `}
 `;
 
 const StyledInput = styled.input`
@@ -36,11 +40,20 @@ const StyledInput = styled.input`
   color: #222;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 
+  ${media.xsm`
+    padding: ${rm(12)} ${rm(16)};
+    font-size: ${rm(14)};
+  `}
+
   &::placeholder {
     color: #A0A0A0;
     opacity: 0.6;
     font-size: ${rm(16)};
     ${fontGeist(400)};
+
+    ${media.xsm`
+      font-size: ${rm(14)};
+    `}
   }
 
   &:focus {
