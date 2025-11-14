@@ -1,6 +1,7 @@
 'use client'
 
 import { useStrapi } from "@/hooks/useStrapi";
+import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout";
 import { colors, media, rm } from "@/styles";
 import { fontGeist } from "@/styles/fonts";
 import Link from "next/link";
@@ -63,7 +64,7 @@ const StyledCategory = styled.div`
     }
 `
 
-const StyledHiddenLink = styled(Link)`
+const StyledHiddenLink = styled(AnimLink)`
     position: absolute;
     width: 100%;
     height: 100%;

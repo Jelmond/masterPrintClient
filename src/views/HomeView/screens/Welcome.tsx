@@ -1,130 +1,60 @@
 import { colors, media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
-import { SimpleButton } from "@/components/UI/Buttons/SimpleButton"
 import styled from "styled-components"
 import Image from "next/image"
-import Link from "next/link"
-import { AnimatedText } from "@/components/animated/AnimatedText/AnimatedText"
-import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
-import { useLoadingStore } from "@/store/loadingStore"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { useWindowWidth } from "@react-hook/window-size"
+import { CatalogueButton } from "@/components/UI/Buttons/CatalogueButton"
 import { heightLvh } from "@/styles/utils"
 
-const cards = [
-    {
-        text: 'Мы всегда рады принять заказ или ответить на ваши вопросы',
-        button: {
-            text: 'Заказать по звонку',
-            url: 'tel:+79292111818',
-            isBlank: false
-        }
-    },
-    {
-        text: 'Карточки, Открытки, конверты, коробки. Все по лучшей цене',
-        button: {
-            text: 'Перейти в каталог',
-            url: '/catalog',
-            isBlank: false
-        }
-    },
-    {
-        text: 'Индивидуальный дизайн и многое другое',
-        button: {
-            text: 'На сайт типографии',
-            url: '/catalog',
-            isBlank: true
-        }
-    }
-]
-
 export const Welcome = () => {
-
-    const width = useWindowWidth()
-    const isLoaded = useLoadingStore(state => state.isLoading)
-
-    // useEffect(() => {
-    //     if (!isLoaded) {
-    //         console.log("isLoaded")
-    //     }
-    // }, [isLoaded])
-
     return (
         <StyledWelcome>
             <StyledContent>
-                <StyledBackgroundImage src="/assets/images/homeImage.png" alt="welcomeBackground" width={1920} height={1080} />
-                <StyledRight>
-                    <h1 className="title">Добро пожаловать в каталог Мастерпринт-Пак</h1>
+                <StyledBackgroundImage src="/heroImage.webp" alt="welcomeBackground" fill />
+                <StyledLeft>
+                    <StyledHeadline>
+                        ВАШ ПАРТНЁР В ОБЛАСТИ ПОДАРОЧНЫХ ПЕЧАТНЫХ ИЗДЕЛИЙ
+                    </StyledHeadline>
+                    <StyledFeatures>
+                        <span>Высокое качество</span>
+                        <span className="dot"></span>
+                        <span>Быстрая доставка</span>
+                        <span className="dot"></span>
+                        <span>Низкие цены</span>
+                    </StyledFeatures>
                     <StyledDescription>
-                        MPPK — каталог креативной печатной продукции. Открытки, подарочные упаковки и другие изделия, созданные от идеи до упаковки в нашей типографии
+                        Подарочные упаковки, карточки, открытки и многое другое!
                     </StyledDescription>
-                </StyledRight>
-                <StyledCardsContainer>
-                    {cards.map((card, index) => (
-                        <>
-                            <StyledCard key={index}>
-                                <p className="text">{card.text}</p>
-                                <a href={card.button.url} target={card.button.isBlank ? '_blank' : '_self'} aria-label={card.button.text}>{card.button.text}</a>
-                            </StyledCard>
-                            {index !== cards.length - 1 && <div className="divider" />}
-                        </>
-                    ))}
-                </StyledCardsContainer>
+                    <StyledButtonWrapper>
+                        <CatalogueButton link="/catalog" color="black" isArrowLeft={false}>
+                            <span>Каталог</span>
+                        </CatalogueButton>
+                    </StyledButtonWrapper>
+                </StyledLeft>
             </StyledContent>
         </StyledWelcome>
     )
 }
 
 const StyledWelcome = styled.div`
+    position: relative;
     display: flex;
-    background-color: ${colors.bgMain};
     width: 100%;
+    padding: ${rm(96)} ${rm(64)};
     ${heightLvh(100)};
-    padding: ${rm(80)} ${rm(48)};
+    padding-bottom: ${rm(24)};
 
     ${media.lg`
-        padding: ${rm(60)} ${rm(40)};
+        padding: ${rm(60)} ${rm(80)};
     `}
 
     ${media.md`
-        padding: ${rm(40)} ${rm(25)};
-        ${heightLvh(90)};
+        padding: ${rm(50)} ${rm(40)};
+        min-height: ${rm(500)};
     `}
 
     ${media.xsm`
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        padding: ${rm(30)} ${rm(20)};
-        ${heightLvh(85)};
-        min-height: ${rm(600)};
-    `}
-`
-
-const StyledContent = styled.div`
-    position: relative;
-    border-radius: ${rm(30)};
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    padding: ${rm(41)};
-    padding-bottom: ${rm(0)};
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: space-between;
-
-    ${media.md`
-        padding: ${rm(30)} ${rm(25)};
-    `}
-
-    ${media.xsm`
-        padding: ${rm(20)};
-        align-items: center;
-        justify-content: flex-start;
-        gap: ${rm(20)};
+        padding: ${rm(40)} ${rm(20)};
+        min-height: ${rm(400)};
     `}
 `
 
@@ -134,185 +64,325 @@ const StyledBackgroundImage = styled(Image)`
     left: 0;
     width: 100%;
     height: 100%;
+    object-fit: cover;
+    z-index: 0;
 `
 
-const StyledRight = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: ${rm(1030)};
+const StyledContent = styled.div`
     position: relative;
     z-index: 1;
-    align-items: flex-end;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    padding: ${rm(43)};
+    overflow: hidden;
+    border-radius: ${rm(12)};
 
     ${media.lg`
-        width: ${rm(700)};
+        padding: ${rm(35)};
     `}
 
     ${media.md`
-        width: ${rm(550)};
+        padding: ${rm(30)};
     `}
 
     ${media.xsm`
+        padding: ${rm(20)};
+    `}
+`
+
+const StyledLeft = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(24)};
+    position: relative;
+    z-index: 1;
+    width: ${rm(820)};
+
+    ${media.lg`
         width: 100%;
+        max-width: ${rm(700)};
+    `}
+
+    ${media.md`
+        flex: 1;
+        width: 100%;
+        max-width: 100%;
         align-items: center;
         text-align: center;
     `}
 
-    .title{
-        ${fontGeist(700)};
-        font-size: ${rm(96)};
-        line-height: 130%;
-        color: ${colors.white100};
-        text-align: right;
-
-        ${media.lg`
-            font-size: ${rm(64)};
-        `}
-
-        ${media.md`
-            font-size: ${rm(40)};
-            line-height: 110%;
-        `}
-
-        ${media.xsm`
-            font-size: ${rm(28)};
-            line-height: 130%;
-            text-align: center;
-            width: 100%;
-        `}
-    }
+    ${media.xsm`
+        gap: ${rm(16)};
+    `}
 `
-const StyledDescription = styled.p`
-    ${fontGeist(400)};
-    font-size: ${rm(30)};
-    line-height: 110%;
-    color: ${colors.white100};
-    margin-top: ${rm(48)};
-    margin-bottom: ${rm(140)};
-    width: ${rm(846)};
-    text-align: right;
+
+const StyledHeadline = styled.h1`
+    ${fontGeist(900)};
+    font-size: ${rm(36)};
+    line-height: 120%;
+    color: #1C1C1C;
+    text-transform: uppercase;
+    margin: 0;
+    width: 100%;
 
     ${media.lg`
-        font-size: ${rm(24)};
-        width: ${rm(650)};
-        margin-bottom: ${rm(100)};
+        font-size: ${rm(40)};
     `}
 
     ${media.md`
-        font-size: ${rm(20)};
-        width: ${rm(480)};
-        margin-top: ${rm(30)};
-        margin-bottom: ${rm(60)};
+        font-size: ${rm(32)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(24)};
+        line-height: 130%;
+    `}
+`
+
+const StyledFeatures = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${rm(8)};
+    font-size: ${rm(18)};
+    ${fontGeist(700)};
+    color: #1C1C1C;
+
+    ${media.md`
+        justify-content: center;
+        flex-wrap: wrap;
     `}
 
     ${media.xsm`
         font-size: ${rm(14)};
-        margin-top: ${rm(15)};
-        margin-bottom: ${rm(30)};
-        width: 100%;
-        text-align: center;
+        gap: ${rm(6)};
+    `}
+
+    .dot {
+        width: ${rm(5)};
+        height: ${rm(5)};
+        border-radius: 50%;
+        border: 1px solid #1C1C1C;
+    }
+`
+
+const StyledDescription = styled.p`
+    ${fontGeist(500)};
+    font-size: ${rm(16)};
+    line-height: 140%;
+    color: #323232;
+    margin: 0;
+
+    ${media.lg`
+        font-size: ${rm(15)};
+    `}
+
+    ${media.md`
+        font-size: ${rm(15)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(14)};
     `}
 `
 
-const StyledCardsContainer = styled.div`
+const StyledButtonWrapper = styled.div`
+    margin-top: ${rm(8)};
+
+    ${media.xsm`
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    `}
+`
+
+const StyledRight = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
+    ${media.md`
+        width: 100%;
+        max-width: ${rm(300)};
+    `}
+
+    ${media.xsm`
+        max-width: ${rm(200)};
+    `}
+`
+
+const StyledGiftBox = styled.div`
+    position: relative;
+    width: ${rm(280)};
+    height: ${rm(320)};
+    background: #D4A5A5;
+    border-radius: ${rm(12)};
+    transform: rotate(-8deg);
+    box-shadow: 0 ${rm(8)} ${rm(24)} rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 100%;
+    justify-content: center;
+
+    ${media.lg`
+        width: ${rm(240)};
+        height: ${rm(280)};
+    `}
 
     ${media.md`
-        gap: ${rm(15)};
+        width: ${rm(200)};
+        height: ${rm(240)};
     `}
 
     ${media.xsm`
-        flex-direction: column;
-        gap: ${rm(15)};
-        width: 100%;
+        width: ${rm(150)};
+        height: ${rm(180)};
     `}
-
-    .divider{
-        width: ${rm(4)};
-        height: 100%;
-        margin-bottom: ${rm(30)};
-        background: #FFFFFF45;
-        position: relative;
-        border-radius: ${rm(2)};
-
-        ${media.xsm`
-            display: none;
-        `}
-    }
 `
 
-const StyledCard = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: ${rm(28)};
-    padding: ${rm(21)} ${rm(43)};
-    background-color: #CFCFCF7A;
-    backdrop-filter: blur(8px);
-    border-top-left-radius: ${rm(16)};
-    border-top-right-radius: ${rm(16)};
-    overflow: hidden;
+const StyledRibbon = styled.div`
+    position: absolute;
+    top: ${rm(-15)};
+    left: ${rm(-15)};
+    width: ${rm(100)};
+    height: ${rm(100)};
+    z-index: 2;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: ${rm(60)};
+        height: ${rm(60)};
+        border: ${rm(5)} solid white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        background: transparent;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: ${rm(20)};
+        left: ${rm(20)};
+        width: ${rm(60)};
+        height: ${rm(4)};
+        background: white;
+        transform: rotate(45deg);
+    }
+
+    ${media.lg`
+        width: ${rm(85)};
+        height: ${rm(85)};
+        top: ${rm(-12)};
+        left: ${rm(-12)};
+        
+        &::before {
+            width: ${rm(50)};
+            height: ${rm(50)};
+            border-width: ${rm(4)};
+        }
+        
+        &::after {
+            top: ${rm(17)};
+            left: ${rm(17)};
+            width: ${rm(50)};
+            height: ${rm(3)};
+        }
+    `}
 
     ${media.md`
-        padding: ${rm(18)} ${rm(30)};
-        gap: ${rm(20)};
+        width: ${rm(70)};
+        height: ${rm(70)};
+        top: ${rm(-10)};
+        left: ${rm(-10)};
+        
+        &::before {
+            width: ${rm(40)};
+            height: ${rm(40)};
+            border-width: ${rm(3)};
+        }
+        
+        &::after {
+            top: ${rm(14)};
+            left: ${rm(14)};
+            width: ${rm(40)};
+            height: ${rm(3)};
+        }
     `}
 
     ${media.xsm`
-        padding: ${rm(15)} ${rm(20)};
-        gap: ${rm(15)};
-        width: 100%;
+        width: ${rm(55)};
+        height: ${rm(55)};
+        top: ${rm(-8)};
+        left: ${rm(-8)};
+        
+        &::before {
+            width: ${rm(32)};
+            height: ${rm(32)};
+            border-width: ${rm(2.5)};
+        }
+        
+        &::after {
+            top: ${rm(11)};
+            left: ${rm(11)};
+            width: ${rm(32)};
+            height: ${rm(2)};
+        }
+    `}
+`
+
+const StyledRibbonLine = styled.div`
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: ${rm(4)};
+    background: white;
+    transform: translateY(-50%);
+
+    ${media.lg`
+        height: ${rm(3)};
     `}
 
-    .text{
-        ${fontGeist(400)};
-        font-size: ${rm(24)};
-        line-height: 110%;
-        color: ${colors.white100};
-        width: ${rm(425)};
-        text-align: center;
+    ${media.md`
+        height: ${rm(3)};
+    `}
 
-        ${media.md`
-            font-size: ${rm(18)};
-            width: ${rm(320)};
-        `}
+    ${media.xsm`
+        height: ${rm(2)};
+    `}
+`
 
-        ${media.xsm`
-            font-size: ${rm(14)};
-            width: 100%;
-        `}
-    }
+const StyledShopText = styled.div`
+    position: absolute;
+    bottom: ${rm(30)};
+    right: ${rm(20)};
+    transform: rotate(12deg);
+    font-size: ${rm(24)};
+    ${fontGeist(700)};
+    color: white;
+    letter-spacing: ${rm(2)};
+    z-index: 1;
 
-    a{
-        padding: ${rm(7)} ${rm(20)};
-        background: linear-gradient(0deg, rgba(41, 89, 139, 0.32), rgba(41, 89, 139, 0.32)),
-        radial-gradient(50% 50% at 50% 50%, rgba(24, 22, 82, 0.2) 0%, rgba(0, 0, 0, 0) 100%);
-        backdrop-filter: blur(87px);
-        border-radius: ${rm(14)};
-        ${fontGeist(500)};
-        font-size: ${rm(28)};
-        line-height: 100%;
-        color: ${colors.white100};
-        text-align: center;
-        cursor: pointer;
-        transition: opacity 0.3s ease-in-out;
-        white-space: nowrap;
+    ${media.lg`
+        font-size: ${rm(20)};
+        bottom: ${rm(25)};
+        right: ${rm(15)};
+    `}
 
-        ${media.md`
-            font-size: ${rm(20)};
-            padding: ${rm(6)} ${rm(15)};
-        `}
+    ${media.md`
+        font-size: ${rm(18)};
+        bottom: ${rm(20)};
+        right: ${rm(12)};
+    `}
 
-        ${media.xsm`
-            font-size: ${rm(16)};
-            padding: ${rm(8)} ${rm(16)};
-            width: 100%;
-        `}
-
-        &:hover{
-            opacity: 0.7;
-        }
-    }
+    ${media.xsm`
+        font-size: ${rm(14)};
+        bottom: ${rm(15)};
+        right: ${rm(10)};
+        letter-spacing: ${rm(1)};
+    `}
 `

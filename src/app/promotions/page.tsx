@@ -1,5 +1,12 @@
 import { CatalogView } from '@/views/CatalogView/CatalogView';
 import { notFound } from 'next/navigation';
+import { generateMetadata } from "@/utils/generateMetadata";
+import { Metadata } from "next";
+
+export const metadata: Metadata = generateMetadata({
+  title: "Бестселлеры MPPSHOP",
+  description: "Популярные товары и бестселлеры MPPSHOP",
+});
 
 interface Product {
     id: number;

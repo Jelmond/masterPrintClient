@@ -21,7 +21,19 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
 
     // To avoid hydration issues
     const [mounted, setMounted] = useState(false)
-    useEffect(() => { setMounted(true) }, [])
+    const [isAfterWorkingHours, setIsAfterWorkingHours] = useState(false)
+    
+    useEffect(() => { 
+        setMounted(true)
+        // Check if current time is after 17:00
+        const now = new Date()
+        const currentHour = now.getHours()
+        const currentDay = now.getDay() // 0 = Sunday, 6 = Saturday
+        // Check if it's weekday (1-5) and after 17:00, or weekend
+        if ((currentDay >= 1 && currentDay <= 5 && currentHour >= 17) || currentDay === 0 || currentDay === 6) {
+            setIsAfterWorkingHours(true)
+        }
+    }, [])
 
     if (!mounted) return null
 
@@ -98,6 +110,14 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                             {cartTotal.toFixed(2)} руб.
                         </span>
                     </div>
+                    {isAfterWorkingHours && items.length > 0 && (
+                        <StyledAfterHoursWarning>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Менеджер обработает и отправит ваш заказ в ближайшее рабочее время (Пн-Пт: 9:00 - 17:00)
+                        </StyledAfterHoursWarning>
+                    )}
                     {isBelowMinimum && (
                         <StyledCartMinimumWarning>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -562,6 +582,38 @@ const StyledBottom = styled.div`
                 `}
             }
         }
+    }
+`
+
+const StyledAfterHoursWarning = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${rm(12)};
+    padding: ${rm(16)} ${rm(20)};
+    background: #fff9e6;
+    border: 2px solid #ffc107;
+    border-radius: ${rm(8)};
+    color: #856404;
+    font-size: ${rm(16)};
+    ${fontGeist(500)};
+    width: 100%;
+
+    ${media.xsm`
+        padding: ${rm(12)} ${rm(16)};
+        font-size: ${rm(14)};
+        gap: ${rm(10)};
+        flex-wrap: wrap;
+    `}
+
+    svg {
+        width: ${rm(20)};
+        height: ${rm(20)};
+        flex-shrink: 0;
+
+        ${media.xsm`
+            width: ${rm(18)};
+            height: ${rm(18)};
+        `}
     }
 `
 

@@ -1,6 +1,12 @@
 import { CatalogView } from '@/views/CatalogView/CatalogView';
 import { notFound } from 'next/navigation';
-import { DynamicScrollRevealWrapper } from '@/components/ScrollRevealWrapper/DynamicScrollRevealWrapper';
+import { generateMetadata } from "@/utils/generateMetadata";
+import { Metadata } from "next";
+
+export const metadata: Metadata = generateMetadata({
+  title: "Актуальное MPPSHOP",
+  description: "Новинки и актуальные товары MPPSHOP",
+});
 
 interface Product {
     id: number;
@@ -34,17 +40,15 @@ export default async function ActualPage() {
 
     if (allProducts.length === 0) {
         return (
-            <DynamicScrollRevealWrapper>
-                <div style={{ 
-                    minHeight: '100vh', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    padding: '80px 216px'
-                }}>
-                    <p style={{ fontSize: '24px', color: '#666' }}>Новинок пока нет</p>
-                </div>
-            </DynamicScrollRevealWrapper>
+            <div style={{ 
+                minHeight: '100vh', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                padding: '80px 216px'
+            }}>
+                <p style={{ fontSize: '24px', color: '#666' }}>Новинок пока нет</p>
+            </div>
         );
     }
 
@@ -104,15 +108,13 @@ export default async function ActualPage() {
     };
 
     return (
-        <DynamicScrollRevealWrapper>
-            <CatalogView 
-                data={categoryData} 
-                products={allProducts} 
-                tags={tags} 
-                tagsProductsData={tagsProductsData}
-                showCategories={false}
-            />
-        </DynamicScrollRevealWrapper>
+        <CatalogView 
+            data={categoryData} 
+            products={allProducts} 
+            tags={tags} 
+            tagsProductsData={tagsProductsData}
+            showCategories={false}
+        />
     );
 }
 

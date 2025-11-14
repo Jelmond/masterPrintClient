@@ -1,4 +1,11 @@
 import { CartView } from "@/views/CartView/CartView";
+import { generateMetadata } from "@/utils/generateMetadata";
+import { Metadata } from "next";
+
+export const metadata: Metadata = generateMetadata({
+  title: "Корзина MPPSHOP",
+  description: "Ваша корзина покупок MPPSHOP",
+});
 
 export default async function Cart() {
 

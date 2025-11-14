@@ -10,14 +10,10 @@ import { _colors, colors } from "@/styles/colors";
 
 import { Inview } from "@/components/Springs/Inview";
 import { Welcome } from "./screens/Welcome";
-import { Markets } from "./screens/Markets";
 import { CatalogSwiper } from "./screens/CatalogSwiper";
 import { InfoCard } from "./screens/InfoCard";
 import { Bestsellers } from "./screens/Bestsellers";
 import { About } from "./screens/About";
-import { BackButton } from "@/components/UI/Buttons/BackButton";
-import { useInView } from "@react-spring/web";
-import { Comfort } from "./screens/Comfort";
 const StyledHomeView = styled.div`
   display: flex;
   justify-content: center;
@@ -35,7 +31,6 @@ export const HomeView = () => {
   return (
     <StyledHomeView ref={mainRef}>
       <Welcome />
-      <Markets />
       {/* <Comfort /> */}
       <CatalogSwiper />
       <InfoCard />

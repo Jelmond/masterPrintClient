@@ -1,13 +1,17 @@
 import { HomeView } from "@/views/HomeView/HomeView";
 import { Suspense } from "react";
-import { BackButton } from "@/components/UI/Buttons/BackButton";
-import { DynamicScrollRevealWrapper } from "@/components/ScrollRevealWrapper/DynamicScrollRevealWrapper";
+import { generateMetadata } from "@/utils/generateMetadata";
+import { Metadata } from "next";
+
+export const metadata: Metadata = generateMetadata({
+  title: "Главная MPPSHOP",
+  description: "Главная страница MPPSHOP",
+});
+
 export default function Home() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <DynamicScrollRevealWrapper>
-        <HomeView />
-      </DynamicScrollRevealWrapper>
+      <HomeView />
     </Suspense>
   );
 }

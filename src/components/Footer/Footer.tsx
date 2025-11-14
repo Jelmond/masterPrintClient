@@ -1,21 +1,40 @@
 'use client'
 
 import { media, rm } from "@/styles"
-
 import { colors } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
-import Image from "next/image"
 import styled from "styled-components"
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 
 const adress = {
-    title: 'Наш адрес',
-    list: ['ООО  «Мастерпринт-Пак»', 'УНП 591511468', `Юридический  адрес: 231761,  г. Скидель, ул. Промышленная, 6Б   Свидетельство о государственной регистрации №100160363, выдано Минским горисполкомом 26.10.2015 г.`]
+    title: 'Наш Адрес',
+    list: [
+        'ООО "Мастерпринт-Пак"',
+        'УПН 591511468',
+        'Юридический адрес: 231761, г. Скидель, ул. Промышленная, 6Б',
+        'Свидетельство о государственной регистрации №100160363, выдано Минским горисполкомом 26.10.2025 г.'
+    ]
 }
 
 const contacts = {
     title: 'Контакты',
-    list: ['+375 25 9240768', 'inst: MPPShop', 'mpp.shop@gmail.com']
+    list: [
+        {
+            label: 'Заведующий Складом',
+            value: '+375447495465'
+        },
+        {
+            label: 'Менеджер',
+            value: '+375445842911'
+        }
+    ]
+}
+
+const workingHours = {
+    title: 'Время работы',
+    list: [
+        'Пн-Пт: 9:00 - 17:00'
+    ]
 }
 
 const market = {
@@ -26,58 +45,33 @@ const market = {
             url: '/catalog'
         },
         {
-            label: 'Актуальное',
-            url: '/actual'
+            label: 'Бестселлеры',
+            url: '/promotions'
         },
     ]
 }
-
-// const help = {
-//     title: 'Помощь',
-//     list: [
-//         {
-//             label: 'Оплата и доставка',
-//             url: '/delivery'
-//         },
-//         {
-//             label: 'Заказы',
-//             url: '/payment'
-//         },
-//         {
-//             label: 'Аккаунт',
-//             url: '/popular'
-//         },
-//     ]
-// }
 
 const info = {
     title: 'Информация',
     list: [
         {
-            label: 'О нас',
+            label: 'О Нас',
             url: '/about'
         },
         {
-            label: 'Адрес',
-            url: '/address'
-        },
-        {
-            label: 'Политика возврата',
+            label: 'Политика Возврата',
             url: '/return'
         },
         {
-            label: 'Политика приватности',
+            label: 'Политика Приватности',
             url: '/privacy'
         },
     ]
 }
 
-
 export const Footer = () => {
     return (
         <StyledFooter>
-            {/* <StyledBackgroundImage src="/assets/images/footerImage.png" alt="footer" width={1920} height={1080} /> */}
-            <StyledBackground />
             <StyledTop>
                 <StyledSection>
                     <div className="title">
@@ -97,7 +91,12 @@ export const Footer = () => {
                     </div>
                     <div className="list">
                         {contacts.list.map((item, index) => (
-                            <div className="item" key={index}>{item}</div>
+                            <div className="item" key={index}>
+                                <span className="label">{item.label}</span>
+                                <a href={`tel:${item.value.replace(/\s/g, '')}`} className="value">
+                                    {item.value}
+                                </a>
+                            </div>
                         ))}
                     </div>
                 </StyledSection>
@@ -115,20 +114,6 @@ export const Footer = () => {
                         ))}
                     </div>
                 </StyledSection>
-                {/* <StyledSection>
-                    <div className="title">
-                        {help.title}
-                    </div>
-                    <div className="list">
-                        {help.list.map((item, index) => (
-                            <div className="item" key={index}>
-                                <Link href={item.url}>
-                                    {item.label}
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                </StyledSection> */}
                 <StyledSection>
                     <div className="title">
                         {info.title}
@@ -141,132 +126,158 @@ export const Footer = () => {
                         ))}
                     </div>
                 </StyledSection>
+                <StyledSection>
+                    <div className="title">
+                        {workingHours.title}
+                    </div>
+                    <div className="list">
+                        {workingHours.list.map((item, index) => (
+                            <div className="item" key={index}>
+                                {item}
+                            </div>
+                        ))}
+                    </div>
+                </StyledSection>
             </StyledTop>
-            <StyledBottom>
-                <div className="text">
-                    © MPP Shop {new Date().getFullYear()}
-                </div>
-                {/* <div className="image">
-                    <Image src='/assets/images/alphabank.png' alt="image" width={198} height={198}/>
-                </div> */}
-            </StyledBottom>
         </StyledFooter>
     )
 }
 
 const StyledFooter = styled.div`
     width: 100%;
-    background-color: ${colors.white100};
+    background-color: #E6E8E6;
     position: relative;
     z-index: 1;
 `
 
 const StyledTop = styled.div`
     width: 100%;
-    padding: ${rm(124)} ${rm(180)} ${rm(70)} ${rm(180)};
-    display: flex;
-    justify-content: space-between;
+    padding: ${rm(80)} ${rm(125)} ${rm(60)} ${rm(125)};
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: ${rm(40)};
     position: relative;
     z-index: 1;
+
+    ${media.lg`
+        padding: ${rm(60)} ${rm(80)};
+        gap: ${rm(30)};
+    `}
 
     ${media.md`
-        padding: ${rm(124)} ${rm(25)} ${rm(70)} ${rm(25)};
-        flex-wrap: wrap;
-        column-gap: ${rm(70)};
-        row-gap: ${rm(40)};
+        padding: ${rm(50)} ${rm(40)};
+        grid-template-columns: repeat(3, 1fr);
+        gap: ${rm(40)};
     `}
-`
-
-const StyledBottom = styled.div`
-    width: 100%;
-    padding: ${rm(0)} ${rm(66)} ${rm(24)} ${rm(66)};
-    display: flex;
-    position: relative;
-    align-items: center;
-    position: relative;
-    justify-content: center;
-    z-index: 1;
 
     ${media.xsm`
-        padding: ${rm(0)} ${rm(25)} ${rm(25)} ${rm(25)};
-        flex-direction: column;
-        align-items: flex-start;
-        gap: ${rm(10)};
+        padding: ${rm(40)} ${rm(20)};
+        grid-template-columns: 1fr;
+        gap: ${rm(30)};
     `}
-
-
-    .text{
-        font-size: ${rm(16)};
-        ${fontGeist(400)};
-        color: ${colors.black100};
-    }
-
-    .image{
-        width: ${rm(1300)};
-        height: ${rm(90)};
-
-        ${media.lg`
-            width: ${rm(1000)};
-            height: ${rm(60)};
-        `}
-
-        ${media.md`
-            width: ${rm(700)};
-            height: ${rm(50)};
-        `}
-
-        ${media.xsm`
-            width: 100%;
-            height: ${rm(40)};
-        `}
-
-        img{
-            width: 100%;
-            height: 100%;
-        }
-    }
-
 `
+
 
 const StyledSection = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${rm(15)};
-    max-width: ${rm(370)};
+    gap: ${rm(20)};
 
     .title{
-        font-size: ${rm(24)};
-        ${fontGeist(500)};
-        color: ${colors.black100};
+        font-size: ${rm(34)};
+        ${fontGeist(700)};
+        color: #111111;
+        margin-bottom: ${rm(4)};
+
+        ${media.xsm`
+            font-size: ${rm(18)};
+        `}
     }
 
     .list{
         display: flex;
         flex-direction: column;
-        gap: ${rm(10)};
+        gap: ${rm(12)};
 
         .item{
             font-size: ${rm(16)};
             ${fontGeist(400)};
-            color: ${colors.black100};
+            color: #1C1C1C;
+            line-height: 1.5;
+
+            ${media.xsm`
+                font-size: ${rm(14)};
+            `}
+
+            .label {
+                display: block;
+                margin-bottom: ${rm(4)};
+            }
+
+            .value {
+                display: inline-block;
+                color: #1C1C1C;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                position: relative;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 0;
+                    height: 2px;
+                    background-color: #1C1C1C;
+                    transition: width 0.3s ease;
+                }
+
+                &:hover {
+                    color: #1C1C1C;
+                    transform: translateX(4px);
+
+                    &::after {
+                        width: 100%;
+                    }
+                }
+
+                &:active {
+                    transform: translateX(2px);
+                }
+            }
 
             a{
-                transition: opacity 0.3s ease, transform 0.3s ease;
+                color: #1C1C1C;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                position: relative;
+                display: inline-block;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 0;
+                    height: 2px;
+                    background-color: #1C1C1C;
+                    transition: width 0.3s ease;
+                }
 
                 &:hover{
-                    opacity: 0.7;
-                    transform: translateX(5px);
+                    color: #1C1C1C;
+                    transform: translateX(4px);
+
+                    &::after {
+                        width: 100%;
+                    }
+                }
+
+                &:active {
+                    transform: translateX(2px);
                 }
             }
         }
     }
-`
-
-const StyledBackground = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: white;
 `

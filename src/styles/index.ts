@@ -59,7 +59,7 @@ const GlobalStyles = createGlobalStyle`
     html {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        background-color: ${colors.white100};
+        background-color: #DCDEDC;
         color: ${colors.black100};
         ${fontOnest(400)}
     }

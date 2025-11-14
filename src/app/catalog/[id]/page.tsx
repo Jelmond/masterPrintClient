@@ -1,6 +1,7 @@
 import { CatalogView } from '@/views/CatalogView/CatalogView';
 import { notFound } from 'next/navigation';
-import { DynamicScrollRevealWrapper } from '@/components/ScrollRevealWrapper/DynamicScrollRevealWrapper';
+import { generateMetadata as generateMetadataUtil } from "@/utils/generateMetadata";
+import { Metadata } from "next";
 
 interface Product {
     id: number;
@@ -13,6 +14,35 @@ interface Product {
     }>;
     createdAt: string;
     // ... other product properties
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+    const categoryUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getPopulatedCategory/${params.id}`;
+    
+    try {
+        const categoryRes = await fetch(categoryUrl, { 
+            cache: 'no-store',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (categoryRes.ok) {
+            const categoryData = await categoryRes.json();
+            const categoryTitle = categoryData?.title || 'Категория';
+            return generateMetadataUtil({
+                title: `${categoryTitle} MPPSHOP`,
+                description: `Категория ${categoryTitle} в MPPSHOP`,
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching category for metadata:', error);
+    }
+
+    return generateMetadataUtil({
+        title: "Категория MPPSHOP",
+        description: "Категория товаров MPPSHOP",
+    });
 }
 
 export default async function SingleCatalogPage({ params }: { params: { id: string } }) {
@@ -77,8 +107,6 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     const tags = Array.from(uniqueTagsMap.values());
 
     return (
-        <DynamicScrollRevealWrapper>
-            <CatalogView data={categoryData} products={products} tags={tags} tagsProductsData={tagsProductsData} />
-        </DynamicScrollRevealWrapper>
+        <CatalogView data={categoryData} products={products} tags={tags} tagsProductsData={tagsProductsData} />
     );
 } 
