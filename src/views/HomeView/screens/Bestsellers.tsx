@@ -93,26 +93,29 @@ const StyledBestsellers = styled.div`
 `
 
 const StyledTitle = styled.p`
-    font-size: ${rm(80)};
+    font-size: ${rm(40)};
     color: ${colors.black100};
     ${fontGeist(600)};
     margin-bottom: ${rm(25)};
-    margin-left: ${rm(125)};
+    width: 100%;
+    text-align: center;
+    padding: 0 ${rm(50)};
 
     ${media.lg`
-        font-size: ${rm(64)};
-        margin-left: ${rm(80)};
+        font-size: ${rm(36)};
+        padding: 0 ${rm(40)};
+        margin-bottom: ${rm(20)};
     `}
 
     ${media.md`
-        font-size: ${rm(48)};
-        margin-left: ${rm(40)};
+        font-size: ${rm(32)};
+        padding: 0 ${rm(30)};
         margin-bottom: ${rm(20)};
     `}
 
     ${media.xsm`
-        font-size: ${rm(32)};
-        margin-left: ${rm(20)};
+        font-size: ${rm(24)};
+        padding: 0 ${rm(20)};
         margin-bottom: ${rm(15)};
     `}
 `
@@ -239,12 +242,28 @@ const StyledSlideContent = styled.div`
             ${fontGeist(400)};
             font-size: ${rm(20)};
             color: ${colors.black100};
+
+            ${media.md`
+                font-size: ${rm(18)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(16)};
+            `}
         }
 
         .price{
             ${fontPoppins(600)};
             font-size: ${rm(24)};
             color: ${colors.black100};
+
+            ${media.md`
+                font-size: ${rm(20)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(18)};
+            `}
         }
     }
 `

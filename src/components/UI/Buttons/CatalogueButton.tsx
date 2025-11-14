@@ -13,8 +13,8 @@ interface CatalogueButtonProps {
 
 export const CatalogueButton = ({ link, children, color, isArrowLeft }: CatalogueButtonProps) => {
 
-    const finalColor = color === 'black' ? '#484848' : color === 'white' ? '#D9D9D9' : '#8D8D8D';
-    const textColor = color === 'black' ? '#FFFFFF' : color === 'white' ? '#000000' : '#FFFFFF';
+    const finalColor = color === 'black' ? '#1C1C1C' : color === 'white' ? '#D9D9D9' : '#8D8D8D';
+    const textColor = color === 'black' ? '#E6E8E6' : color === 'white' ? '#000000' : '#FFFFFF';
 
     return (
         //@ts-expect-error
@@ -32,17 +32,9 @@ export const CatalogueButton = ({ link, children, color, isArrowLeft }: Catalogu
                     </defs>
                 </svg>
                 :
-                <svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_686_3143)">
-                    <path d="M4.125 15.125H23.6088L18.6863 10.1887L20.625 8.25L28.875 16.5L20.625 24.75L18.6863 22.8113L23.6088 17.875H4.125V15.125Z" fill={textColor}/>
-                    </g>
-                    <defs>
-                    <clipPath id="clip0_686_3143">
-                    <rect width="33" height="33" fill={textColor} transform="matrix(-1 0 0 1 33 0)"/>
-                    </clipPath>
-                    </defs>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.81313 9.25758L9.9798 7.09091M9.9798 7.09091L7.81313 4.92425M9.9798 7.09091H4.20202M13.5909 7.09091C13.5909 3.50106 10.6808 0.590912 7.09091 0.590912C3.50106 0.590912 0.59091 3.50106 0.59091 7.09091C0.59091 10.6808 3.50106 13.5909 7.09091 13.5909C10.6808 13.5909 13.5909 10.6808 13.5909 7.09091Z" stroke="#E6E8E6" stroke-width="1.18182" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                
             }
                 {children}
             </AnimLink>
@@ -54,18 +46,24 @@ const StyledAddButton = styled.div<{ color: string, backgroundColor: string, isA
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: ${rm(10)};
+    padding: ${rm(10)} ${rm(19)};
     color: ${({ color }) => color};
     background-color: ${({ backgroundColor }) => backgroundColor};
-    border-radius: ${rm(15)};
+    border-radius: ${rm(9)};
     cursor: pointer;
-    font-size: ${rm(24)};
+    font-size: ${rm(16)};
     ${fontGeist(400)};
+    width: fit-content;
 
     transition: opacity 0.3s ease;
 
     &:hover{
         opacity: 0.8;
+    }
+
+    svg{
+        width: ${rm(13)};
+        height: ${rm(13)};
     }
 
     a{

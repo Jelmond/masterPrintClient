@@ -26,6 +26,7 @@ export const CatalogSwiper = () => {
 
     return (
         <StyledCatalogSwiper>
+            <StyledTitle>Наша Продукция</StyledTitle>
             <Swiper
                 spaceBetween={30}
                 slidesPerView={width > 576 ? 4 : 2.1}
@@ -109,7 +110,9 @@ const StyledSlide = styled(AnimLink)`
     transition: transform 0.3s ease;
     
     &:hover {
-        transform: translateY(-5px);
+        img{
+            transform: scale(1.05);
+        }
     }
 `
 
@@ -137,6 +140,8 @@ const StyledSlideImage = styled.div`
         height: auto;
         object-fit: cover;
         position: absolute;
+
+        transition: transform 0.3s ease;
     }
 `
 
@@ -155,5 +160,32 @@ const StyledSlideText = styled.div`
     ${media.xsm`
         font-size: ${rm(14)};
         margin-top: ${rm(15)};
+    `}
+`
+
+const StyledTitle = styled.h1`
+    font-size: ${rm(40)};
+    color: #1C1C1C;
+    ${fontGeist(800)};
+    text-align: center;
+    margin-bottom: ${rm(24)};
+    padding: 0 ${rm(100)};
+
+    ${media.lg`
+        font-size: ${rm(36)};
+        padding: 0 ${rm(60)};
+        margin-bottom: ${rm(20)};
+    `}
+
+    ${media.md`
+        font-size: ${rm(32)};
+        padding: 0 ${rm(40)};
+        margin-bottom: ${rm(18)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(24)};
+        padding: 0 ${rm(20)};
+        margin-bottom: ${rm(15)};
     `}
 `

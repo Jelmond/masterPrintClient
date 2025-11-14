@@ -19,6 +19,7 @@ export const fontPoppins = (weight: number) => `
     font-style: normal;\n
 `
 
+
 export const fonts = {
     fontOnest,
     fontGeist,

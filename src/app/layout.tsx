@@ -30,7 +30,7 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-// GeistSans is already a NextFontWithVariable instance with a variable property
+const geistSans = GeistSans.variable
 
 export const metadata: Metadata = generateMetadata({
   title: "New Project",
@@ -44,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${onest.variable} ${GeistSans.variable} ${poppins.variable}`} style={{ opacity: 0 }}>
+      <body className={`${onest.variable} ${geistSans} ${poppins.variable}`} style={{ opacity: 0 }}>
         <StyledComponentsLayout>
           <ScrollLayout>
             <SmartCSSGrid />
