@@ -16,11 +16,11 @@ export const useStrapi = <T>({ path, method = 'GET', body }: UseStrapiOptions) =
       try {
         const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://api.mppshop.by';
         let url = `${baseUrl}${path}`;
-        if (url.includes('?')) {
-          url += '&populate=*';
-        } else {
-          url += '?populate=*';
-        }
+        // if (url.includes('?')) {
+        //   url += '&populate=*';
+        // } else {
+        //   url += '?populate=*';
+        // }
         
         const response = await fetch(url, {
           method,
