@@ -38,7 +38,6 @@ const StyledTitle = styled.p`
     margin-bottom: ${rm(60)};
     color: ${colors.black100};
     text-transform: capitalize;
-    margin-left: ${rm(20)};
 
     ${media.lg`
         font-size: ${rm(48)};
@@ -98,21 +97,23 @@ const StyledContent = styled.div`
         }
 
         .products {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(${rm(250)}, 1fr));
             gap: ${rm(54)};
 
             ${media.lg`
+                grid-template-columns: repeat(auto-fill, minmax(${rm(220)}, 1fr));
                 gap: ${rm(40)};
             `}
 
             ${media.md`
+                grid-template-columns: repeat(auto-fill, minmax(${rm(200)}, 1fr));
                 gap: ${rm(30)};
             `}
 
             ${media.xsm`
+                grid-template-columns: repeat(2, 1fr);
                 gap: ${rm(20)};
-                justify-content: center;
             `}
         }
     }

@@ -29,10 +29,16 @@ export const CanBeInteresting = ({ data, title }: CanBeInterestingProps) => {
 const StyledCanBeInteresting = styled.div`
     margin-top: ${rm(60)};
     height: 100%;
-    padding: ${rm(0)} ${rm(50)} ${rm(50)} ${rm(50)};
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: ${rm(0)} ${rm(130)} ${rm(50)} ${rm(130)};
+
+    ${media.lg`
+        padding: ${rm(0)} ${rm(80)} ${rm(50)} ${rm(80)};
+    `}
 
     ${media.md`
-        padding: ${rm(0)} ${rm(30)} ${rm(40)} ${rm(30)};
+        padding: ${rm(0)} ${rm(40)} ${rm(40)} ${rm(40)};
     `}
 
     ${media.xsm`
@@ -45,17 +51,16 @@ const StyledCanBeInteresting = styled.div`
         font-size: ${rm(50)};
         margin-bottom: ${rm(55)};
         color: ${colors.black100};
-        margin-left: ${rm(80)};
+        margin-left: 0;
+        grid-column: 1 / -1;
 
         ${media.md`
             font-size: ${rm(40)};
-            margin-left: ${rm(40)};
             margin-bottom: ${rm(40)};
         `}
 
         ${media.xsm`
             font-size: ${rm(28)};
-            margin-left: 0;
             margin-bottom: ${rm(24)};
             text-align: center;
         `}
@@ -63,25 +68,19 @@ const StyledCanBeInteresting = styled.div`
 `;
 
 const StyledGrid = styled.div`
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(${rm(250)}, 1fr));
     gap: ${rm(50)};
     height: 100%;
+    grid-column: 1 / -1;
 
     ${media.md`
+        grid-template-columns: repeat(auto-fill, minmax(${rm(200)}, 1fr));
         gap: ${rm(30)};
-        justify-content: center;
     `}
 
     ${media.xsm`
+        grid-template-columns: repeat(2, 1fr);
         gap: ${rm(16)};
-        justify-content: center;
     `}
-
-    > * {
-        ${media.xsm`
-            flex: 0 0 calc(50% - ${rm(8)});
-            max-width: calc(50% - ${rm(8)});
-        `}
-    }
 `;

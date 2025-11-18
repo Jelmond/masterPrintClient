@@ -186,18 +186,21 @@ export const OrderView = () => {
     }
 
     const handleSubmit = () => {
-        // Check minimum order amount
+        // Check minimum order amount first - prevent any action if below minimum
         if (isBelowMinimum) {
             return // Don't proceed if below minimum
         }
         
-        if (validateForm()) {
-            // Clear the cart when order is successfully submitted
-            items.forEach(item => {
-                removeFromCart(item.productId)
-            })
-            setShowSuccessModal(true)
+        // Validate form
+        if (!validateForm()) {
+            return // Don't proceed if form is invalid
         }
+        
+        // Clear the cart when order is successfully submitted
+        items.forEach(item => {
+            removeFromCart(item.productId)
+        })
+        setShowSuccessModal(true)
     }
 
     return (
@@ -1111,7 +1114,7 @@ const StyledPaymentButton = styled.button`
     ${fontGeist(500)};
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s ease, opacity 0.2s ease;
+    transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
 
     ${media.xsm`
         width: 100%;
@@ -1125,11 +1128,14 @@ const StyledPaymentButton = styled.button`
     
     &:active:not(:disabled) {
         background: #495057;
+        transform: scale(0.98);
     }
 
     &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        background: #9ca3af;
+        pointer-events: none;
     }
 `
 

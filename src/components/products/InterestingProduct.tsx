@@ -20,16 +20,60 @@ export const InterestingProduct = ({ product }: InterestingProductProps) => {
             image: product.images[0]?.url
         });
     };
+
+    // Check if product has discount
+    // oldPrice can be either higher (normal case) or lower (if values are swapped)
+    const oldPriceValue = product.oldPrice ? parseFloat(product.oldPrice) : null;
+    const currentPriceValue = parseFloat(product.price) || 0;
+    
+    // Determine which is the actual old price and which is the new price
+    let oldPrice: number | null = null;
+    let currentPrice: number = currentPriceValue;
+    let hasDiscount = false;
+    
+    if (oldPriceValue !== null) {
+        if (oldPriceValue > currentPriceValue) {
+            // Normal case: oldPrice > price (discount applied)
+            oldPrice = oldPriceValue;
+            currentPrice = currentPriceValue;
+            hasDiscount = true;
+        } else if (oldPriceValue < currentPriceValue) {
+            // Swapped case: price is actually the old price, oldPrice is the new discounted price
+            oldPrice = currentPriceValue;
+            currentPrice = oldPriceValue;
+            hasDiscount = true;
+        }
+    }
+    
+    const discountPercent = hasDiscount && oldPrice !== null
+        ? Math.round(((oldPrice - currentPrice) / oldPrice) * 100)
+        : 0;
     
 
     return (
         <StyledInterestingProduct>
+            {hasDiscount && (
+                <StyledDiscountBadge>
+                    <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
+                    <div className="newPrice">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                    <div className="discountPercent">-{discountPercent}%</div>
+                </StyledDiscountBadge>
+            )}
             <img src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`} alt={product.title} />
             <StyledHiddenLink href={`/products/${product?.id}`} target="_blank"/>
             <div className="content">
                 <div className="title">{product.title}</div>
                 <div className="priceContainer">
-                    <div className="price">{product.price} руб.</div>
+                    <div className="priceWrapper">
+                        {hasDiscount ? (
+                            <>
+                                <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
+                                <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                            </>
+                        ) : (
+                            <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                        )}
+                    </div>
                     <div className="button" onClick={(e) => {
                         e.preventDefault();
                         handleAddToCart(product);}}
@@ -49,7 +93,7 @@ const StyledInterestingProduct = styled.div`
     display: flex;
     flex-direction: column;
     width: ${rm(315)};
-    overflow: hidden;
+    overflow: visible;
     position: relative;
 
     ${media.lg`
@@ -116,18 +160,41 @@ const StyledInterestingProduct = styled.div`
             justify-content: space-between;
             margin-top: ${rm(10)};
 
-            .price{
-                font-size: ${rm(24)};
-                ${fontGeist(400)};
-                color: ${colors.black100};
+            .priceWrapper{
+                display: flex;
+                flex-direction: column;
+                gap: ${rm(4)};
 
-                ${media.md`
-                    font-size: ${rm(20)};
-                `}
+                .oldPrice{
+                    font-size: ${rm(16)};
+                    ${fontGeist(400)};
+                    color: #999;
+                    text-decoration: line-through;
+                    line-height: 1;
 
-                ${media.xsm`
-                    font-size: ${rm(18)};
-                `}
+                    ${media.md`
+                        font-size: ${rm(14)};
+                    `}
+
+                    ${media.xsm`
+                        font-size: ${rm(13)};
+                    `}
+                }
+
+                .price{
+                    font-size: ${rm(24)};
+                    ${fontGeist(400)};
+                    color: ${colors.black100};
+                    line-height: 1;
+
+                    ${media.md`
+                        font-size: ${rm(20)};
+                    `}
+
+                    ${media.xsm`
+                        font-size: ${rm(18)};
+                    `}
+                }
             }
 
             .button{
@@ -158,4 +225,90 @@ const StyledHiddenLink = styled.a`
     top: 0;
     left: 0;
     z-index: 1;
+`
+
+const StyledDiscountBadge = styled.div`
+    position: absolute;
+    top: ${rm(10)};
+    right: ${rm(10)};
+    z-index: 10;
+    background: linear-gradient(135deg, #ff4757 0%, #ff6348 50%, #ff7675 100%);
+    border-radius: ${rm(8)};
+    padding: ${rm(6)} ${rm(10)};
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: ${rm(8)};
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(255, 71, 87, 0.4), 
+                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    animation: pulse 2s ease-in-out infinite;
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 ${rm(4)} ${rm(12)} rgba(255, 71, 87, 0.4), 
+                        0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
+        }
+        50% {
+            transform: scale(1.02);
+            box-shadow: 0 ${rm(6)} ${rm(16)} rgba(255, 71, 87, 0.5), 
+                        0 ${rm(3)} ${rm(8)} rgba(0, 0, 0, 0.2);
+        }
+    }
+
+    ${media.xsm`
+        top: ${rm(8)};
+        right: ${rm(8)};
+        padding: ${rm(5)} ${rm(8)};
+        gap: ${rm(6)};
+        border-radius: ${rm(6)};
+    `}
+
+    .oldPrice {
+        font-size: ${rm(11)};
+        ${fontGeist(400)};
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: line-through;
+        line-height: 1;
+        opacity: 0.9;
+        white-space: nowrap;
+
+        ${media.xsm`
+            font-size: ${rm(10)};
+        `}
+    }
+
+    .newPrice {
+        font-size: ${rm(14)};
+        ${fontGeist(700)};
+        color: ${colors.white100};
+        line-height: 1;
+        text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+
+        ${media.xsm`
+            font-size: ${rm(13)};
+        `}
+    }
+
+    .discountPercent {
+        font-size: ${rm(11)};
+        ${fontGeist(700)};
+        color: ${colors.white100};
+        background: rgba(255, 255, 255, 0.25);
+        padding: ${rm(2)} ${rm(6)};
+        border-radius: ${rm(4)};
+        line-height: 1;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+
+        ${media.xsm`
+            font-size: ${rm(10)};
+            padding: ${rm(2)} ${rm(5)};
+            border-radius: ${rm(3)};
+        `}
+    }
 `
