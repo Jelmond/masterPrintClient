@@ -49,6 +49,15 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         ? Math.round(((oldPrice - currentPrice) / oldPrice) * 100)
         : 0;
 
+    // Check if product has polishes
+    const hasPolishes = product.polishes !== null && 
+                       product.polishes !== undefined && 
+                       Array.isArray(product.polishes) && 
+                       product.polishes.length > 0;
+
+    // Check if product is bestseller
+    const isBestseller = product.isBestseller === true;
+
     // Debug: Log products with oldPrice
     if (product.oldPrice !== null && product.oldPrice !== undefined) {
         console.log('Product with oldPrice:', {
@@ -73,9 +82,25 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                     <div className="discountPercent">-{discountPercent}%</div>
                 </StyledDiscountBadge>
             )}
-            <img src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`} alt={product.title} />
+            <StyledImageContainer>
+                {hasPolishes && (
+                    <StyledPolishesBadge>
+                        {product.polishes.map((polish: any, index: number) => (
+                            <span key={polish.id || index} className="polishName">
+                                {polish.name}
+                            </span>
+                        ))}
+                    </StyledPolishesBadge>
+                )}
+                <img src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`} alt={product.title} />
+                {isBestseller && (
+                    <StyledBestsellerBadge>
+                        <span>Бестселлер</span>
+                    </StyledBestsellerBadge>
+                )}
+            </StyledImageContainer>
             <StyledHiddenLink href={`/products/${product?.id}`} target="_blank"/>
-            <div className="content">
+            <StyledContent>
                 <div className="title">{product.title}</div>
                 <div className="priceContainer">
                     <div className="priceWrapper">
@@ -98,7 +123,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         </svg>
                     </div>
                 </div>
-            </div>
+            </StyledContent>
         </StyledProductCard>
     )
 };
@@ -122,6 +147,11 @@ const StyledProductCard = styled.div`
         width: 100%;
         max-width: ${rm(280)};
     `}
+`
+
+const StyledImageContainer = styled.div`
+    position: relative;
+    width: 100%;
 
     img{
         border-radius: ${rm(5)};
@@ -141,8 +171,9 @@ const StyledProductCard = styled.div`
             height: ${rm(300)};
         `}
     }
+`
 
-    .content{
+const StyledContent = styled.div`
         display: flex;
         flex-direction: column;
         margin-top: ${rm(10)};
@@ -323,6 +354,82 @@ const StyledDiscountBadge = styled.div`
             font-size: ${rm(10)};
             padding: ${rm(2)} ${rm(5)};
             border-radius: ${rm(3)};
+        `}
+    }
+`
+
+const StyledPolishesBadge = styled.div`
+    position: absolute;
+    top: ${rm(50)};
+    right: ${rm(10)};
+    z-index: 10;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #9b59b6 100%);
+    border-radius: ${rm(8)};
+    padding: ${rm(6)} ${rm(10)};
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: ${rm(6)};
+    flex-wrap: wrap;
+    max-width: ${rm(200)};
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(102, 126, 234, 0.4), 
+                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+
+    ${media.xsm`
+        top: ${rm(45)};
+        right: ${rm(8)};
+        padding: ${rm(5)} ${rm(8)};
+        gap: ${rm(4)};
+        border-radius: ${rm(6)};
+        max-width: ${rm(150)};
+    `}
+
+    .polishName {
+        font-size: ${rm(11)};
+        ${fontGeist(600)};
+        color: ${colors.white100};
+        line-height: 1;
+        text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+
+        ${media.xsm`
+            font-size: ${rm(10)};
+        `}
+    }
+`
+
+const StyledBestsellerBadge = styled.div`
+    position: absolute;
+    bottom: ${rm(10)};
+    right: ${rm(10)};
+    z-index: 10;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 50%, #d35400 100%);
+    border-radius: ${rm(8)};
+    padding: ${rm(6)} ${rm(12)};
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(243, 156, 18, 0.4), 
+                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+
+    ${media.xsm`
+        bottom: ${rm(8)};
+        right: ${rm(8)};
+        padding: ${rm(5)} ${rm(10)};
+        border-radius: ${rm(6)};
+    `}
+
+    span {
+        font-size: ${rm(12)};
+        ${fontGeist(700)};
+        color: ${colors.white100};
+        line-height: 1;
+        text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+
+        ${media.xsm`
+            font-size: ${rm(11)};
         `}
     }
 `

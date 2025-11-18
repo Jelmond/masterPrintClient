@@ -37,7 +37,10 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
         sortBy: '',
         cardSizes: [] as string[],
         tagSizes: [] as string[],
-        quantities: [] as string[]
+        quantities: [] as string[],
+        hasDiscount: false,
+        selectedPolishes: [] as string[],
+        isBestseller: false
     })
 
     // Modal state
@@ -125,6 +128,34 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
             )
         }
 
+        // Discount filter
+        if (filters.hasDiscount) {
+            filtered = filtered.filter(product => {
+                const oldPriceValue = product.oldPrice ? parseFloat(product.oldPrice) : null;
+                const currentPriceValue = parseFloat(product.price) || 0;
+                return oldPriceValue !== null && oldPriceValue !== currentPriceValue;
+            })
+        }
+
+        // Polishes filter
+        if (filters.selectedPolishes.length > 0) {
+            filtered = filtered.filter(product => {
+                const hasPolishes = product.polishes !== null && 
+                                   product.polishes !== undefined && 
+                                   Array.isArray(product.polishes) && 
+                                   product.polishes.length > 0;
+                if (!hasPolishes) return false;
+                return product.polishes.some((polish: any) => 
+                    filters.selectedPolishes.includes(polish.name)
+                );
+            })
+        }
+
+        // Bestseller filter
+        if (filters.isBestseller) {
+            filtered = filtered.filter(product => product.isBestseller === true)
+        }
+
         // Sorting
         if (filters.sortBy) {
             filtered.sort((a, b) => {
@@ -170,27 +201,65 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
 
     // Group filtered products by tag for display, maintaining original order
     const groupedFilteredProducts = useMemo(() => {
-        const groups: { [key: string]: any[] } = {}
+        // Separate products with batch and without batch
+        const productsWithBatch: any[] = []
+        const productsWithoutBatch: any[] = []
+        
+        filteredProducts.forEach(product => {
+            const hasBatch = product.batch !== null && 
+                           product.batch !== undefined && 
+                           product.batch.name;
+            
+            if (hasBatch) {
+                productsWithBatch.push(product)
+            } else {
+                productsWithoutBatch.push(product)
+            }
+        })
+        
+        // Group products with batch by batch name
+        const batchGroups: { [key: string]: any[] } = {}
+        productsWithBatch.forEach(product => {
+            const batchName = product.batch.name
+            if (!batchGroups[batchName]) {
+                batchGroups[batchName] = []
+            }
+            batchGroups[batchName].push(product)
+        })
+        
+        // Convert batch groups to array format
+        const batchGroupsArray = Object.keys(batchGroups)
+            .map(batchName => ({
+                title: batchName,
+                products: batchGroups[batchName]
+            }))
+            .sort((a, b) => a.title.localeCompare(b.title, 'ru')) // Sort batch groups alphabetically
+        
+        // Group products without batch by tag
+        const tagGroups: { [key: string]: any[] } = {}
         
         // Initialize groups in original order
         originalTagOrder.forEach((title: string) => {
-            groups[title] = []
+            tagGroups[title] = []
         })
         
-        // Add filtered products to their groups
-        filteredProducts.forEach(product => {
-            if (groups[product.tag]) {
-                groups[product.tag].push(product)
+        // Add products without batch to their tag groups
+        productsWithoutBatch.forEach(product => {
+            if (tagGroups[product.tag]) {
+                tagGroups[product.tag].push(product)
             }
         })
 
-        // Return groups in the original order, but only include groups with products
-        return originalTagOrder
+        // Return batch groups first, then tag groups in the original order
+        const tagGroupsArray = originalTagOrder
             .map((title: string) => ({
                 title,
-                products: groups[title] || []
+                products: tagGroups[title] || []
             }))
             .filter((group: any) => group.products.length > 0)
+        
+        // Combine: batch groups first, then tag groups
+        return [...batchGroupsArray, ...tagGroupsArray]
     }, [filteredProducts, originalTagOrder])
 
     const handleFilterChange = (filterType: string, value: any) => {
@@ -217,7 +286,10 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
             sortBy: '',
             cardSizes: [],
             tagSizes: [],
-            quantities: []
+            quantities: [],
+            hasDiscount: false,
+            selectedPolishes: [],
+            isBestseller: false
         })
     }
 
@@ -260,7 +332,10 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
         filters.sortBy, 
         JSON.stringify(filters.cardSizes), 
         JSON.stringify(filters.tagSizes), 
-        JSON.stringify(filters.quantities), 
+        JSON.stringify(filters.quantities),
+        filters.hasDiscount,
+        JSON.stringify(filters.selectedPolishes),
+        filters.isBestseller,
         lenis
     ])
 
@@ -328,7 +403,10 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
                     sortBy: filters.sortBy,
                     cardSizes: filters.cardSizes,
                     tagSizes: filters.tagSizes,
-                    quantities: filters.quantities
+                    quantities: filters.quantities,
+                    hasDiscount: filters.hasDiscount,
+                    selectedPolishes: filters.selectedPolishes,
+                    isBestseller: filters.isBestseller
                 }}
                 products={allProducts}
             />

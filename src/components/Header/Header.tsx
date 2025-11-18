@@ -66,7 +66,7 @@ export const Header = () => {
             <StyledLeftContainer>
                 <StyledLogo href='/'>
                     <svg width="155" height="40" viewBox="0 0 155 40" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-                        <rect width="154.576" height="40" fill="url(#pattern0_13_21)"/>
+                        <rect width="155" height="40" fill="url(#pattern0_13_21)"/>
                         <defs>
                         <pattern id="pattern0_13_21" patternContentUnits="objectBoundingBox" width="1" height="1">
                         <use xlinkHref="#image0_13_21" transform="scale(0.00219298 0.00847458)"/>

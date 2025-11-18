@@ -1,6 +1,7 @@
 import { colors, media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
+import { useEffect } from "react"
 
 interface FilterModalProps {
     isOpen: boolean
@@ -12,6 +13,9 @@ interface FilterModalProps {
         cardSizes: string[]
         tagSizes: string[]
         quantities: string[]
+        hasDiscount: boolean
+        selectedPolishes: string[]
+        isBestseller: boolean
     }
     products: any[]
 }
@@ -26,15 +30,15 @@ const StyledModalOverlay = styled.div<{ isOpen: boolean }>`
     backdrop-filter: blur(8px);
     z-index: 1000;
     display: ${props => props.isOpen ? 'flex' : 'none'};
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-start;
-    padding: ${rm(120)} ${rm(20)} ${rm(20)} ${rm(20)};
+    padding: ${rm(20)};
     opacity: ${props => props.isOpen ? 1 : 0};
     transition: opacity 0.3s ease-in-out;
     animation: ${props => props.isOpen ? 'fadeIn' : 'fadeOut'} 0.3s ease-in-out;
 
     ${media.xsm`
-        padding: ${rm(60)} ${rm(15)} ${rm(15)} ${rm(15)};
+        padding: ${rm(15)};
         align-items: flex-end;
         justify-content: center;
     `}
@@ -69,16 +73,37 @@ const StyledFilterCard = styled.div<{ isOpen: boolean }>`
     border: 1px solid rgba(255, 255, 255, 0.2);
     min-width: ${rm(320)};
     max-width: ${rm(420)};
+    max-height: 70vh;
+    overflow-y: auto;
     position: relative;
     transform: translateY(${props => props.isOpen ? '0' : '-20px'});
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     animation: ${props => props.isOpen ? 'slideIn' : 'slideOut'} 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
+    /* Custom scrollbar styling */
+    &::-webkit-scrollbar {
+        width: ${rm(8)};
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: ${rm(4)};
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(102, 126, 234, 0.3);
+        border-radius: ${rm(4)};
+        transition: background 0.2s ease;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(102, 126, 234, 0.5);
+    }
+
     ${media.xsm`
         min-width: 100%;
         max-width: 100%;
         max-height: 85vh;
-        overflow-y: auto;
         border-radius: ${rm(20)} ${rm(20)} 0 0;
         padding: ${rm(24)} ${rm(20)};
     `}
@@ -369,13 +394,27 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
     const availableSizes = Array.from(new Set(products.map(p => p.size).filter(Boolean))).sort()
     const availableMaterials = Array.from(new Set(products.map(p => p.material).filter(Boolean))).sort()
     const availableQuantities = Array.from(new Set(products.map(p => p.quantityInPack?.toString()).filter(Boolean))).sort((a, b) => parseInt(a) - parseInt(b))
+    
+    // Extract unique polishes from products
+    const allPolishes = products
+        .filter(p => p.polishes !== null && p.polishes !== undefined && Array.isArray(p.polishes) && p.polishes.length > 0)
+        .flatMap(p => p.polishes)
+    const availablePolishes = Array.from(
+        new Map(allPolishes.map((polish: any) => [polish.name, polish]))
+            .values()
+    )
+        .map((polish: any) => polish.name)
+        .sort()
 
     // Calculate active filters count
     const activeFiltersCount = [
         filters.sortBy ? 1 : 0,
         filters.cardSizes.length,
         filters.tagSizes.length,
-        filters.quantities.length
+        filters.quantities.length,
+        filters.hasDiscount ? 1 : 0,
+        filters.selectedPolishes.length,
+        filters.isBestseller ? 1 : 0
     ].reduce((sum, count) => sum + count, 0)
 
     const handleCheckboxChange = (filterType: string, value: string, checked: boolean) => {
@@ -392,6 +431,9 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
         onFilterChange('cardSizes', [])
         onFilterChange('tagSizes', [])
         onFilterChange('quantities', [])
+        onFilterChange('hasDiscount', false)
+        onFilterChange('selectedPolishes', [])
+        onFilterChange('isBestseller', false)
     }
 
     const handleOverlayClick = (e: React.MouseEvent) => {
@@ -400,9 +442,33 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
         }
     }
 
+    const handleCardWheel = (e: React.WheelEvent) => {
+        e.stopPropagation()
+    }
+
+    const handleCardTouchStart = (e: React.TouchEvent) => {
+        e.stopPropagation()
+    }
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            const originalStyle = window.getComputedStyle(document.body).overflow
+            document.body.style.overflow = 'hidden'
+            return () => {
+                document.body.style.overflow = originalStyle
+            }
+        }
+    }, [isOpen])
+
     return (
         <StyledModalOverlay isOpen={isOpen} onClick={handleOverlayClick}>
-            <StyledFilterCard isOpen={isOpen}>
+            <StyledFilterCard 
+                isOpen={isOpen}
+                onWheel={handleCardWheel}
+                onTouchStart={handleCardTouchStart}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <StyledCloseButton onClick={onClose}>
                     ×
                 </StyledCloseButton>
@@ -479,6 +545,46 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                             </StyledCheckboxItem>
                         )) : (
                             <p style={{ color: '#666', fontSize: rm(14) }}>Нет доступных количеств</p>
+                        )}
+                    </StyledCheckboxGroup>
+                </StyledSection>
+
+                <StyledSection>
+                    <StyledSectionTitle>Особые предложения</StyledSectionTitle>
+                    <StyledCheckboxGroup>
+                        <StyledCheckboxItem>
+                            <StyledCheckbox
+                                type="checkbox"
+                                checked={filters.hasDiscount}
+                                onChange={(e) => onFilterChange('hasDiscount', e.target.checked)}
+                            />
+                            Только со скидкой
+                        </StyledCheckboxItem>
+                        <StyledCheckboxItem>
+                            <StyledCheckbox
+                                type="checkbox"
+                                checked={filters.isBestseller}
+                                onChange={(e) => onFilterChange('isBestseller', e.target.checked)}
+                            />
+                            Бестселлеры
+                        </StyledCheckboxItem>
+                    </StyledCheckboxGroup>
+                </StyledSection>
+
+                <StyledSection>
+                    <StyledSectionTitle>Лак</StyledSectionTitle>
+                    <StyledCheckboxGroup>
+                        {availablePolishes.length > 0 ? availablePolishes.map((polishName) => (
+                            <StyledCheckboxItem key={polishName}>
+                                <StyledCheckbox
+                                    type="checkbox"
+                                    checked={filters.selectedPolishes.includes(polishName)}
+                                    onChange={(e) => handleCheckboxChange('selectedPolishes', polishName, e.target.checked)}
+                                />
+                                {polishName}
+                            </StyledCheckboxItem>
+                        )) : (
+                            <p style={{ color: '#666', fontSize: rm(14) }}>Нет доступных лаков</p>
                         )}
                     </StyledCheckboxGroup>
                 </StyledSection>
