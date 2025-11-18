@@ -95,7 +95,7 @@ export default function AboutPage() {
                             </StyledInfoItem>
                             <StyledInfoItem>
                                 <StyledInfoLabel>Свидетельство о государственной регистрации:</StyledInfoLabel>
-                                <StyledInfoValue>№100160363, выдано Минским горисполкомом 26.10.2025 г.</StyledInfoValue>
+                                <StyledInfoValue>Регистрирующий орган: Гродненский райисполком-дата решения о государственной регистрации 18.02.2014</StyledInfoValue>
                             </StyledInfoItem>
                         </StyledInfoList>
                     </StyledSection>

@@ -1,4 +1,3 @@
-import { useStrapi } from "@/hooks/useStrapi"
 import { colors, media, rm } from "@/styles"
 import { fontGeist, fontPoppins } from "@/styles/fonts"
 import Image from "next/image"
@@ -8,22 +7,51 @@ import { Swiper } from "swiper/react"
 import { useCartStore } from "@/store/cartStore"
 import { useWindowWidth } from "@react-hook/window-size"
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
+import { useEffect, useState } from "react"
 
 export const Bestsellers = () => {
 
     const width = useWindowWidth()
+    const [bestsellers, setBestsellers] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<Error | null>(null)
 
-    const { data, error, loading } = useStrapi<{ data: any[] }>({
-        path: '/api/products',
-    });
     const addToCart = useCartStore(state => state.addToCart);
     const items = useCartStore(state => state.items);
 
+    useEffect(() => {
+        const fetchBestsellers = async () => {
+            try {
+                setLoading(true)
+                const productsUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[isBestseller][$eq]=true&populate=*`;
+                
+                const productsRes = await fetch(productsUrl, { 
+                    cache: 'no-store',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!productsRes.ok) {
+                    throw new Error(`Failed to fetch products: ${productsRes.statusText}`);
+                }
+
+                const productsData = await productsRes.json();
+                const allProducts = productsData?.data || [];
+                setBestsellers(allProducts);
+            } catch (err) {
+                setError(err instanceof Error ? err : new Error('An error occurred'));
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBestsellers();
+    }, []);
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
-    if (!data?.data) return null;
-
-    const trippledData = [...data?.data, ...data?.data, ...data?.data];
+    if (bestsellers.length === 0) return null;
     
     const handleAddToCart = (product: any) => {
         addToCart({
@@ -45,7 +73,7 @@ export const Bestsellers = () => {
                     slidesPerView={width > 1440 ? 5 : width > 1024 ? 3 : 1.5}
                     className="products-swiper"
                 >
-                    {trippledData.map((product, index) => (
+                    {bestsellers.map((product, index) => (
                         <SwiperSlide key={index}>
                             <StyledSlide href={`/products/${product?.id}`} isUp={index % 2 === 1}>
                                 <StyledSlideImage>

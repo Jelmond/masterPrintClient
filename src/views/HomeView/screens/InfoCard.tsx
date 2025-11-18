@@ -82,11 +82,11 @@ const Card = memo(({ icon, title, description }: typeof cards[0]) => {
             <StyledIconContainer>
                 {renderIcon()}
             </StyledIconContainer>
-            <div className="content">
-                <p className="title">{title}</p>
-                <p className="description">{description}</p>
-            </div>
-        </StyledCard>
+        <div className="content">
+            <p className="title">{title}</p>
+            <p className="description">{description}</p>
+        </div>
+    </StyledCard>
     )
 })
 
@@ -97,11 +97,11 @@ export const InfoCard = memo(() => {
         <StyledInfoCard>
             <StyledContentContainer>
                 <StyledTitle>Почему Выбирают Нас</StyledTitle>
-                <StyledContent>
+            <StyledContent>
                     {cards.map((card, index) => (
                         <Card key={index} {...card} />
                     ))}
-                </StyledContent>
+            </StyledContent>
             </StyledContentContainer>
         </StyledInfoCard>
     )
