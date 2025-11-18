@@ -4,8 +4,10 @@ import styled from "styled-components";
 import { ProductsLayout } from "./components/ProductsLayout";
 import { FiltersBar } from "./components/FiltersBar";
 import { FilterModal } from "./components/FilterModal";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { media, rm } from "@/styles";
+import { useScroll } from "@/layouts/ScrollLayout/useScroll";
+import { colors } from "@/styles/colors";
 
 interface CatalogViewProps {
     data: any;
@@ -19,6 +21,7 @@ const StyledCatalogView = styled.div`
     min-height: 100vh;
     position: relative;
     padding-top: ${rm(80)};
+    z-index: 1;
 
     ${media.xsm`
         padding-top: ${rm(60)};
@@ -39,6 +42,15 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
 
     // Modal state
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+    
+    // Track if this is the first render to avoid scrolling on initial load
+    const isFirstRender = useRef(true)
+    
+    // Get Lenis instance for smooth scrolling
+    const lenis = useScroll((state) => state.lenis)
+    
+    // Scroll to top button state
+    const [showScrollTop, setShowScrollTop] = useState(false)
 
     // Flatten all products for filtering
     const allProducts = useMemo(() => {
@@ -57,6 +69,8 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
     // Filter products based on current filters
     const filteredProducts = useMemo(() => {
         let filtered = allProducts
+
+        console.log('filtered', filtered)
 
         // Search filter
         if (filters.searchQuery) {
@@ -141,26 +155,43 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
         return filtered
     }, [allProducts, filters])
 
-    // Group filtered products by tag for display
+    // Get the original order of tags from tagsProductsData
+    const originalTagOrder = useMemo(() => {
+        return tagsProductsData.map((tagGroup: any) => tagGroup.title)
+    }, [tagsProductsData])
+
+    // Sort tags to match the order in tagsProductsData
+    const sortedTags = useMemo(() => {
+        const tagMap = new Map(tags.map((tag: any) => [tag.title, tag]))
+        return originalTagOrder
+            .map((title: string) => tagMap.get(title))
+            .filter(Boolean) as any[]
+    }, [tags, originalTagOrder])
+
+    // Group filtered products by tag for display, maintaining original order
     const groupedFilteredProducts = useMemo(() => {
-        // If sorting is active, maintain the sort order when grouping
         const groups: { [key: string]: any[] } = {}
-        const groupOrder: string[] = []
         
+        // Initialize groups in original order
+        originalTagOrder.forEach((title: string) => {
+            groups[title] = []
+        })
+        
+        // Add filtered products to their groups
         filteredProducts.forEach(product => {
-            if (!groups[product.tag]) {
-                groups[product.tag] = []
-                groupOrder.push(product.tag)
+            if (groups[product.tag]) {
+                groups[product.tag].push(product)
             }
-            groups[product.tag].push(product)
         })
 
-        // Return groups in the order they were encountered (which preserves sort order)
-        return groupOrder.map((title) => ({
-            title,
-            products: groups[title]
-        }))
-    }, [filteredProducts])
+        // Return groups in the original order, but only include groups with products
+        return originalTagOrder
+            .map((title: string) => ({
+                title,
+                products: groups[title] || []
+            }))
+            .filter((group: any) => group.products.length > 0)
+    }, [filteredProducts, originalTagOrder])
 
     const handleFilterChange = (filterType: string, value: any) => {
         setFilters(prev => ({
@@ -204,28 +235,90 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
         setIsFilterModalOpen(false)
     }
 
+    // Scroll to top when filters change
+    useEffect(() => {
+        // Skip scroll on first render
+        if (isFirstRender.current) {
+            isFirstRender.current = false
+            return
+        }
+        
+        // Scroll to top when any filter changes using Lenis
+        if (lenis) {
+            lenis.scrollTo(0, { immediate: false, duration: 1.2 })
+        } else {
+            // Fallback to regular scroll if Lenis is not available
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        }
+    }, [
+        filters.sales, 
+        JSON.stringify(filters.selectedTags), 
+        filters.searchQuery, 
+        filters.sortBy, 
+        JSON.stringify(filters.cardSizes), 
+        JSON.stringify(filters.tagSizes), 
+        JSON.stringify(filters.quantities), 
+        lenis
+    ])
+
+    // Show/hide scroll to top button
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop
+            setShowScrollTop(scrollY > 300) // Show button after scrolling 300px
+        }
+
+        // Use Lenis scroll event if available, otherwise use window scroll
+        if (lenis) {
+            lenis.on('scroll', handleScroll)
+            return () => {
+                lenis.off('scroll', handleScroll)
+            }
+        } else {
+            window.addEventListener('scroll', handleScroll)
+            return () => window.removeEventListener('scroll', handleScroll)
+        }
+    }, [lenis])
+
+    const handleScrollToTop = () => {
+        if (lenis) {
+            lenis.scrollTo(0, { immediate: false, duration: 1.2 })
+        } else {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        }
+    }
+
     return (
         <StyledCatalogView>
-            <FiltersBar 
-                tags={tags} 
-                filters={{
-                    sales: filters.sales,
-                    selectedTags: filters.selectedTags,
-                    searchQuery: filters.searchQuery
-                }}
-                onFilterChange={handleFilterChange}
-                onTagToggle={handleTagToggle}
-                onClearFilters={clearFilters}
-                onOpenFilterModal={handleOpenFilterModal}
-                showCategories={showCategories}
-            />
+            <StyledFiltersBarWrapper>
+                <div className="relativeContainer">
+                    <FiltersBar 
+                        tags={sortedTags} 
+                        filters={{
+                            sales: filters.sales,
+                            selectedTags: filters.selectedTags,
+                            searchQuery: filters.searchQuery
+                        }}
+                        onFilterChange={handleFilterChange}
+                        onTagToggle={handleTagToggle}
+                        onClearFilters={clearFilters}
+                        onOpenFilterModal={handleOpenFilterModal}
+                        showCategories={showCategories}
+                    />
+                </div>
+            </StyledFiltersBarWrapper>
             <ProductsLayout 
                 title={data.title} 
                 tagsProductsData={groupedFilteredProducts}
                 hasActiveFilters={!!(filters.sales || filters.selectedTags.length > 0 || filters.searchQuery)}
                 onOpenFilterModal={handleOpenFilterModal}
             />
-            
             <FilterModal
                 isOpen={isFilterModalOpen}
                 onClose={handleCloseFilterModal}
@@ -239,6 +332,82 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
                 }}
                 products={allProducts}
             />
+            <StyledScrollToTop $isVisible={showScrollTop} onClick={handleScrollToTop}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+            </StyledScrollToTop>
         </StyledCatalogView>
     )
 }
+
+const StyledFiltersBarWrapper = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    max-width: ${rm(202)};
+
+    .relativeContainer {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        padding-bottom: ${rm(80)};
+    }
+`
+
+const StyledScrollToTop = styled.button<{ $isVisible: boolean }>`
+    position: fixed;
+    bottom: ${rm(30)};
+    right: ${rm(30)};
+    width: ${rm(50)};
+    height: ${rm(50)};
+    background: ${colors.black100};
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(0, 0, 0, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: ${colors.white100};
+    opacity: ${props => props.$isVisible ? 1 : 0};
+    transform: ${props => props.$isVisible ? `translateY(0) scale(1)` : `translateY(${rm(20)}) scale(0.8)`};
+    pointer-events: ${props => props.$isVisible ? 'auto' : 'none'};
+
+    ${media.xsm`
+        width: ${rm(45)};
+        height: ${rm(45)};
+        bottom: ${rm(20)};
+        right: ${rm(20)};
+    `}
+
+    &:hover {
+        background: #333;
+        transform: ${props => props.$isVisible ? `translateY(${rm(-3)}) scale(1.05)` : 'translateY(0) scale(0.8)'};
+        box-shadow: 0 ${rm(6)} ${rm(16)} rgba(0, 0, 0, 0.3);
+    }
+
+    &:active {
+        transform: ${props => props.$isVisible ? `translateY(${rm(-1)}) scale(1.02)` : 'translateY(0) scale(0.8)'};
+    }
+
+    svg {
+        width: ${rm(24)};
+        height: ${rm(24)};
+        transition: transform 0.3s ease;
+
+        ${media.xsm`
+            width: ${rm(20)};
+            height: ${rm(20)};
+        `}
+    }
+
+    &:hover svg {
+        transform: translateY(${rm(-2)});
+    }
+`   

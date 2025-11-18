@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import { colors, rm } from "@/styles"
+import { colors, media, rm } from "@/styles"
 import styled from "styled-components"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Thumbs } from 'swiper/modules';
@@ -85,7 +85,21 @@ export const ProductView = ({ data }: { data: any }) => {
                         slidesPerView={Math.min(images.length, 5)}
                         watchSlidesProgress
                         modules={[Thumbs]}
-                        style={{ width: '100%', height: '120px' }}
+                        style={{ width: '100%' }}
+                        breakpoints={{
+                            320: {
+                                slidesPerView: Math.min(images.length, 3),
+                                spaceBetween: 10,
+                            },
+                            576: {
+                                slidesPerView: Math.min(images.length, 4),
+                                spaceBetween: 15,
+                            },
+                            1024: {
+                                slidesPerView: Math.min(images.length, 5),
+                                spaceBetween: 20,
+                            },
+                        }}
                     >
                         {images.map((img: any, idx: number) => (
                             <SwiperSlide key={img.id || idx}>
@@ -106,7 +120,7 @@ export const ProductView = ({ data }: { data: any }) => {
             <Right>
                 <div className="content">
                     <p className="title">{data.title}</p>
-                    <p className="price">{data.price} руб.</p>
+                    <p className="price">{(data.price * quantity).toLocaleString('ru-RU')} руб.</p>
                     <RichText 
                         content={data.description} 
                         renderers={{
@@ -160,15 +174,36 @@ export const ProductView = ({ data }: { data: any }) => {
     )
 }
 
-const StyledProductView = styled.div`    display: flex;
+const StyledProductView = styled.div`
+    display: flex;
     padding: ${rm(90)} ${rm(130)};
     gap: ${rm(60)};
+
+    ${media.lg`
+        padding: ${rm(80)} ${rm(80)} ${rm(60)} ${rm(80)};
+        gap: ${rm(40)};
+    `}
+
+    ${media.md`
+        flex-direction: column;
+        padding: ${rm(80)} ${rm(40)} ${rm(40)} ${rm(40)};
+        gap: ${rm(30)};
+    `}
+
+    ${media.xsm`
+        padding: ${rm(80)} ${rm(20)} ${rm(20)} ${rm(20)};
+        gap: ${rm(20)};
+    `}
 `
 const Left = styled.div`
     flex: 1.2;
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    ${media.md`
+        width: 100%;
+    `}
 `
 
 const StyledActions = styled.div`
@@ -177,10 +212,31 @@ const StyledActions = styled.div`
     align-items: center;
     margin-top: ${rm(30)};
 
+    ${media.md`
+        gap: ${rm(20)};
+        margin-top: ${rm(20)};
+    `}
+
+    ${media.xsm`
+        flex-direction: column;
+        align-items: stretch;
+        gap: ${rm(15)};
+        margin-top: ${rm(15)};
+    `}
+
     .quantityContainer{
         display: flex;
         align-items: center;
         gap: ${rm(33)};
+
+        ${media.md`
+            gap: ${rm(25)};
+        `}
+
+        ${media.xsm`
+            gap: ${rm(20)};
+            justify-content: center;
+        `}
 
         .quantity-value{
             color: ${colors.black100};
@@ -190,6 +246,18 @@ const StyledActions = styled.div`
             margin-left: ${rm(10)};
             width: ${rm(50)};
             text-align: center;
+
+            ${media.md`
+                font-size: ${rm(28)};
+                width: ${rm(45)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(24)};
+                width: ${rm(40)};
+                margin-top: 0;
+                margin-left: 0;
+            `}
         }
 
         .quantity-button{
@@ -198,6 +266,16 @@ const StyledActions = styled.div`
             background: transparent;
             border: none;
             cursor: pointer;
+
+            ${media.md`
+                width: ${rm(30)};
+                height: ${rm(30)};
+            `}
+
+            ${media.xsm`
+                width: ${rm(28)};
+                height: ${rm(28)};
+            `}
         }
     }
 
@@ -213,6 +291,19 @@ const StyledActions = styled.div`
 
         transition: opacity 0.3s ease;
 
+        ${media.md`
+            font-size: ${rm(20)};
+            padding: ${rm(12)} ${rm(20)};
+            margin-top: ${rm(12)};
+        `}
+
+        ${media.xsm`
+            font-size: ${rm(18)};
+            padding: ${rm(12)} ${rm(16)};
+            margin-top: 0;
+            width: 100%;
+        `}
+
         &:hover{
             opacity: 0.8;
         }
@@ -222,17 +313,40 @@ const StyledActions = styled.div`
 const Right = styled.div`
     flex: 1.8;
     
+    ${media.md`
+        width: 100%;
+    `}
+    
     .content{
         display: flex;
         flex-direction: column;
         width: ${rm(750)};
         padding-top: ${rm(20)};
 
+        ${media.lg`
+            width: 100%;
+            max-width: ${rm(600)};
+        `}
+
+        ${media.md`
+            width: 100%;
+            max-width: 100%;
+            padding-top: 0;
+        `}
+
         .title{
             font-size: ${rm(36)};
             ${fontGeist(400)};
             margin-bottom: ${rm(10)};
             color: ${colors.black100};
+
+            ${media.md`
+                font-size: ${rm(28)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(24)};
+            `}
         }
 
         .price{
@@ -240,6 +354,16 @@ const Right = styled.div`
             ${fontGeist(500)};
             margin-bottom: ${rm(25)};
             color: ${colors.black100};
+
+            ${media.md`
+                font-size: ${rm(28)};
+                margin-bottom: ${rm(20)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(24)};
+                margin-bottom: ${rm(15)};
+            `}
         }
         
         .description-paragraph {
@@ -247,6 +371,16 @@ const Right = styled.div`
             font-size: ${rm(20)};
             ${fontGeist(400)};
             color: #555555;
+
+            ${media.md`
+                font-size: ${rm(18)};
+                margin-bottom: ${rm(12)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(16)};
+                margin-bottom: ${rm(10)};
+            `}
         }
 
         .category{
@@ -254,6 +388,16 @@ const Right = styled.div`
             font-size: ${rm(24)};
             ${fontGeist(400)};
             margin-bottom: ${rm(16)};
+
+            ${media.md`
+                font-size: ${rm(20)};
+                margin-bottom: ${rm(12)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(18)};
+                margin-bottom: ${rm(10)};
+            `}
         }
 
         .quantity{
@@ -262,10 +406,28 @@ const Right = styled.div`
             ${fontGeist(400)};
             margin-bottom: ${rm(16)};
 
+            ${media.md`
+                font-size: ${rm(20)};
+                margin-bottom: ${rm(12)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(18)};
+                margin-bottom: ${rm(10)};
+            `}
+
             span{
                 color: #555555;
                 font-size: ${rm(24)};
                 ${fontGeist(400)};
+
+                ${media.md`
+                    font-size: ${rm(20)};
+                `}
+
+                ${media.xsm`
+                    font-size: ${rm(18)};
+                `}
             }
         }
 
@@ -275,10 +437,28 @@ const Right = styled.div`
             ${fontGeist(400)};
             margin-bottom: ${rm(12)};
 
+            ${media.md`
+                font-size: ${rm(18)};
+                margin-bottom: ${rm(10)};
+            `}
+
+            ${media.xsm`
+                font-size: ${rm(16)};
+                margin-bottom: ${rm(8)};
+            `}
+
             span{
                 color: #555555;
                 font-size: ${rm(20)};
                 ${fontGeist(400)};
+
+                ${media.md`
+                    font-size: ${rm(18)};
+                `}
+
+                ${media.xsm`
+                    font-size: ${rm(16)};
+                `}
             }
         }
     }
@@ -293,6 +473,21 @@ const StyledSwiper = styled.div`
     overflow: hidden;
     position: relative;
 
+    ${media.lg`
+        max-width: ${rm(600)};
+        height: ${rm(600)};
+    `}
+
+    ${media.md`
+        max-width: 100%;
+        height: ${rm(500)};
+        margin-bottom: ${rm(20)};
+    `}
+
+    ${media.xsm`
+        height: ${rm(300)};
+        margin-bottom: ${rm(15)};
+    `}
 
     .swiper-button-next::after {
         content: '';
@@ -327,8 +522,24 @@ const ImageBox = styled.div`
 const ThumbsWrapper = styled.div`
     width: 100%;
     max-width: ${rm(680)};
-    .swiper {
+    height: ${rm(150)};
+
+    ${media.lg`
+        max-width: ${rm(600)};
         height: ${rm(120)};
+    `}
+
+    ${media.md`
+        max-width: 100%;
+        height: ${rm(100)};
+    `}
+
+    ${media.xsm`
+        height: ${rm(80)};
+    `}
+
+    .swiper {
+        height: 100%;
     }
 `
 const Thumb = styled.div`
@@ -336,6 +547,21 @@ const Thumb = styled.div`
     height: ${rm(150)};
     border-radius: ${rm(5)};
     overflow: hidden;
+
+    ${media.lg`
+        width: ${rm(120)};
+        height: ${rm(120)};
+    `}
+
+    ${media.md`
+        width: ${rm(100)};
+        height: ${rm(100)};
+    `}
+
+    ${media.xsm`
+        width: ${rm(80)};
+        height: ${rm(80)};
+    `}
 
     img {
         width: 100%;

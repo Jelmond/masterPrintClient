@@ -78,7 +78,7 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
 
                     {showCategories && (
                         <>
-                            <StyledSectionTitle>Категории</StyledSectionTitle>
+                            <StyledSectionTitle>Теги</StyledSectionTitle>
                             <StyledSalesFilter>
                                 <StyledFilterButton 
                                     className={filters.sales === 'new' ? 'active' : ''}
@@ -117,7 +117,7 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
                         </>
                     )}
 
-                    <StyledSectionTitle>Теги</StyledSectionTitle>
+                    <StyledSectionTitle>Категории</StyledSectionTitle>
                     <StyledTagsFilter>
                         {visibleTags.map((tag: any, index: number) => (
                             <StyledTagButton
@@ -187,7 +187,7 @@ const StyledSquishContainer = styled(animated.div)`
 
 const StyledFiltersBarWrapper = styled(animated.div)`
     background-color: ${colors.white100};
-    position: fixed;
+    position: sticky;
     top: ${rm(80)};
     left: 0;
     z-index: 100;
