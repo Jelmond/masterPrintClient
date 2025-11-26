@@ -15,6 +15,9 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
+import { CardsSvg } from "./animatedSvgs/Cards"
+import { BoxSvg } from "./animatedSvgs/Box"
+import { ConvertsSvg } from "./animatedSvgs/Converts"
 
 
 export const CatalogSwiper = () => {
@@ -32,16 +35,20 @@ export const CatalogSwiper = () => {
                 slidesPerView={width > 576 ? 4 : 2.1}
                 className="catalog-swiper"
             >
-                {data?.data?.map((category) => (
+                {data?.data?.map((category, index) => (
                     <SwiperSlide key={category.id}>
                         <StyledSlide href={`/catalog/${category.id}`}>
                             <StyledSlideImage>
-                                <Image 
+                                {/* <Image 
                                     src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${category?.image[0]?.url}`}
                                     alt={category?.title}
                                     fill 
                                     style={{ objectFit: 'cover' }} 
-                                />
+                                /> */}
+                                {index === 3 && <CardsSvg />}
+                                {index === 1 && <BoxSvg />}
+                                {index === 2 && <ConvertsSvg />}
+                                {index === 0 && <CardsSvg />}
                             </StyledSlideImage>
                             <StyledSlideText>{category?.title}</StyledSlideText>
                         </StyledSlide>
@@ -135,7 +142,7 @@ const StyledSlideImage = styled.div`
         height: ${rm(200)};
     `}
 
-    img{
+    img, svg{
         width: 100%;
         height: auto;
         object-fit: cover;

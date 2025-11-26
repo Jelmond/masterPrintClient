@@ -428,6 +428,10 @@ const StyledFiltersBarWrapper = styled.div`
     z-index: 100;
     max-width: ${rm(202)};
 
+    ${media.xsm`
+        display: none;
+    `}
+
     .relativeContainer {
         position: relative;
         height: 100%;
