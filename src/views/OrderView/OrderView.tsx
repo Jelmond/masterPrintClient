@@ -333,7 +333,7 @@ export const OrderView = () => {
                             <StyledRadioLabel htmlFor="self-pickup">
                                 <StyledOptionText>
                                     <div>
-                                        <StyledOptionTitle>Самовывоз (склад, Гродно)</StyledOptionTitle>
+                                        <StyledOptionTitle>Самовывоз (пункт выдачи, Гродно)</StyledOptionTitle>
                                         <StyledOptionDescription>Бесплатно + скидка 3%</StyledOptionDescription>
                                     </div>
                                 </StyledOptionText>

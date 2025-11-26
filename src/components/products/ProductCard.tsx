@@ -13,13 +13,21 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     const addToCart = useCartStore(state => state.addToCart);
 
     const handleAddToCart = (product: any) => {
+        // Prevent adding if stock is 0
+        if (product.stock !== undefined && product.stock <= 0) {
+            return;
+        }
+        
         addToCart({
             productId: product.id,
             title: product.title,
             price: product.price,
-            image: product.images[0]?.url
+            image: product.images[0]?.url,
+            stock: product.stock
         });
     };
+    
+    const isOutOfStock = product.stock !== undefined && product.stock <= 0;
 
     // Check if product has discount
     // oldPrice can be either higher (normal case) or lower (if values are swapped)
@@ -113,9 +121,18 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                             <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
                         )}
                     </div>
-                    <div className="button" onClick={(e) => {
-                        e.preventDefault();
-                        handleAddToCart(product);}}
+                    <div 
+                        className={`button ${isOutOfStock ? 'disabled' : ''}`}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (!isOutOfStock) {
+                                handleAddToCart(product);
+                            }
+                        }}
+                        style={{ 
+                            opacity: isOutOfStock ? 0.5 : 1, 
+                            cursor: isOutOfStock ? 'not-allowed' : 'pointer' 
+                        }}
                     >
                         <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <line x1="19.1667" y1="6" x2="19.1667" y2="32.3077" stroke="black"/>
@@ -254,8 +271,13 @@ const StyledContent = styled.div`
                     height: ${rm(32)};
                 `}
 
-                &:hover{
+                &:hover:not(.disabled){
                     opacity: .7;
+                }
+                
+                &.disabled{
+                    opacity: 0.5;
+                    cursor: not-allowed;
                 }
             }
         }

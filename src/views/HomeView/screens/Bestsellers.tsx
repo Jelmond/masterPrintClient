@@ -210,6 +210,7 @@ const StyledSlide = styled(AnimLink)<{ isUp: boolean }>`
     background: ${colors.bgMain};
     border-radius: ${rm(20)};
     overflow: hidden;
+    // height: 100%;
 
     ${media.lg`
         height: ${rm(520)};
@@ -239,9 +240,17 @@ const StyledSlide = styled(AnimLink)<{ isUp: boolean }>`
 const StyledSlideImage = styled.div`
     position: relative;
     width: 100%;
-    height: 100%;
+    height: ${rm(430)};
     border-radius: ${rm(10)};
     overflow: hidden;
+    
+    ${media.lg`
+        height: ${rm(320)};
+    `}
+
+    ${media.xsm`
+        height: ${rm(220)};    
+    `}
 
     img{
         transition: transform 0.3s ease;
@@ -253,6 +262,7 @@ const StyledSlideContent = styled.div`
     align-items: center;
     width: 100%;
     justify-content: space-between;
+    flex: 2;
 
     padding: ${rm(20)};
 
@@ -265,6 +275,8 @@ const StyledSlideContent = styled.div`
         flex-direction: column;
         gap: ${rm(6)};
         width: 80%;
+        justify-content: space-between;
+        height: 100%;
 
         .description{
             ${fontGeist(400)};

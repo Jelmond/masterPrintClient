@@ -157,7 +157,7 @@ export default function ContactsPage() {
                                     </svg>
                                 </StyledContactIcon>
                                 <div>
-                                    <StyledContactLabel>Заведующий Складом</StyledContactLabel>
+                                    <StyledContactLabel>Заведующий пунктом выдачи</StyledContactLabel>
                                     <StyledContactValue href="tel:+375447495465">+375 44 749 54 65</StyledContactValue>
                                 </div>
                             </StyledContactItem>

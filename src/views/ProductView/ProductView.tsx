@@ -23,13 +23,21 @@ export const ProductView = ({ data }: { data: any }) => {
     const addToCart = useCartStore(state => state.addToCart);
 
     const handleAddToCart = () => {
+        // Prevent adding if stock is 0 or undefined
+        if (data.stock !== undefined && data.stock <= 0) {
+            return;
+        }
+        
         addToCart({
             productId: data.id,
             title: data.title,
             price: data.price,
-            image: data.images[0]?.url
+            image: data.images[0]?.url,
+            stock: data.stock
         }, quantity);
     };
+    
+    const isOutOfStock = data.stock !== undefined && data.stock <= 0;
 
     const [quantity, setQuantity] = useState(1);
 
@@ -129,7 +137,7 @@ export const ProductView = ({ data }: { data: any }) => {
                     />
                     {data?.categories?.length > 0 && data?.tags?.length > 0 && <p className="category">Раздел: {data?.categories[0].title} {'   <   '} {data?.tags[0].title}</p>}
                     <p className="quantity">
-                        В наличии: <span>{data.stock} {getWordForCount(data.stock)}</span>
+                        В наличии: <span>{data.stock !== undefined && data.stock > 0 ? `${data.stock} ${getWordForCount(data.stock)}` : 'нет'}</span>
                     </p>
                     <p className="info">
                         Размер: <span>{data.size}</span>
@@ -166,7 +174,17 @@ export const ProductView = ({ data }: { data: any }) => {
                                 </svg>
                             </button>
                         </div>
-                        <button className="button" onClick={handleAddToCart}>Добавить в корзину</button>
+                        <button 
+                            className="button" 
+                            onClick={handleAddToCart}
+                            disabled={isOutOfStock}
+                            style={{ 
+                                opacity: isOutOfStock ? 0.5 : 1, 
+                                cursor: isOutOfStock ? 'not-allowed' : 'pointer' 
+                            }}
+                        >
+                            {isOutOfStock ? 'Нет в наличии' : 'Добавить в корзину'}
+                        </button>
                     </StyledActions>
                 </div>
             </Right>
@@ -279,7 +297,7 @@ const StyledActions = styled.div`
         }
     }
 
-    .button{
+        .button{
         padding: ${rm(13)} ${rm(22)};
         background: #A6A6A6;
         border-radius: ${rm(15)};
@@ -288,6 +306,7 @@ const StyledActions = styled.div`
         margin-top: ${rm(15)};
         ${fontGeist(500)};
         cursor: pointer;
+        border: none;
 
         transition: opacity 0.3s ease;
 
@@ -304,8 +323,13 @@ const StyledActions = styled.div`
             width: 100%;
         `}
 
-        &:hover{
+        &:hover:not(:disabled){
             opacity: 0.8;
+        }
+        
+        &:disabled{
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     }
 `

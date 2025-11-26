@@ -5,10 +5,12 @@ import { colors } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
+import Image from "next/image"
 
 const adress = {
     title: 'Наш Адрес',
     list: [
+        'Адрес пункта выдачи : Титова 24',
         'ООО "Мастерпринт-Пак"',
         'УПН 591511468',
         'Юридический адрес: 231761, г. Скидель, ул. Промышленная, 6Б',
@@ -22,7 +24,7 @@ const contacts = {
     title: 'Контакты',
     list: [
         {
-            label: 'Склад',
+            label: 'Пункт выдачи',
             value: '+375447495465'
         },
         {
@@ -60,14 +62,14 @@ const info = {
             label: 'О Нас',
             url: '/about'
         },
-        {
-            label: 'Политика Возврата',
-            url: '/return'
-        },
-        {
-            label: 'Политика Приватности',
-            url: '/privacy'
-        },
+        // {
+        //     label: 'Политика Возврата',
+        //     url: '/return'
+        // },
+        // {
+        //     label: 'Политика Приватности',
+        //     url: '/privacy'
+        // },
     ]
 }
 
@@ -141,6 +143,9 @@ export const Footer = () => {
                     </div>
                 </StyledSection>
             </StyledTop>
+            <StyledBottomLogos>
+                <Image src="/al.png" alt="wildberries" fill/>
+            </StyledBottomLogos>
         </StyledFooter>
     )
 }
@@ -281,5 +286,23 @@ const StyledSection = styled.div`
                 }
             }
         }
+    }
+`
+
+
+const StyledBottomLogos = styled.div`
+    margin-top: ${rm(20)};
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
+    img{
+        width: 100%;
+        height: auto;
+        object-fit: none;
+        position: relative !important;
     }
 `
