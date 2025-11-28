@@ -18,6 +18,7 @@ import { ScrollLayout } from "@/layouts/ScrollLayout/ScrollLayout";
 import { AnimatedRouterLayout } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout";
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
+import { Toast } from "@/components/Toast/Toast";
 
 const onest = Onest({
   variable: "--font-onest",
@@ -66,6 +67,7 @@ export default function RootLayout({
             <GlobalStyles />
             <AssetsLoaderLayout>
               <Cookie />
+              <Toast />
               <Suspense fallback={<div>Loading...</div>}>
                 <AnimatedRouterLayout>
                     <Header/>

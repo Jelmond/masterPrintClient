@@ -177,6 +177,10 @@ const StyledFiltersBar = styled(animated.div)`
     position: relative;
     overflow: hidden;
     width: 100%;
+    background-color: ${colors.white100};
+    height: 100%;
+    border-top-right-radius: ${rm(20)};
+    border-bottom-right-radius: ${rm(20)};
 `
 
 const StyledSquishContainer = styled(animated.div)`
@@ -186,18 +190,12 @@ const StyledSquishContainer = styled(animated.div)`
 `
 
 const StyledFiltersBarWrapper = styled(animated.div)`
-    background-color: ${colors.white100};
     position: sticky;
     top: ${rm(80)};
     left: 0;
     z-index: 100;
     border-top-right-radius: ${rm(20)};
     border-bottom-right-radius: ${rm(20)};
-    box-shadow: -16px 15px 49px 0px #0000001A,
-                -64px 62px 89px 0px #00000017,
-                -145px 139px 120px 0px #0000000D,
-                -258px 246px 143px 0px #00000003,
-                -403px 385px 156px 0px #00000000;
 
     ${media.xsm`
         display: none;

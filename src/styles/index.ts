@@ -106,28 +106,49 @@ const GlobalStyles = createGlobalStyle`
     /* Cookie */
     .cookieContainer {
         position: fixed;
-        right: ${rm(8)} !important;
-        bottom: ${rm(8)} !important;
-        max-width: ${rm(450)};
+        right: ${rm(24)} !important;
+        bottom: ${rm(24)} !important;
+        max-width: ${rm(480)};
         width: 100%;
         z-index: 10002;
-        background: rgba(0, 0, 0, .95);
-        border-radius: ${rm(4)};
-        padding: ${rm(12)} ${rm(32)};
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: ${rm(20)};
+        padding: ${rm(28)} ${rm(32)};
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
-        gap: ${rm(24)};
-        border: 1px solid rgb(37, 37, 37);
+        gap: ${rm(20)};
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.15),
+            0 8px 24px rgba(0, 0, 0, 0.1),
+            0 0 0 1px rgba(255, 255, 255, 0.5) inset;
         opacity: 0;
-        transition: opacity 2s ease;
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        
         &.visible {
             opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
         }
+        
+        ${media.lg`
+            right: ${rm(20)} !important;
+            bottom: ${rm(20)} !important;
+            max-width: ${rm(420)};
+        `}
+        
         ${media.xsm`
             gap: ${rm(16)};
-            padding: ${rm(8)} ${rm(32)};
+            padding: ${rm(24)} ${rm(20)};
+            right: ${rm(16)} !important;
+            bottom: ${rm(16)} !important;
+            border-radius: ${rm(16)};
         `}
 
         > div {
@@ -135,25 +156,27 @@ const GlobalStyles = createGlobalStyle`
         }
 
         ${media.xsm`
-            right: ${rm(0)} !important;
-            bottom: ${rm(0)} !important;
-            max-width: 100%;
-            padding: ${rm(12)} ${rm(16)};
+            max-width: calc(100% - ${rm(32)});
         `}
 
         h5 {
-            font-size: ${rm(32)};
-            margin-bottom: ${rm(14)};
-            color: white;
+            font-size: ${rm(28)};
+            margin-bottom: ${rm(12)};
+            color: #1C1C1C;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
             ${media.xsm`
                 margin-bottom: ${rm(10)};
-                font-size: ${rm(24)};
+                font-size: ${rm(22)};
             `}
         }
 
         p {
-            font-size: ${rm(16)};
-            color: white;
+            font-size: ${rm(15)};
+            color: #4B5563;
+            line-height: 1.6;
+            margin: 0;
 
             * {
                 display: inline;
@@ -163,35 +186,87 @@ const GlobalStyles = createGlobalStyle`
                 position: relative;
                 margin-left: ${rm(4)};
                 cursor: pointer;
-                &:hover::before {
-                    background-color: white;
+                color: #1C1C1C;
+                font-weight: 500;
+                text-decoration: none;
+                transition: color 0.2s ease;
+                
+                &:hover {
+                    color: #1C1C1C;
                 }
+                
                 &::before {
                     position: absolute;
                     content: '';
-                    left: 0; top: calc(100% - ${rm(2)});
+                    left: 0;
+                    top: calc(100% - ${rm(1)});
                     width: 100%;
-                    height: 1px;
-                    background-color: rgb(118, 118, 118);
+                    height: 2px;
+                    background: linear-gradient(90deg, #1C1C1C 0%, rgba(28, 28, 28, 0.3) 100%);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                &:hover::before {
+                    transform: scaleX(1);
                 }
             }
         }
     }
 
     .cookieButton {
-        padding-bottom: ${rm(4)};
         cursor: pointer;
-        padding: ${rm(16)} ${rm(64)};
-        background-color: white;
-        color: black;
-        border-radius: ${rm(2)};
+        padding: ${rm(14)} ${rm(32)};
+        background: linear-gradient(135deg, #1C1C1C 0%, #2C2C2C 100%);
+        color: #FFFFFF;
+        border-radius: ${rm(10)};
         width: 100%;
         font-size: ${rm(16)};
-        border: 1px solid white;
-        &:hover {
-            background: transparent;
-            color: white;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(28, 28, 28, 0.2);
+        position: relative;
+        overflow: hidden;
+        margin-top: ${rm(4)};
+        
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: left 0.5s;
         }
+        
+        &:hover {
+            background: linear-gradient(135deg, #2C2C2C 0%, #1C1C1C 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(28, 28, 28, 0.3);
+            
+            &::before {
+                left: 100%;
+            }
+        }
+        
+        &:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(28, 28, 28, 0.2);
+        }
+        
+        ${media.xsm`
+            padding: ${rm(12)} ${rm(24)};
+            font-size: ${rm(14)};
+            border-radius: ${rm(8)};
+        `}
     }
 `
 
