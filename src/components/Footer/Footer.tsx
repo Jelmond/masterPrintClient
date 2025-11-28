@@ -84,7 +84,11 @@ export const Footer = () => {
                     <div className="list">
                         {adress.list.map((item, index) => (
                             <div className="item" key={index}>
-                                {item}
+                                {item === 'Адрес пункта выдачи : Титова 24' ? (
+                                    <strong>{item}</strong>
+                                ) : (
+                                    item
+                                )}
                             </div>
                         ))}
                     </div>

@@ -18,6 +18,7 @@ import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 import { CardsSvg } from "./animatedSvgs/Cards"
 import { BoxSvg } from "./animatedSvgs/Box"
 import { ConvertsSvg } from "./animatedSvgs/Converts"
+import { CardsPostcardsSvg } from "./animatedSvgs/CardsPostcards"
 
 
 export const CatalogSwiper = () => {
@@ -45,10 +46,10 @@ export const CatalogSwiper = () => {
                                     fill 
                                     style={{ objectFit: 'cover' }} 
                                 /> */}
-                                {index === 3 && <CardsSvg />}
-                                {index === 1 && <BoxSvg />}
-                                {index === 2 && <ConvertsSvg />}
-                                {index === 0 && <CardsSvg />}
+                                {category.icon === 'stickers' && <CardsSvg />}
+                                {category.icon === 'box' && <BoxSvg />}
+                                {category.icon === 'convert' && <ConvertsSvg />}
+                                {category.icon === 'cards' && <CardsPostcardsSvg />}
                             </StyledSlideImage>
                             <StyledSlideText>{category?.title}</StyledSlideText>
                         </StyledSlide>
@@ -123,7 +124,7 @@ const StyledSlide = styled(AnimLink)`
     }
 `
 
-const StyledSlideImage = styled.div`
+export const StyledSlideImage = styled.div`
     position: relative;
     width: 100%;
     height: ${rm(500)};

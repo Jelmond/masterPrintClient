@@ -4,6 +4,11 @@ import { useStrapi } from "@/hooks/useStrapi";
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout";
 import { colors, media, rm } from "@/styles";
 import { fontGeist } from "@/styles/fonts";
+import { BoxSvg } from "@/views/HomeView/screens/animatedSvgs/Box";
+import { CardsSvg } from "@/views/HomeView/screens/animatedSvgs/Cards";
+import { CardsPostcardsSvg } from "@/views/HomeView/screens/animatedSvgs/CardsPostcards";
+import { ConvertsSvg } from "@/views/HomeView/screens/animatedSvgs/Converts";
+import { StyledSlideImage } from "@/views/HomeView/screens/CatalogSwiper";
 import Link from "next/link";
 import styled from "styled-components";
 
@@ -18,10 +23,14 @@ export default function CatalogPage() {
     return (
         <StyledCatalogPage>
             {data?.data?.map((category, index) => (
-                <StyledCategory key={index}>
-                    <img src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${category?.image[0]?.url}`} alt={category.title} />
-                    <p>{category.title}</p>
-                    <StyledHiddenLink href={`/catalog/${category.id}`}/>
+                <StyledCategory href={`/catalog/${category.id}`} key={index}>
+                    <StyledSlideImage>
+                        {category.icon === 'stickers' && <CardsSvg />}
+                        {category.icon === 'box' && <BoxSvg />}
+                        {category.icon === 'convert' && <ConvertsSvg />}
+                        {category.icon === 'cards' && <CardsPostcardsSvg />}
+                    </StyledSlideImage>
+                    <span>{category.title}</span>
                 </StyledCategory>
             ))}
         </StyledCatalogPage>
@@ -43,7 +52,7 @@ const StyledCatalogPage = styled.div`
     `}
 `
 
-const StyledCategory = styled.div`
+const StyledCategory = styled(AnimLink)`
     display: flex;
     flex-direction: column;
     gap: ${rm(50)};
@@ -56,7 +65,7 @@ const StyledCategory = styled.div`
         object-fit: cover;
     }
 
-    p{
+    span{
         font-size: ${rm(24)};
         ${fontGeist(200)};
         color: ${colors.black100};

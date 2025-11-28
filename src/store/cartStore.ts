@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useToastStore } from './toastStore'
 
 interface CartItem {
     productId: number
@@ -41,6 +42,9 @@ export const useCartStore = create<CartStore>()(
                             return state; // Don't update if it would exceed stock
                         }
                         
+                        // Show toast notification
+                        useToastStore.getState().showToast('Товар был добавлен в корзину', 'success')
+                        
                         return {
                             items: state.items.map(i =>
                                 i.productId === item.productId
@@ -49,6 +53,9 @@ export const useCartStore = create<CartStore>()(
                             )
                         }
                     }
+                    
+                    // Show toast notification
+                    useToastStore.getState().showToast('Товар был добавлен в корзину', 'success')
                     
                     return {
                         items: [...state.items, { ...item, quantity }]

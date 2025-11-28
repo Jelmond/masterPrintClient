@@ -9,7 +9,7 @@ export const Cookie = () => {
     const { fullyLoaded } = useAssetsLoader()
     return (
         <CookieConsent
-            buttonText="Close"
+            buttonText="Закрыть"
             cookieName="newProjectCookie"
             disableStyles={true}
             buttonClasses={'cookieButton'}
@@ -17,10 +17,10 @@ export const Cookie = () => {
             contentClasses={'cookieContent'}
             expires={180}
         >
-            <h5>Cookies!</h5>
-            <p>Hi, by continuing to use this website, you consent to the use of cookies. For more information please refer to our  
-                <a href='#' aria-label='Go to Privacy Policy' rel='noreferrer' target='_blank'>
-                    Privacy Policy
+            <h5>Файлы cookie!</h5>
+            <p>Привет, продолжая использовать этот сайт, вы соглашаетесь на использование файлов cookie. Для получения дополнительной информации обратитесь к нашей  
+                <a href='#' aria-label='Перейти к Политике конфиденциальности' rel='noreferrer' target='_blank'>
+                    Политике конфиденциальности
                 </a>
             </p>
         </CookieConsent>
