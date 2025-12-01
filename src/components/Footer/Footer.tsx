@@ -62,14 +62,14 @@ const info = {
             label: 'О Нас',
             url: '/about'
         },
-        // {
-        //     label: 'Политика Возврата',
-        //     url: '/return'
-        // },
-        // {
-        //     label: 'Политика Приватности',
-        //     url: '/privacy'
-        // },
+        {
+            label: 'Способы оплаты',
+            url: '/payment'
+        },
+        {
+            label: 'Доставка',
+            url: '/delivery'
+        },
     ]
 }
 
