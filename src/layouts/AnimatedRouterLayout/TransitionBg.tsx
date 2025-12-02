@@ -3,7 +3,8 @@
 import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from "react"
 import styled from "styled-components"
 import { animated, useSpring } from "@react-spring/web"
-import { colors } from "@/styles"
+import { colors, media, rm } from "@/styles"
+import Image from "next/image"
 
 export const randomArray = [0.42, 0.71, 0.83, 0.29, 0.15, 0.93, 0.47, 0.56, 0.38, 0.91, 0.23, 0.67, 0.84, 0.12, 0.59, 0.77, 0.34, 0.88, 0.51, 0.96, 0.18, 0.63, 0.45, 0.72, 0.26, 0.81, 0.54, 0.92, 0.37, 0.69]
 
@@ -13,7 +14,7 @@ const StyledLoader = styled(animated.div)`
     width: 100%;
     height: 100%;
     z-index: 300;
-    background-color: ${colors.black100};
+    background-color: ${colors.white100};
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,6 +23,29 @@ const StyledLoader = styled(animated.div)`
     overflow: hidden;
     pointer-events: none;
 `
+
+const StyledLogo = styled.div`
+    width: ${rm(300)};
+    height: ${rm(80)};
+    cursor: pointer;
+    flex-shrink: 0;
+
+    ${media.md`
+        width: ${rm(250)};
+        height: ${rm(60)};
+    `}
+
+    ${media.xsm`
+        width: ${rm(200)};
+        height: ${rm(40)};
+    `}
+
+    img{
+        width: 100%;
+        height: 100%;
+    }
+`
+
 
 export const TransitionBg = forwardRef(({}, outerRef) => {
     const [opened, setOpened] = useState(false)
@@ -74,7 +98,11 @@ export const TransitionBg = forwardRef(({}, outerRef) => {
                 ...springs,
                 pointerEvents: opened ? 'all' : 'none'
             }}
-        />
+        >
+            <StyledLogo>
+                <Image src="/logo.svg" alt="logo" width={155} height={40} />
+            </StyledLogo>
+        </StyledLoader>
     )
 })
 

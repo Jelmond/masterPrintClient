@@ -21,14 +21,16 @@ export const OrderView = () => {
 
     // To avoid hydration issues
     const [mounted, setMounted] = useState(false)
+    const [buyerType, setBuyerType] = useState<'individual' | 'legal' | ''>('')
     const [deliveryMethod, setDeliveryMethod] = useState<'dpd' | 'self-pickup' | 'alternative'>('dpd')
+    const [paymentMethod, setPaymentMethod] = useState<string>('')
     const [showSuccessModal, setShowSuccessModal] = useState(false)
     const [showAlternativeDelivery, setShowAlternativeDelivery] = useState(false) // Hidden by default
+    const [agreementAccepted, setAgreementAccepted] = useState(false)
     
-    // Form state
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
+    // Form state - Individual
+    const [individualFormData, setIndividualFormData] = useState({
+        fullName: '',
         email: '',
         phone: '',
         city: '',
@@ -36,14 +38,30 @@ export const OrderView = () => {
         comment: ''
     })
     
-    // Error state
-    const [errors, setErrors] = useState({
-        firstName: '',
-        lastName: '',
+    // Form state - Legal entity
+    const [legalFormData, setLegalFormData] = useState({
+        fullName: '',
         email: '',
         phone: '',
+        organizationName: '',
+        unp: '',
         city: '',
-        address: ''
+        address: '',
+        comment: ''
+    })
+    
+    // Error state
+    const [errors, setErrors] = useState({
+        buyerType: '',
+        fullName: '',
+        email: '',
+        phone: '',
+        organizationName: '',
+        unp: '',
+        city: '',
+        address: '',
+        paymentMethod: '',
+        agreementAccepted: ''
     })
     
     useEffect(() => { setMounted(true) }, [])
@@ -96,15 +114,22 @@ export const OrderView = () => {
     const isBelowMinimum = finalTotal < minimumOrderAmount
 
     // Validation functions
-    const validateFirstName = (name: string) => {
-        if (!name.trim()) return 'Имя обязательно для заполнения'
-        if (name.trim().length < 2) return 'Имя должно содержать минимум 2 символа'
+    const validateFullName = (name: string) => {
+        if (!name.trim()) return 'ФИО обязательно для заполнения'
+        if (name.trim().length < 3) return 'ФИО должно содержать минимум 3 символа'
         return ''
     }
 
-    const validateLastName = (name: string) => {
-        if (!name.trim()) return 'Фамилия обязательна для заполнения'
-        if (name.trim().length < 2) return 'Фамилия должна содержать минимум 2 символа'
+    const validateOrganizationName = (name: string) => {
+        if (!name.trim()) return 'Название организации обязательно для заполнения'
+        if (name.trim().length < 2) return 'Название организации должно содержать минимум 2 символа'
+        return ''
+    }
+
+    const validateUNP = (unp: string) => {
+        if (!unp.trim()) return 'УНП обязательно для заполнения'
+        const unpRegex = /^\d{9}$/
+        if (!unpRegex.test(unp.trim())) return 'УНП должен содержать 9 цифр'
         return ''
     }
 
@@ -135,30 +160,18 @@ export const OrderView = () => {
         return ''
     }
 
-    const validateField = (field: string, value: string) => {
-        switch (field) {
-            case 'firstName':
-                return validateFirstName(value)
-            case 'lastName':
-                return validateLastName(value)
-            case 'email':
-                return validateEmail(value)
-            case 'phone':
-                return validatePhone(value)
-            case 'city':
-                return validateCity(value)
-            case 'address':
-                return validateAddress(value)
-            default:
-                return ''
+    const handleInputChange = (field: string, value: string, isLegal: boolean = false) => {
+        if (isLegal) {
+            setLegalFormData(prev => ({
+                ...prev,
+                [field]: value
+            }))
+        } else {
+            setIndividualFormData(prev => ({
+                ...prev,
+                [field]: value
+            }))
         }
-    }
-
-    const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }))
         
         // Clear error when user starts typing
         if (errors[field as keyof typeof errors]) {
@@ -170,13 +183,47 @@ export const OrderView = () => {
     }
 
     const validateForm = () => {
-        const newErrors = {
-            firstName: validateFirstName(formData.firstName),
-            lastName: validateLastName(formData.lastName),
-            email: validateEmail(formData.email),
-            phone: validatePhone(formData.phone),
-            city: validateCity(formData.city),
-            address: validateAddress(formData.address)
+        if (!buyerType) {
+            setErrors(prev => ({ ...prev, buyerType: 'Выберите тип покупателя' }))
+            return false
+        }
+
+        if (!agreementAccepted) {
+            setErrors(prev => ({ ...prev, agreementAccepted: 'Необходимо согласие с пользовательским соглашением' }))
+            return false
+        }
+
+        if (!paymentMethod) {
+            setErrors(prev => ({ ...prev, paymentMethod: 'Выберите способ оплаты' }))
+            return false
+        }
+
+        let newErrors: any = {
+            buyerType: '',
+            agreementAccepted: '',
+            paymentMethod: ''
+        }
+
+        if (buyerType === 'individual') {
+            newErrors = {
+                ...newErrors,
+                fullName: validateFullName(individualFormData.fullName),
+                email: validateEmail(individualFormData.email),
+                phone: validatePhone(individualFormData.phone),
+                city: validateCity(individualFormData.city),
+                address: validateAddress(individualFormData.address)
+            }
+        } else if (buyerType === 'legal') {
+            newErrors = {
+                ...newErrors,
+                fullName: validateFullName(legalFormData.fullName),
+                email: validateEmail(legalFormData.email),
+                phone: validatePhone(legalFormData.phone),
+                organizationName: validateOrganizationName(legalFormData.organizationName),
+                unp: validateUNP(legalFormData.unp),
+                city: validateCity(legalFormData.city),
+                address: validateAddress(legalFormData.address)
+            }
         }
         
         setErrors(newErrors)
@@ -201,6 +248,27 @@ export const OrderView = () => {
             removeFromCart(item.productId)
         })
         setShowSuccessModal(true)
+    }
+
+    // Get available payment methods based on buyer type and delivery method
+    const getAvailablePaymentMethods = () => {
+        if (buyerType === 'legal') {
+            return [
+                { value: 'bank-account', label: 'Расчетный счет' },
+                { value: 'erip', label: 'ЕРИП' }
+            ]
+        } else if (buyerType === 'individual') {
+            const methods = [
+                { value: 'erip', label: 'ЕРИП' },
+                { value: 'alphabank', label: 'Альфа-банк карточкой' }
+            ]
+            // Add cash/card option only if self-pickup is selected
+            if (deliveryMethod === 'self-pickup') {
+                methods.push({ value: 'cash-card-pickup', label: 'Наличными или картой при самовывозе' })
+            }
+            return methods
+        }
+        return []
     }
 
     return (
@@ -231,137 +299,232 @@ export const OrderView = () => {
                             </StyledProduct>
                         ))}
                     </StyledProducts>
-                    <StyledSubtitle>
-                        Данные получателя
+                    <StyledSubtitle style={{marginTop: rm(24)}}>
+                        Тип покупателя <span style={{color: '#dc3545'}}>*</span>
                     </StyledSubtitle>
-                    <StyledPersonalInfo>
-                        <div>
-                            <SimpleInput 
-                                label="Имя получателя" 
-                                placeholder="Введите имя получателя" 
-                                value={formData.firstName}
-                                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                            />
-                            {errors.firstName && <StyledErrorMessage>{errors.firstName}</StyledErrorMessage>}
-                        </div>
-                        <div>
-                            <SimpleInput 
-                                label="Фамилия получателя" 
-                                placeholder="Введите фамилию получателя" 
-                                value={formData.lastName}
-                                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                            />
-                            {errors.lastName && <StyledErrorMessage>{errors.lastName}</StyledErrorMessage>}
-                        </div>
-                        <div>
-                            <SimpleInput 
-                                label="Email" 
-                                placeholder="Введите email" 
-                                value={formData.email}
-                                onChange={(e) => handleInputChange('email', e.target.value)}
-                            />
-                            {errors.email && <StyledErrorMessage>{errors.email}</StyledErrorMessage>}
-                        </div>
-                        <div>
-                            <PhoneInput 
-                                label="Номер телефона получателя" 
-                                placeholder="Номер получателя" 
-                                value={formData.phone}
-                                onChange={(value) => handleInputChange('phone', value)}
-                            />
-                            {errors.phone && <StyledErrorMessage>{errors.phone}</StyledErrorMessage>}
-                        </div>
-                    </StyledPersonalInfo>
-                    <StyledSubtitle>
-                        Адрес получателя
-                    </StyledSubtitle>
-                    <StyledAdressContainer>
-                        <div>
-                            <SimpleInput 
-                                label="Город" 
-                                placeholder="Введите название города" 
-                                value={formData.city}
-                                onChange={(e) => handleInputChange('city', e.target.value)}
-                            />
-                            {errors.city && <StyledErrorMessage>{errors.city}</StyledErrorMessage>}
-                        </div>
-                        <div>
-                            <SimpleInput 
-                                label="Улица, дом, квартира" 
-                                placeholder="Введите адрес" 
-                                value={formData.address}
-                                onChange={(e) => handleInputChange('address', e.target.value)}
-                            />
-                            {errors.address && <StyledErrorMessage>{errors.address}</StyledErrorMessage>}
-                        </div>
-                    </StyledAdressContainer>
-                    <StyledSubtitle>
-                        Способ доставки
-                    </StyledSubtitle>
-                    <StyledDeliveryOptions>
-                        <StyledDeliveryOption>
+                    <StyledBuyerTypeSelector>
+                        <StyledBuyerTypeOption>
                             <StyledRadioInput 
                                 type="radio" 
-                                id="dpd" 
-                                name="delivery" 
-                                value="dpd" 
-                                checked={deliveryMethod === 'dpd'}
-                                onChange={(e) => setDeliveryMethod(e.target.value as 'dpd' | 'self-pickup' | 'alternative')}
+                                id="individual" 
+                                name="buyerType" 
+                                value="individual" 
+                                checked={buyerType === 'individual'}
+                                onChange={(e) => {
+                                    setBuyerType('individual')
+                                    setPaymentMethod('')
+                                    setErrors(prev => ({ ...prev, buyerType: '' }))
+                                }}
                             />
-                            <StyledRadioLabel htmlFor="dpd">
+                            <StyledRadioLabel htmlFor="individual">
                                 <StyledOptionText>
-                                    <div>
-                                        <StyledOptionTitle>Курьер DPD (дверь-в-дверь)</StyledOptionTitle>
-                                        <StyledOptionDescription>
-                                            {productsTotalAfterAllDiscounts < 200 ? '20 руб.' : 
-                                             productsTotalAfterAllDiscounts < 400 ? '10 руб.' : 
-                                             'Бесплатно'}
-                                        </StyledOptionDescription>
-                                    </div>
+                                    <StyledOptionTitle>Физическое лицо</StyledOptionTitle>
                                 </StyledOptionText>
                             </StyledRadioLabel>
-                        </StyledDeliveryOption>
-                        <StyledDeliveryOption>
+                        </StyledBuyerTypeOption>
+                        <StyledBuyerTypeOption>
                             <StyledRadioInput 
                                 type="radio" 
-                                id="self-pickup" 
-                                name="delivery" 
-                                value="self-pickup" 
-                                checked={deliveryMethod === 'self-pickup'}
-                                onChange={(e) => setDeliveryMethod(e.target.value as 'dpd' | 'self-pickup' | 'alternative')}
+                                id="legal" 
+                                name="buyerType" 
+                                value="legal" 
+                                checked={buyerType === 'legal'}
+                                onChange={(e) => {
+                                    setBuyerType('legal')
+                                    setPaymentMethod('')
+                                    setErrors(prev => ({ ...prev, buyerType: '' }))
+                                }}
                             />
-                            <StyledRadioLabel htmlFor="self-pickup">
+                            <StyledRadioLabel htmlFor="legal">
                                 <StyledOptionText>
-                                    <div>
-                                        <StyledOptionTitle>Самовывоз (пункт выдачи, Гродно)</StyledOptionTitle>
-                                        <StyledOptionDescription>Бесплатно + скидка 3%</StyledOptionDescription>
-                                    </div>
+                                    <StyledOptionTitle>Юридическое лицо</StyledOptionTitle>
                                 </StyledOptionText>
                             </StyledRadioLabel>
-                        </StyledDeliveryOption>
-                        {showAlternativeDelivery && (
-                            <StyledDeliveryOption>
-                                <StyledRadioInput 
-                                    type="radio" 
-                                    id="alternative" 
-                                    name="delivery" 
-                                    value="alternative" 
-                                    checked={deliveryMethod === 'alternative'}
-                                    onChange={(e) => setDeliveryMethod(e.target.value as 'dpd' | 'self-pickup' | 'alternative')}
-                                />
-                                <StyledRadioLabel htmlFor="alternative">
-                                    <StyledOptionText>
-                                        <div>
-                                            <StyledOptionTitle>Альтернативная доставка (Белпочта)</StyledOptionTitle>
-                                            <StyledOptionDescription>
-                                                {productsTotalAfterAllDiscounts > 400 ? 'Бесплатно' : '6 руб.'}
-                                            </StyledOptionDescription>
-                                        </div>
-                                    </StyledOptionText>
-                                </StyledRadioLabel>
-                            </StyledDeliveryOption>
-                        )}
-                    </StyledDeliveryOptions>
+                        </StyledBuyerTypeOption>
+                    </StyledBuyerTypeSelector>
+                    {errors.buyerType && <StyledErrorMessage>{errors.buyerType}</StyledErrorMessage>}
+
+                    {buyerType && (
+                        <>
+                            <StyledSubtitle>
+                                Данные {buyerType === 'legal' ? 'покупателя' : 'получателя'}
+                            </StyledSubtitle>
+                            <StyledPersonalInfo>
+                                <div>
+                                    <SimpleInput 
+                                        label={buyerType === 'legal' ? 'Полное наименование Покупателя' : 'ФИО'} 
+                                        placeholder={buyerType === 'legal' ? 'Введите полное наименование' : 'Введите ФИО'} 
+                                        value={buyerType === 'legal' ? legalFormData.fullName : individualFormData.fullName}
+                                        onChange={(e) => handleInputChange('fullName', e.target.value, buyerType === 'legal')}
+                                    />
+                                    {errors.fullName && <StyledErrorMessage>{errors.fullName}</StyledErrorMessage>}
+                                </div>
+                                {buyerType === 'legal' && (
+                                    <div>
+                                        <SimpleInput 
+                                            label="Название Организации" 
+                                            placeholder="Введите название организации" 
+                                            value={legalFormData.organizationName}
+                                            onChange={(e) => handleInputChange('organizationName', e.target.value, true)}
+                                        />
+                                        {errors.organizationName && <StyledErrorMessage>{errors.organizationName}</StyledErrorMessage>}
+                                    </div>
+                                )}
+                                {buyerType === 'legal' && (
+                                    <div>
+                                        <SimpleInput 
+                                            label="УНП" 
+                                            placeholder="Введите УНП (9 цифр)" 
+                                            value={legalFormData.unp}
+                                            onChange={(e) => handleInputChange('unp', e.target.value, true)}
+                                        />
+                                        {errors.unp && <StyledErrorMessage>{errors.unp}</StyledErrorMessage>}
+                                    </div>
+                                )}
+                                <div>
+                                    <SimpleInput 
+                                        label="Email" 
+                                        placeholder="Введите email" 
+                                        value={buyerType === 'legal' ? legalFormData.email : individualFormData.email}
+                                        onChange={(e) => handleInputChange('email', e.target.value, buyerType === 'legal')}
+                                    />
+                                    {errors.email && <StyledErrorMessage>{errors.email}</StyledErrorMessage>}
+                                </div>
+                                <div>
+                                    <PhoneInput 
+                                        label="Контактный телефон" 
+                                        placeholder="Номер телефона" 
+                                        value={buyerType === 'legal' ? legalFormData.phone : individualFormData.phone}
+                                        onChange={(value) => handleInputChange('phone', value, buyerType === 'legal')}
+                                    />
+                                    {errors.phone && <StyledErrorMessage>{errors.phone}</StyledErrorMessage>}
+                                </div>
+                            </StyledPersonalInfo>
+                            <StyledSubtitle>
+                                Адрес получателя
+                            </StyledSubtitle>
+                            <StyledAdressContainer>
+                                <div>
+                                    <SimpleInput 
+                                        label="Город" 
+                                        placeholder="Введите название города" 
+                                        value={buyerType === 'legal' ? legalFormData.city : individualFormData.city}
+                                        onChange={(e) => handleInputChange('city', e.target.value, buyerType === 'legal')}
+                                    />
+                                    {errors.city && <StyledErrorMessage>{errors.city}</StyledErrorMessage>}
+                                </div>
+                                <div>
+                                    <SimpleInput 
+                                        label="Улица, дом, квартира" 
+                                        placeholder="Введите адрес" 
+                                        value={buyerType === 'legal' ? legalFormData.address : individualFormData.address}
+                                        onChange={(e) => handleInputChange('address', e.target.value, buyerType === 'legal')}
+                                    />
+                                    {errors.address && <StyledErrorMessage>{errors.address}</StyledErrorMessage>}
+                                </div>
+                            </StyledAdressContainer>
+                        </>
+                    )}
+                    {buyerType && (
+                        <>
+                            <StyledSubtitle>
+                                Способ доставки
+                            </StyledSubtitle>
+                            <StyledDeliveryOptions>
+                                <StyledDeliveryOption>
+                                    <StyledRadioInput 
+                                        type="radio" 
+                                        id="dpd" 
+                                        name="delivery" 
+                                        value="dpd" 
+                                        checked={deliveryMethod === 'dpd'}
+                                        onChange={(e) => {
+                                            setDeliveryMethod('dpd')
+                                            // Reset payment method if it was cash/card at pickup
+                                            if (paymentMethod === 'cash-card-pickup') {
+                                                setPaymentMethod('')
+                                            }
+                                        }}
+                                    />
+                                    <StyledRadioLabel htmlFor="dpd">
+                                        <StyledOptionText>
+                                            <div>
+                                                <StyledOptionTitle>Курьер DPD (дверь-в-дверь)</StyledOptionTitle>
+                                                <StyledOptionDescription>
+                                                    {productsTotalAfterAllDiscounts < 200 ? '20 руб.' : 
+                                                     productsTotalAfterAllDiscounts < 400 ? '10 руб.' : 
+                                                     'Бесплатно'}
+                                                </StyledOptionDescription>
+                                            </div>
+                                        </StyledOptionText>
+                                    </StyledRadioLabel>
+                                </StyledDeliveryOption>
+                                <StyledDeliveryOption>
+                                    <StyledRadioInput 
+                                        type="radio" 
+                                        id="self-pickup" 
+                                        name="delivery" 
+                                        value="self-pickup" 
+                                        checked={deliveryMethod === 'self-pickup'}
+                                        onChange={(e) => setDeliveryMethod('self-pickup')}
+                                    />
+                                    <StyledRadioLabel htmlFor="self-pickup">
+                                        <StyledOptionText>
+                                            <div>
+                                                <StyledOptionTitle>Самовывоз (пункт выдачи, Гродно)</StyledOptionTitle>
+                                                <StyledOptionDescription>Бесплатно + скидка 3%</StyledOptionDescription>
+                                            </div>
+                                        </StyledOptionText>
+                                    </StyledRadioLabel>
+                                </StyledDeliveryOption>
+                            </StyledDeliveryOptions>
+
+                            <StyledSubtitle>
+                                Способ оплаты <span style={{color: '#dc3545'}}>*</span>
+                            </StyledSubtitle>
+                            <StyledPaymentOptions>
+                                {getAvailablePaymentMethods().map((method) => (
+                                    <StyledPaymentOption key={method.value}>
+                                        <StyledRadioInput 
+                                            type="radio" 
+                                            id={method.value} 
+                                            name="payment" 
+                                            value={method.value} 
+                                            checked={paymentMethod === method.value}
+                                            onChange={(e) => {
+                                                setPaymentMethod(e.target.value)
+                                                setErrors(prev => ({ ...prev, paymentMethod: '' }))
+                                            }}
+                                        />
+                                        <StyledRadioLabel htmlFor={method.value}>
+                                            <StyledOptionText>
+                                                <StyledOptionTitle>{method.label}</StyledOptionTitle>
+                                            </StyledOptionText>
+                                        </StyledRadioLabel>
+                                    </StyledPaymentOption>
+                                ))}
+                            </StyledPaymentOptions>
+                            {errors.paymentMethod && <StyledErrorMessage>{errors.paymentMethod}</StyledErrorMessage>}
+
+                            <StyledAgreementSection>
+                                <StyledCheckboxWrapper>
+                                    <StyledCheckbox 
+                                        type="checkbox" 
+                                        id="agreement" 
+                                        checked={agreementAccepted}
+                                        onChange={(e) => {
+                                            setAgreementAccepted(e.target.checked)
+                                            setErrors(prev => ({ ...prev, agreementAccepted: '' }))
+                                        }}
+                                    />
+                                    <StyledCheckboxLabel htmlFor="agreement">
+                                        Я согласен(а) с <StyledLink href="/user-agreement" target="_blank">пользовательским соглашением</StyledLink> <span style={{color: '#dc3545'}}>*</span>
+                                    </StyledCheckboxLabel>
+                                </StyledCheckboxWrapper>
+                                {errors.agreementAccepted && <StyledErrorMessage>{errors.agreementAccepted}</StyledErrorMessage>}
+                            </StyledAgreementSection>
+                        </>
+                    )}
                     <StyledSubtitle>
                         Комментарий к заказу (опционально)
                     </StyledSubtitle>
@@ -373,13 +536,14 @@ export const OrderView = () => {
                             Минимальная сумма заказа — 50 руб. Добавьте товары, чтобы продолжить.
                         </StyledMinimumOrderWarning>
                     )}
-                    <StyledCommentSection>
-                        <StyledCommentTextarea 
-                            placeholder="Добавьте свой комментарий..."
-                            rows={4}
-                            value={formData.comment}
-                            onChange={(e) => handleInputChange('comment', e.target.value)}
-                        />
+                    {buyerType && (
+                        <StyledCommentSection>
+                            <StyledCommentTextarea 
+                                placeholder="Добавьте свой комментарий..."
+                                rows={4}
+                                value={buyerType === 'legal' ? legalFormData.comment : individualFormData.comment}
+                                onChange={(e) => handleInputChange('comment', e.target.value, buyerType === 'legal')}
+                            />
                         <StyledButtonContainer>
                             <StyledBackButton onClick={() => router.push('/cart')}>
                                 Назад к корзине
@@ -391,7 +555,8 @@ export const OrderView = () => {
                                 Перейти к оплате
                             </StyledPaymentButton>
                         </StyledButtonContainer>
-                    </StyledCommentSection>
+                        </StyledCommentSection>
+                    )}
                 </StyledCart>
                 
                 <StyledOrderSummary className={isBelowMinimum ? 'below-minimum' : ''}>
@@ -444,7 +609,7 @@ export const OrderView = () => {
                             </StyledCheckmark>
                         </StyledCheckmarkContainer>
                         <StyledThankYou>
-                            Спасибо Вам, {formData.firstName || 'пользователь'}
+                            Спасибо Вам, {buyerType === 'legal' ? legalFormData.fullName : individualFormData.fullName || 'пользователь'}
                         </StyledThankYou>
                         <StyledDownloadSection>
                             <StyledDownloadIcon>
@@ -461,7 +626,7 @@ export const OrderView = () => {
                             </StyledDownloadText>
                         </StyledDownloadSection>
                         <StyledEmailConfirmation>
-                            Чек был отправлен на почту {formData.email || 'указанный email'}
+                            Чек был отправлен на почту {buyerType === 'legal' ? legalFormData.email : individualFormData.email || 'указанный email'}
                         </StyledEmailConfirmation>
                         <StyledTrackingButton onClick={() => router.push('/track')}>
                             На страницу отслеживания
@@ -1311,4 +1476,98 @@ const StyledMinimumNotice = styled.div`
         margin-top: ${rm(12)};
         margin-bottom: ${rm(12)};
     `}
+`
+
+const StyledBuyerTypeSelector = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(12)};
+    margin-bottom: ${rm(20)};
+    width: ${rm(520)};
+
+    ${media.lg`
+        width: 100%;
+        max-width: ${rm(520)};
+    `}
+
+    ${media.xsm`
+        gap: ${rm(10)};
+        margin-bottom: ${rm(16)};
+    `}
+`
+
+const StyledBuyerTypeOption = styled.div`
+    position: relative;
+`
+
+const StyledPaymentOptions = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(12)};
+    margin-bottom: ${rm(20)};
+
+    ${media.xsm`
+        gap: ${rm(10)};
+        margin-bottom: ${rm(16)};
+    `}
+`
+
+const StyledPaymentOption = styled.div`
+    position: relative;
+`
+
+const StyledAgreementSection = styled.div`
+    margin-bottom: ${rm(24)};
+    padding: ${rm(20)};
+    background: #f8f9fa;
+    border-radius: ${rm(8)};
+    border: 1px solid #e9ecef;
+
+    ${media.xsm`
+        padding: ${rm(16)};
+        margin-bottom: ${rm(20)};
+    `}
+`
+
+const StyledCheckboxWrapper = styled.div`
+    display: flex;
+    align-items: flex-start;
+    gap: ${rm(12)};
+`
+
+const StyledCheckbox = styled.input`
+    width: ${rm(20)};
+    height: ${rm(20)};
+    margin-top: ${rm(2)};
+    cursor: pointer;
+    flex-shrink: 0;
+    accent-color: #007bff;
+
+    ${media.xsm`
+        width: ${rm(18)};
+        height: ${rm(18)};
+    `}
+`
+
+const StyledCheckboxLabel = styled.label`
+    font-size: ${rm(16)};
+    color: ${colors.black100};
+    ${fontGeist(400)};
+    line-height: 1.5;
+    cursor: pointer;
+    flex: 1;
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
+`
+
+const StyledLink = styled.a`
+    color: #007bff;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: #0056b3;
+    }
 `

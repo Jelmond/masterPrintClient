@@ -25,7 +25,7 @@ const StyledLoader = styled(animated.div)`
     align-items: center;
     flex-direction: column;
     color: ${colors.black100};
-    background-color: ${colors.black100};
+    background-color: ${colors.white100};
     pointer-events: all;
     padding: ${rm(16)};
     gap: ${rm(25)};
@@ -34,7 +34,7 @@ const StyledLoader = styled(animated.div)`
 const StyledProgressText = styled(animated.p)`
     font-size: ${rm(30)};
     ${fontGeist(400)};
-    color: ${colors.white100};
+    color: ${colors.black100};
     position: relative;
     z-index: 1;
 
@@ -46,7 +46,7 @@ const StyledProgressText = styled(animated.p)`
 const StyledProgressBar = styled(animated.div)`
     width: ${rm(700)};
     height: ${rm(5)};
-    background-color: rgba(255, 255, 255, .6);
+    background-color: rgba(0, 0, 0, .6);
     border-radius: ${rm(2)};
     position: relative;
     overflow: hidden;
@@ -61,7 +61,7 @@ const StyledProgressBar = styled(animated.div)`
         left: 0;
         width: 50%;
         height: 100%;
-        background-color: rgba(255, 255, 255, 1.0);
+        background-color: rgba(0, 0, 0, 1.0);
         transform: translate(-100%, 0);
     }
 
@@ -71,7 +71,7 @@ const StyledProgressBar = styled(animated.div)`
         right: 0;
         width: 50%;
         height: 100%;
-        background-color: rgba(255, 255, 255, 1.0);
+        background-color: rgba(0, 0, 0, 1.0);
         transform: translate(100%, 0);
     }
 `

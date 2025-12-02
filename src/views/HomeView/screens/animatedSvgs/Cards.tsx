@@ -47,7 +47,7 @@ export const CardsSvg = () => {
             onMouseLeave={() => setIsHovered(false)}
             style={{ cursor: 'pointer' }}
         >
-            {/* Back tag (medium grey) */}
+            {/* Back tag (deep purple) */}
             <animated.g
                 transform={to(
                     [backTagSpring.x, backTagSpring.y, backTagSpring.rotate],
@@ -60,12 +60,12 @@ export const CardsSvg = () => {
                     width="80"
                     height="120"
                     rx="8"
-                    fill="#9E9E9E"
+                    fill="url(#cardGradient1)"
                     filter="url(#shadow)"
                 />
             </animated.g>
 
-            {/* Middle tag (light grey) */}
+            {/* Middle tag (medium purple) */}
             <animated.g
                 transform={to(
                     [middleTagSpring.x, middleTagSpring.y, middleTagSpring.rotate],
@@ -78,12 +78,12 @@ export const CardsSvg = () => {
                     width="75"
                     height="115"
                     rx="8"
-                    fill="#D3D3D3"
+                    fill="url(#cardGradient2)"
                     filter="url(#shadow)"
                 />
             </animated.g>
 
-            {/* Front tag (white) */}
+            {/* Front tag (light purple/white) */}
             <animated.g
                 transform={to(
                     [frontTagSpring.x, frontTagSpring.y, frontTagSpring.rotate],
@@ -115,7 +115,7 @@ export const CardsSvg = () => {
                     width="70"
                     height="110"
                     rx="8"
-                    fill="#FFFFFF"
+                    fill="url(#cardGradient3)"
                     filter="url(#shadow)"
                 />
                 {/* Eyelet hole */}
@@ -123,7 +123,7 @@ export const CardsSvg = () => {
                     cx="85"
                     cy="105"
                     r="3"
-                    fill="#9E9E9E"
+                    fill="url(#cardGradient4)"
                 />
                 
                 {/* Loop left part - in front of the tag (left side of loop) */}
@@ -148,10 +148,28 @@ export const CardsSvg = () => {
 
             {/* Shadow filter and gradients */}
             <defs>
+                {/* Soft muted lavender/purple gradients for cards - chill tones */}
+                <linearGradient id="cardGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#A8A5B8" />
+                    <stop offset="100%" stopColor="#8B8899" />
+                </linearGradient>
+                <linearGradient id="cardGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#C5C2D1" />
+                    <stop offset="100%" stopColor="#A8A5B8" />
+                </linearGradient>
+                <linearGradient id="cardGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#F5F4F7" />
+                    <stop offset="50%" stopColor="#E8E6EB" />
+                    <stop offset="100%" stopColor="#D9D6DF" />
+                </linearGradient>
+                <linearGradient id="cardGradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#A8A5B8" />
+                    <stop offset="100%" stopColor="#8B8899" />
+                </linearGradient>
                 <linearGradient id="loopGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#D0D0D0" />
-                    <stop offset="50%" stopColor="#B8B8B8" />
-                    <stop offset="100%" stopColor="#A0A0A0" />
+                    <stop offset="0%" stopColor="#C5C2D1" />
+                    <stop offset="50%" stopColor="#A8A5B8" />
+                    <stop offset="100%" stopColor="#8B8899" />
                 </linearGradient>
                 <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
                     <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
