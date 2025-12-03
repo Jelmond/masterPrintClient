@@ -45,6 +45,8 @@ export const OrderView = () => {
         phone: '',
         organizationName: '',
         unp: '',
+        bankAccount: '',
+        bankAddress: '',
         city: '',
         address: '',
         comment: ''
@@ -58,6 +60,8 @@ export const OrderView = () => {
         phone: '',
         organizationName: '',
         unp: '',
+        bankAccount: '',
+        bankAddress: '',
         city: '',
         address: '',
         paymentMethod: '',
@@ -130,6 +134,19 @@ export const OrderView = () => {
         if (!unp.trim()) return 'УНП обязательно для заполнения'
         const unpRegex = /^\d{9}$/
         if (!unpRegex.test(unp.trim())) return 'УНП должен содержать 9 цифр'
+        return ''
+    }
+
+    const validateBankAccount = (account: string) => {
+        if (!account.trim()) return 'Расчетный счет обязательно для заполнения'
+        const accountRegex = /^\d{13}$/
+        if (!accountRegex.test(account.trim())) return 'Расчетный счет должен содержать 13 цифр'
+        return ''
+    }
+
+    const validateBankAddress = (address: string) => {
+        if (!address.trim()) return 'Адрес банка обязателен для заполнения'
+        if (address.trim().length < 5) return 'Адрес банка должен содержать минимум 5 символов'
         return ''
     }
 
@@ -221,6 +238,8 @@ export const OrderView = () => {
                 phone: validatePhone(legalFormData.phone),
                 organizationName: validateOrganizationName(legalFormData.organizationName),
                 unp: validateUNP(legalFormData.unp),
+                bankAccount: validateBankAccount(legalFormData.bankAccount),
+                bankAddress: validateBankAddress(legalFormData.bankAddress),
                 city: validateCity(legalFormData.city),
                 address: validateAddress(legalFormData.address)
             }
@@ -436,15 +455,35 @@ export const OrderView = () => {
                                     </div>
                                 )}
                                 {buyerType === 'legal' && (
-                                    <div>
-                                        <SimpleInput 
-                                            label="УНП" 
-                                            placeholder="Введите УНП (9 цифр)" 
-                                            value={legalFormData.unp}
-                                            onChange={(e) => handleInputChange('unp', e.target.value, true)}
-                                        />
-                                        {errors.unp && <StyledErrorMessage>{errors.unp}</StyledErrorMessage>}
-                                    </div>
+                                    <>
+                                        <div>
+                                            <SimpleInput 
+                                                label="УНП" 
+                                                placeholder="Введите УНП (9 цифр)" 
+                                                value={legalFormData.unp}
+                                                onChange={(e) => handleInputChange('unp', e.target.value, true)}
+                                            />
+                                            {errors.unp && <StyledErrorMessage>{errors.unp}</StyledErrorMessage>}
+                                        </div>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Расчетный счет" 
+                                                placeholder="Введите расчетный счет (13 цифр)" 
+                                                value={legalFormData.bankAccount}
+                                                onChange={(e) => handleInputChange('bankAccount', e.target.value, true)}
+                                            />
+                                            {errors.bankAccount && <StyledErrorMessage>{errors.bankAccount}</StyledErrorMessage>}
+                                        </div>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Адрес банка" 
+                                                placeholder="Введите адрес банка" 
+                                                value={legalFormData.bankAddress}
+                                                onChange={(e) => handleInputChange('bankAddress', e.target.value, true)}
+                                            />
+                                            {errors.bankAddress && <StyledErrorMessage>{errors.bankAddress}</StyledErrorMessage>}
+                                        </div>
+                                    </>
                                 )}
                                 <div>
                                     <SimpleInput 
@@ -617,7 +656,7 @@ export const OrderView = () => {
                                 onClick={handleSubmit}
                                 disabled={isBelowMinimum}
                             >
-                                Перейти к оплате
+                                Оформить заказ
                             </StyledPaymentButton>
                         </StyledButtonContainer>
                         </StyledCommentSection>

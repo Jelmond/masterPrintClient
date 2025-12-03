@@ -77,7 +77,16 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                                     <StyledInfo>
                                         <StyledProductTitle>{item.title}</StyledProductTitle>
                                         <StyledCategory>Открытки и конверты &lt; День Рождения</StyledCategory>
-                                        <StyledPrice>{item.price} руб.</StyledPrice>
+                                        <StyledPriceContainer>
+                                            {item.oldPrice && item.oldPrice > item.price ? (
+                                                <>
+                                                    <StyledOldPrice>{item.oldPrice.toLocaleString('ru-RU')} руб.</StyledOldPrice>
+                                                    <StyledPrice>{item.price.toLocaleString('ru-RU')} руб.</StyledPrice>
+                                                </>
+                                            ) : (
+                                                <StyledPrice>{item.price.toLocaleString('ru-RU')} руб.</StyledPrice>
+                                            )}
+                                        </StyledPriceContainer>
                                     </StyledInfo>
                                     <StyledQuantityBox>
                                         <StyledQuantityButton onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}>
@@ -142,7 +151,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                             color="black" 
                             isArrowLeft={false}
                         >
-                            <span>Перейти к оплате</span>
+                            <span>Перейти к оформлению заказа</span>
                         </CatalogueButton>
                     </StyledOrderButtonWrapper>
                 </div>
@@ -384,15 +393,32 @@ const StyledCategory = styled.div`
     `}
 `
 
+const StyledPriceContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(2)};
+    margin-top: ${rm(4)};
+    flex-shrink: 0;
+`
+
 const StyledPrice = styled.div`
     font-size: ${rm(16)};
     color: ${colors.black100};
     ${fontGeist(500)};
-    margin-top: ${rm(4)};
-    flex-shrink: 0;
 
     ${media.xsm`
         font-size: ${rm(14)};
+    `}
+`
+
+const StyledOldPrice = styled.div`
+    font-size: ${rm(14)};
+    color: #a0aec0;
+    ${fontGeist(400)};
+    text-decoration: line-through;
+
+    ${media.xsm`
+        font-size: ${rm(12)};
     `}
 `
 

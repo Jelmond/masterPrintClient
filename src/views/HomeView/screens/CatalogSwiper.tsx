@@ -145,7 +145,7 @@ export const StyledSlideImage = styled.div`
 
     img, svg{
         width: 100%;
-        height: auto;
+        height: 100% !important;
         object-fit: cover;
         position: absolute;
 

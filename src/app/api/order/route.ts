@@ -26,6 +26,8 @@ interface OrderData {
         comment?: string
         organizationName?: string
         unp?: string
+        bankAccount?: string
+        bankAddress?: string
     }
     totals: {
         productsTotal: number
@@ -108,7 +110,7 @@ function generateTelegramMessage(orderData: OrderData): string {
     const { orderNumber, buyerType, deliveryMethod, paymentMethod, items, formData, totals } = orderData
     
     const buyerInfo = buyerType === 'legal' 
-        ? `🏢 <b>Организация:</b> ${formData.organizationName || 'Не указано'}\n📋 <b>УНП:</b> ${formData.unp || 'Не указано'}`
+        ? `🏢 <b>Организация:</b> ${formData.organizationName || 'Не указано'}\n📋 <b>УНП:</b> ${formData.unp || 'Не указано'}\n💳 <b>Расчетный счет:</b> ${formData.bankAccount || 'Не указано'}\n🏦 <b>Адрес банка:</b> ${formData.bankAddress || 'Не указано'}`
         : ''
     
     const itemsList = items.map(item => 
