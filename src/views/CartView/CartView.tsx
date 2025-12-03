@@ -8,6 +8,7 @@ import Image from "next/image"
 import { CatalogueButton } from "@/components/UI/Buttons/CatalogueButton"
 import { CanBeInteresting } from "@/components/CanBeInteresting/CanBeInteresting"
 import { useCartStore } from "@/store/cartStore"
+import { useToastStore } from "@/store/toastStore"
 import { useEffect, useState } from "react"
 
 interface CartViewProps {
@@ -18,6 +19,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
     const items = useCartStore(state => state.items)
     const updateQuantity = useCartStore(state => state.updateQuantity)
     const removeFromCart = useCartStore(state => state.removeFromCart)
+    const showToast = useToastStore(state => state.showToast)
 
     // To avoid hydration issues
     const [mounted, setMounted] = useState(false)
@@ -131,6 +133,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                             if (isBelowMinimum) {
                                 e.preventDefault()
                                 e.stopPropagation()
+                                showToast('Минимальная сумма заказа — 50 руб. Добавьте товары, чтобы продолжить.', 'error')
                             }
                         }}
                     >

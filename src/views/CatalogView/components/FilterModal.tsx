@@ -1,7 +1,7 @@
 import { colors, media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
-import { useEffect } from "react"
+import { useEffect, useState, useRef } from "react"
 
 interface FilterModalProps {
     isOpen: boolean
@@ -162,6 +162,7 @@ const StyledCloseButton = styled.button`
 const StyledModalHeader = styled.div`
     margin-bottom: ${rm(28)};
     padding-bottom: ${rm(16)};
+    padding-right: ${rm(50)};
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     
     h2 {
@@ -208,8 +209,8 @@ const StyledSectionTitle = styled.h3`
 
 const StyledSortContainer = styled.div`
     display: flex;
-    align-items: center;
-    gap: ${rm(16)};
+    flex-direction: column;
+    gap: ${rm(12)};
     margin-bottom: ${rm(24)};
     padding: ${rm(16)};
     background: rgba(102, 126, 234, 0.05);
@@ -224,8 +225,13 @@ const StyledSortLabel = styled.span`
     white-space: nowrap;
 `
 
-const StyledSelect = styled.select`
-    flex: 1;
+const StyledSelectWrapper = styled.div`
+    width: 100%;
+    position: relative;
+`
+
+const StyledSelectButton = styled.button<{ $isOpen: boolean }>`
+    width: 100%;
     padding: ${rm(12)} ${rm(16)};
     border: 1px solid #e2e8f0;
     border-radius: ${rm(8)};
@@ -234,6 +240,11 @@ const StyledSelect = styled.select`
     background: white;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    color: ${props => props.children === 'Выберите сортировку' ? '#a0aec0' : '#1a202c'};
     
     &:focus {
         outline: none;
@@ -243,6 +254,60 @@ const StyledSelect = styled.select`
     
     &:hover {
         border-color: #cbd5e0;
+    }
+
+    svg {
+        width: ${rm(16)};
+        height: ${rm(16)};
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: ${props => props.$isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+        color: #667eea;
+    }
+`
+
+const StyledDropdown = styled.div<{ $isOpen: boolean; $height: number }>`
+    position: absolute;
+    top: calc(100% + ${rm(4)});
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: ${rm(8)};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: hidden;
+    height: ${props => props.$isOpen ? `${props.$height}px` : '0px'};
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+`
+
+const StyledDropdownContent = styled.div`
+    padding: ${rm(4)} 0;
+`
+
+const StyledDropdownOption = styled.button<{ $isSelected: boolean }>`
+    width: 100%;
+    padding: ${rm(10)} ${rm(16)};
+    border: none;
+    background: ${props => props.$isSelected ? 'rgba(102, 126, 234, 0.1)' : 'transparent'};
+    color: ${props => props.$isSelected ? '#667eea' : '#1a202c'};
+    font-size: ${rm(14)};
+    ${fontGeist(400)};
+    ${props => props.$isSelected ? fontGeist(600) : ''};
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &:hover {
+        background: ${props => props.$isSelected ? 'rgba(102, 126, 234, 0.15)' : 'rgba(102, 126, 234, 0.05)'};
+    }
+
+    svg {
+        width: ${rm(14)};
+        height: ${rm(14)};
+        color: #667eea;
     }
 `
 
@@ -389,6 +454,92 @@ const StyledShowResultsButton = styled.button`
     }
 `
 
+const sortOptions = [
+    { value: '', label: 'Выберите сортировку' },
+    { value: 'price-asc', label: 'Цена (по возрастанию)' },
+    { value: 'price-desc', label: 'Цена (по убыванию)' },
+    { value: 'name-asc', label: 'Название (А-Я)' },
+    { value: 'name-desc', label: 'Название (Я-А)' },
+    { value: 'newest', label: 'Сначала новые' }
+]
+
+interface CustomDropdownProps {
+    value: string
+    onChange: (value: string) => void
+}
+
+const CustomDropdown = ({ value, onChange }: CustomDropdownProps) => {
+    const [isOpen, setIsOpen] = useState(false)
+    const [dropdownHeight, setDropdownHeight] = useState(0)
+    const dropdownRef = useRef<HTMLDivElement>(null)
+    const contentRef = useRef<HTMLDivElement>(null)
+
+    const selectedOption = sortOptions.find(opt => opt.value === value) || sortOptions[0]
+
+    useEffect(() => {
+        if (contentRef.current) {
+            setDropdownHeight(contentRef.current.scrollHeight)
+        }
+    }, [isOpen])
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false)
+            }
+        }
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [isOpen])
+
+    const handleOptionClick = (optionValue: string) => {
+        onChange(optionValue)
+        setIsOpen(false)
+    }
+
+    return (
+        <StyledSelectWrapper ref={dropdownRef}>
+            <StyledSelectButton
+                type="button"
+                $isOpen={isOpen}
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span>{selectedOption.label}</span>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+            </StyledSelectButton>
+            <StyledDropdown $isOpen={isOpen} $height={dropdownHeight}>
+                <StyledDropdownContent ref={contentRef}>
+                    {sortOptions.map((option) => (
+                        option.value !== '' && (
+                            <StyledDropdownOption
+                                key={option.value}
+                                type="button"
+                                $isSelected={value === option.value}
+                                onClick={() => handleOptionClick(option.value)}
+                            >
+                                <span>{option.label}</span>
+                                {value === option.value && (
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                )}
+                            </StyledDropdownOption>
+                        )
+                    ))}
+                </StyledDropdownContent>
+            </StyledDropdown>
+        </StyledSelectWrapper>
+    )
+}
+
 export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, filters, products }: FilterModalProps) => {
     // Extract unique values from products for dynamic filter options
     const availableSizes = Array.from(new Set(products.map(p => p.size).filter(Boolean))).sort()
@@ -481,17 +632,10 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                 <StyledSection>
                     <StyledSortContainer>
                         <StyledSortLabel>Сортировать по:</StyledSortLabel>
-                        <StyledSelect 
+                        <CustomDropdown
                             value={filters.sortBy}
-                            onChange={(e) => onFilterChange('sortBy', e.target.value)}
-                        >
-                            <option value="">Выберите сортировку</option>
-                            <option value="price-asc">Цена (по возрастанию)</option>
-                            <option value="price-desc">Цена (по убыванию)</option>
-                            <option value="name-asc">Название (А-Я)</option>
-                            <option value="name-desc">Название (Я-А)</option>
-                            <option value="newest">Сначала новые</option>
-                        </StyledSelect>
+                            onChange={(value) => onFilterChange('sortBy', value)}
+                        />
                     </StyledSortContainer>
                 </StyledSection>
 

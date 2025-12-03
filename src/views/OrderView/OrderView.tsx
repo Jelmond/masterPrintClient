@@ -232,7 +232,13 @@ export const OrderView = () => {
         return Object.values(newErrors).every(error => error === '')
     }
 
-    const handleSubmit = () => {
+    const generateOrderNumber = () => {
+        const timestamp = Date.now()
+        const random = Math.floor(Math.random() * 1000)
+        return `MPP-${timestamp}-${random}`
+    }
+
+    const handleSubmit = async () => {
         // Check minimum order amount first - prevent any action if below minimum
         if (isBelowMinimum) {
             return // Don't proceed if below minimum
@@ -243,16 +249,75 @@ export const OrderView = () => {
             return // Don't proceed if form is invalid
         }
         
-        // Clear the cart when order is successfully submitted
-        items.forEach(item => {
-            removeFromCart(item.productId)
-        })
-        setShowSuccessModal(true)
+        // Generate order number
+        const orderNumber = generateOrderNumber()
+        
+        // Prepare order data
+        const orderData = {
+            orderNumber,
+            buyerType,
+            deliveryMethod,
+            paymentMethod,
+            items: items.map(item => ({
+                productId: item.productId,
+                title: item.title,
+                price: item.price,
+                quantity: item.quantity,
+                image: item.image
+            })),
+            formData: buyerType === 'legal' ? legalFormData : individualFormData,
+            totals: {
+                productsTotal,
+                baseDiscountAmount,
+                baseDiscountPercent,
+                selfPickupDiscountAmount,
+                selfPickupDiscountPercent,
+                deliveryCost,
+                finalTotal
+            }
+        }
+
+        // Send order to API
+        try {
+            const response = await fetch('/api/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+            })
+
+            if (!response.ok) {
+                throw new Error('Ошибка при отправке заказа')
+            }
+
+            // Clear the cart when order is successfully submitted
+            items.forEach(item => {
+                removeFromCart(item.productId)
+            })
+
+            // Redirect based on payment method
+            if (paymentMethod === 'cash-card-pickup') {
+                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=cash-card`)
+            } else if (paymentMethod === 'erip' || paymentMethod === 'bank-account') {
+                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=erip-bank`)
+            } else if (paymentMethod === 'alphabank') {
+                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=alphabank`)
+            } else {
+                // For other payment methods, show old modal
+                setShowSuccessModal(true)
+            }
+        } catch (error) {
+            console.error('Error submitting order:', error)
+            // Show error message to user
+            alert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.')
+        }
     }
 
     // Get available payment methods based on buyer type and delivery method
     const getAvailablePaymentMethods = () => {
         if (buyerType === 'legal') {
+            // Legal entities can only pay via bank account or ERIP
             return [
                 { value: 'bank-account', label: 'Расчетный счет' },
                 { value: 'erip', label: 'ЕРИП' }
@@ -262,7 +327,7 @@ export const OrderView = () => {
                 { value: 'erip', label: 'ЕРИП' },
                 { value: 'alphabank', label: 'Альфа-банк карточкой' }
             ]
-            // Add cash/card option only if self-pickup is selected
+            // Add cash/card option only if self-pickup is selected (only for individuals)
             if (deliveryMethod === 'self-pickup') {
                 methods.push({ value: 'cash-card-pickup', label: 'Наличными или картой при самовывозе' })
             }

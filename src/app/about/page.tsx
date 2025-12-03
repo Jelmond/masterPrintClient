@@ -86,7 +86,7 @@ export default function AboutPage() {
                         <StyledSectionTitle>Реквизиты</StyledSectionTitle>
                         <StyledInfoList>
                             <StyledInfoItem>
-                                <StyledInfoLabel>УПН:</StyledInfoLabel>
+                                <StyledInfoLabel>УНП:</StyledInfoLabel>
                                 <StyledInfoValue>591511468</StyledInfoValue>
                             </StyledInfoItem>
                             <StyledInfoItem>

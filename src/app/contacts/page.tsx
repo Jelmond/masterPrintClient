@@ -196,7 +196,7 @@ export default function ContactsPage() {
                                 </StyledContactIcon>
                                 <div>
                                     <StyledContactLabel>Email (менеджер)</StyledContactLabel>
-                                    <StyledContactValue href="mailto:svirydchuk@shop.mpp.by">svirydchuk@shop.mpp.by</StyledContactValue>
+                                    <StyledContactValue href="mailto:vadzimmanagement@mpp.by">vadzimmanagement@mpp.by</StyledContactValue>
                                 </div>
                             </StyledContactItem>
 
