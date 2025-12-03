@@ -12,21 +12,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
     const addToCart = useCartStore(state => state.addToCart);
 
-    const handleAddToCart = (product: any) => {
-        // Prevent adding if stock is 0
-        if (product.stock !== undefined && product.stock <= 0) {
-            return;
-        }
-        
-        addToCart({
-            productId: product.id,
-            title: product.title,
-            price: product.price,
-            image: product.images[0]?.url,
-            stock: product.stock
-        });
-    };
-    
     const isOutOfStock = product.stock !== undefined && product.stock <= 0;
 
     // Check if product has discount
@@ -52,6 +37,22 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             hasDiscount = true;
         }
     }
+
+    const handleAddToCart = (product: any) => {
+        // Prevent adding if stock is 0
+        if (product.stock !== undefined && product.stock <= 0) {
+            return;
+        }
+        
+        addToCart({
+            productId: product.id,
+            title: product.title,
+            price: currentPrice, // Use discounted price
+            oldPrice: hasDiscount ? oldPrice : null, // Save old price if discount exists
+            image: product.images[0]?.url,
+            stock: product.stock
+        });
+    };
     
     const discountPercent = hasDiscount && oldPrice !== null
         ? Math.round(((oldPrice - currentPrice) / oldPrice) * 100)

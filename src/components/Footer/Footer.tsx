@@ -6,16 +6,18 @@ import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 import Image from "next/image"
+import { useWindowWidth } from "@react-hook/window-size"
 
 const adress = {
     title: 'Наш Адрес',
     list: [
-        'Адрес пункта выдачи : Титова 24',
+        'Адрес пункта выдачи: г.Гродно, ул.Титова, 24',
         'ООО "Мастерпринт-Пак"',
-        'УПН 591511468',
-        'Юридический адрес: 231761, г. Скидель, ул. Промышленная, 6Б',
-        'Общество с ограниченной ответственностью "Мастерпринт-пак"',
+        'УНП 591511468',
+        'Юридический адрес: Республика Беларусь, 231761, г. Скидель, ул. Промышленная, 6Б',
+        'Общество с ограниченной ответственностью "Мастерпринт-Пак"',
         'регистрационный номер 591511468',
+        'регистрационный номер в торговом реестре Республики Беларусь: 761957',
         'Регистрирующий орган: Гродненский райисполком-дата решения о государственной регистрации 18.02.2014'
     ]
 }
@@ -74,6 +76,9 @@ const info = {
 }
 
 export const Footer = () => {
+
+    const width = useWindowWidth();
+
     return (
         <StyledFooter>
             <StyledTop>
@@ -148,7 +153,7 @@ export const Footer = () => {
                 </StyledSection>
             </StyledTop>
             <StyledBottomLogos>
-                <Image src="/al.png" alt="wildberries" fill/>
+                <Image src={width > 1024 ? "/al.png" : "/alphaMobile.png"} alt="wildberries" fill/>
             </StyledBottomLogos>
         </StyledFooter>
     )
@@ -183,7 +188,7 @@ const StyledTop = styled.div`
 
     ${media.xsm`
         padding: ${rm(40)} ${rm(20)};
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: ${rm(30)};
     `}
 `
@@ -193,6 +198,12 @@ const StyledSection = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${rm(20)};
+
+    ${media.xsm`
+        &:first-child {
+            grid-column: 1 / -1;
+        }
+    `}
 
     .title{
         font-size: ${rm(34)};
@@ -302,6 +313,7 @@ const StyledBottomLogos = styled.div`
     justify-content: center;
     align-items: center;
     position: relative;
+    
 
     img{
         width: 100%;

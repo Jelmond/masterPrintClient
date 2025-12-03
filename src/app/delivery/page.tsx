@@ -83,7 +83,7 @@ export default function DeliveryPage() {
                                     </StyledFeatureIcon>
                                     <StyledFeatureContent>
                                         <StyledFeatureTitle>Стоимость доставки:</StyledFeatureTitle>
-                                        <StyledFeatureValue>20,00 (двадцать рублей, 00 копеек) белорусских рублей</StyledFeatureValue>
+                                        <StyledFeatureValue>20,00 белорусских рублей</StyledFeatureValue>
                                     </StyledFeatureContent>
                                 </StyledFeatureItem>
 
@@ -95,7 +95,7 @@ export default function DeliveryPage() {
                                     </StyledFeatureIcon>
                                     <StyledFeatureContent>
                                         <StyledFeatureTitle>Бесплатная доставка:</StyledFeatureTitle>
-                                        <StyledFeatureValue>при заказе от 400,00 (четыреста рублей, 00 копеек) белорусских рублей</StyledFeatureValue>
+                                        <StyledFeatureValue>при заказе от 400,00 белорусских рублей</StyledFeatureValue>
                                     </StyledFeatureContent>
                                 </StyledFeatureItem>
 

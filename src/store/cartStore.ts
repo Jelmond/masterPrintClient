@@ -7,6 +7,7 @@ interface CartItem {
     quantity: number
     title: string
     price: number
+    oldPrice?: number | null
     image: string
     stock?: number
 }

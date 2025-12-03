@@ -45,6 +45,8 @@ export const OrderView = () => {
         phone: '',
         organizationName: '',
         unp: '',
+        bankAccount: '',
+        bankAddress: '',
         city: '',
         address: '',
         comment: ''
@@ -58,6 +60,8 @@ export const OrderView = () => {
         phone: '',
         organizationName: '',
         unp: '',
+        bankAccount: '',
+        bankAddress: '',
         city: '',
         address: '',
         paymentMethod: '',
@@ -130,6 +134,19 @@ export const OrderView = () => {
         if (!unp.trim()) return 'УНП обязательно для заполнения'
         const unpRegex = /^\d{9}$/
         if (!unpRegex.test(unp.trim())) return 'УНП должен содержать 9 цифр'
+        return ''
+    }
+
+    const validateBankAccount = (account: string) => {
+        if (!account.trim()) return 'Расчетный счет обязательно для заполнения'
+        const accountRegex = /^\d{13}$/
+        if (!accountRegex.test(account.trim())) return 'Расчетный счет должен содержать 13 цифр'
+        return ''
+    }
+
+    const validateBankAddress = (address: string) => {
+        if (!address.trim()) return 'Адрес банка обязателен для заполнения'
+        if (address.trim().length < 5) return 'Адрес банка должен содержать минимум 5 символов'
         return ''
     }
 
@@ -221,6 +238,8 @@ export const OrderView = () => {
                 phone: validatePhone(legalFormData.phone),
                 organizationName: validateOrganizationName(legalFormData.organizationName),
                 unp: validateUNP(legalFormData.unp),
+                bankAccount: validateBankAccount(legalFormData.bankAccount),
+                bankAddress: validateBankAddress(legalFormData.bankAddress),
                 city: validateCity(legalFormData.city),
                 address: validateAddress(legalFormData.address)
             }
@@ -232,7 +251,13 @@ export const OrderView = () => {
         return Object.values(newErrors).every(error => error === '')
     }
 
-    const handleSubmit = () => {
+    const generateOrderNumber = () => {
+        const timestamp = Date.now()
+        const random = Math.floor(Math.random() * 1000)
+        return `MPP-${timestamp}-${random}`
+    }
+
+    const handleSubmit = async () => {
         // Check minimum order amount first - prevent any action if below minimum
         if (isBelowMinimum) {
             return // Don't proceed if below minimum
@@ -243,16 +268,75 @@ export const OrderView = () => {
             return // Don't proceed if form is invalid
         }
         
-        // Clear the cart when order is successfully submitted
-        items.forEach(item => {
-            removeFromCart(item.productId)
-        })
-        setShowSuccessModal(true)
+        // Generate order number
+        const orderNumber = generateOrderNumber()
+        
+        // Prepare order data
+        const orderData = {
+            orderNumber,
+            buyerType,
+            deliveryMethod,
+            paymentMethod,
+            items: items.map(item => ({
+                productId: item.productId,
+                title: item.title,
+                price: item.price,
+                quantity: item.quantity,
+                image: item.image
+            })),
+            formData: buyerType === 'legal' ? legalFormData : individualFormData,
+            totals: {
+                productsTotal,
+                baseDiscountAmount,
+                baseDiscountPercent,
+                selfPickupDiscountAmount,
+                selfPickupDiscountPercent,
+                deliveryCost,
+                finalTotal
+            }
+        }
+
+        // Send order to API
+        try {
+            const response = await fetch('/api/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+            })
+
+            if (!response.ok) {
+                throw new Error('Ошибка при отправке заказа')
+            }
+
+            // Clear the cart when order is successfully submitted
+            items.forEach(item => {
+                removeFromCart(item.productId)
+            })
+
+            // Redirect based on payment method
+            if (paymentMethod === 'cash-card-pickup') {
+                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=cash-card`)
+            } else if (paymentMethod === 'erip' || paymentMethod === 'bank-account') {
+                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=erip-bank`)
+            } else if (paymentMethod === 'alphabank') {
+                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=alphabank`)
+            } else {
+                // For other payment methods, show old modal
+                setShowSuccessModal(true)
+            }
+        } catch (error) {
+            console.error('Error submitting order:', error)
+            // Show error message to user
+            alert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.')
+        }
     }
 
     // Get available payment methods based on buyer type and delivery method
     const getAvailablePaymentMethods = () => {
         if (buyerType === 'legal') {
+            // Legal entities can only pay via bank account or ERIP
             return [
                 { value: 'bank-account', label: 'Расчетный счет' },
                 { value: 'erip', label: 'ЕРИП' }
@@ -262,7 +346,7 @@ export const OrderView = () => {
                 { value: 'erip', label: 'ЕРИП' },
                 { value: 'alphabank', label: 'Альфа-банк карточкой' }
             ]
-            // Add cash/card option only if self-pickup is selected
+            // Add cash/card option only if self-pickup is selected (only for individuals)
             if (deliveryMethod === 'self-pickup') {
                 methods.push({ value: 'cash-card-pickup', label: 'Наличными или картой при самовывозе' })
             }
@@ -371,15 +455,35 @@ export const OrderView = () => {
                                     </div>
                                 )}
                                 {buyerType === 'legal' && (
-                                    <div>
-                                        <SimpleInput 
-                                            label="УНП" 
-                                            placeholder="Введите УНП (9 цифр)" 
-                                            value={legalFormData.unp}
-                                            onChange={(e) => handleInputChange('unp', e.target.value, true)}
-                                        />
-                                        {errors.unp && <StyledErrorMessage>{errors.unp}</StyledErrorMessage>}
-                                    </div>
+                                    <>
+                                        <div>
+                                            <SimpleInput 
+                                                label="УНП" 
+                                                placeholder="Введите УНП (9 цифр)" 
+                                                value={legalFormData.unp}
+                                                onChange={(e) => handleInputChange('unp', e.target.value, true)}
+                                            />
+                                            {errors.unp && <StyledErrorMessage>{errors.unp}</StyledErrorMessage>}
+                                        </div>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Расчетный счет" 
+                                                placeholder="Введите расчетный счет (13 цифр)" 
+                                                value={legalFormData.bankAccount}
+                                                onChange={(e) => handleInputChange('bankAccount', e.target.value, true)}
+                                            />
+                                            {errors.bankAccount && <StyledErrorMessage>{errors.bankAccount}</StyledErrorMessage>}
+                                        </div>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Адрес банка" 
+                                                placeholder="Введите адрес банка" 
+                                                value={legalFormData.bankAddress}
+                                                onChange={(e) => handleInputChange('bankAddress', e.target.value, true)}
+                                            />
+                                            {errors.bankAddress && <StyledErrorMessage>{errors.bankAddress}</StyledErrorMessage>}
+                                        </div>
+                                    </>
                                 )}
                                 <div>
                                     <SimpleInput 
@@ -552,7 +656,7 @@ export const OrderView = () => {
                                 onClick={handleSubmit}
                                 disabled={isBelowMinimum}
                             >
-                                Перейти к оплате
+                                Оформить заказ
                             </StyledPaymentButton>
                         </StyledButtonContainer>
                         </StyledCommentSection>

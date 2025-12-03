@@ -108,6 +108,10 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     if (!isMounted) return;
     if (changing.current) return;
     if (typeof window === "undefined") return;
+    
+    // Don't process navigation for empty or hash-only links
+    if (!href || href === "#" || href.trim() === "") return;
+    
     const currentSearch = searchParamsRef.current?.toString() || "";
     const currentUrl = currentSearch
       ? `${pathnameRef.current}?${currentSearch}`
@@ -191,6 +195,10 @@ export const AnimLink = forwardRef<HTMLAnchorElement, Props>(
     useImperativeHandle(outerRef, () => ref.current as HTMLAnchorElement);
     const { routeChangeStart } = useAnimatedRouter();
     const handleClick = (e: MouseEvent) => {
+      // Don't process navigation for empty or hash-only links
+      if (!props.href || props.href === "#" || props.href.trim() === "") {
+        return;
+      }
       routeChangeStart(props.href, props.backMode);
     };
 
@@ -198,9 +206,13 @@ export const AnimLink = forwardRef<HTMLAnchorElement, Props>(
       <Link
         ref={ref}
         onClick={(e) => {
+          // Always prevent default to avoid unwanted navigation
           e.preventDefault();
           onClick?.(e as any);
-          handleClick(e as any);
+          // Only trigger route change for valid links
+          if (props.href && props.href !== "#" && props.href.trim() !== "") {
+            handleClick(e as any);
+          }
         }}
         {...props}
       >

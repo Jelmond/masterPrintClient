@@ -8,6 +8,7 @@ import Image from "next/image"
 import { CatalogueButton } from "@/components/UI/Buttons/CatalogueButton"
 import { CanBeInteresting } from "@/components/CanBeInteresting/CanBeInteresting"
 import { useCartStore } from "@/store/cartStore"
+import { useToastStore } from "@/store/toastStore"
 import { useEffect, useState } from "react"
 
 interface CartViewProps {
@@ -18,6 +19,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
     const items = useCartStore(state => state.items)
     const updateQuantity = useCartStore(state => state.updateQuantity)
     const removeFromCart = useCartStore(state => state.removeFromCart)
+    const showToast = useToastStore(state => state.showToast)
 
     // To avoid hydration issues
     const [mounted, setMounted] = useState(false)
@@ -75,7 +77,16 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                                     <StyledInfo>
                                         <StyledProductTitle>{item.title}</StyledProductTitle>
                                         <StyledCategory>Открытки и конверты &lt; День Рождения</StyledCategory>
-                                        <StyledPrice>{item.price} руб.</StyledPrice>
+                                        <StyledPriceContainer>
+                                            {item.oldPrice && item.oldPrice > item.price ? (
+                                                <>
+                                                    <StyledOldPrice>{item.oldPrice.toLocaleString('ru-RU')} руб.</StyledOldPrice>
+                                                    <StyledPrice>{item.price.toLocaleString('ru-RU')} руб.</StyledPrice>
+                                                </>
+                                            ) : (
+                                                <StyledPrice>{item.price.toLocaleString('ru-RU')} руб.</StyledPrice>
+                                            )}
+                                        </StyledPriceContainer>
                                     </StyledInfo>
                                     <StyledQuantityBox>
                                         <StyledQuantityButton onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}>
@@ -131,6 +142,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                             if (isBelowMinimum) {
                                 e.preventDefault()
                                 e.stopPropagation()
+                                showToast('Минимальная сумма заказа — 50 руб. Добавьте товары, чтобы продолжить.', 'error')
                             }
                         }}
                     >
@@ -139,7 +151,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                             color="black" 
                             isArrowLeft={false}
                         >
-                            <span>Перейти к оплате</span>
+                            <span>Перейти к оформлению заказа</span>
                         </CatalogueButton>
                     </StyledOrderButtonWrapper>
                 </div>
@@ -381,15 +393,32 @@ const StyledCategory = styled.div`
     `}
 `
 
+const StyledPriceContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(2)};
+    margin-top: ${rm(4)};
+    flex-shrink: 0;
+`
+
 const StyledPrice = styled.div`
     font-size: ${rm(16)};
     color: ${colors.black100};
     ${fontGeist(500)};
-    margin-top: ${rm(4)};
-    flex-shrink: 0;
 
     ${media.xsm`
         font-size: ${rm(14)};
+    `}
+`
+
+const StyledOldPrice = styled.div`
+    font-size: ${rm(14)};
+    color: #a0aec0;
+    ${fontGeist(400)};
+    text-decoration: line-through;
+
+    ${media.xsm`
+        font-size: ${rm(12)};
     `}
 `
 
