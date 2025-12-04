@@ -47,7 +47,7 @@ export function generateMetadata({
                     height: 720,
                 }
             ],
-            locale: 'en_US',
+            locale: 'ru_RU',
             type: 'website',
         },
         twitter: {
@@ -75,7 +75,8 @@ export function generateMetadata({
         },
         other: {
             'distribution': 'web',
-            'language': 'english',
+            'language': 'russian',
+            'google': 'notranslate',
         }
     }
 }

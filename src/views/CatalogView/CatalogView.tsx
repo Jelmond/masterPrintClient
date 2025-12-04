@@ -399,6 +399,8 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
                 onClose={handleCloseFilterModal}
                 onFilterChange={handleFilterChange}
                 onShowResults={handleShowResults}
+                onTagToggle={handleTagToggle}
+                onClearFilters={clearFilters}
                 filters={{
                     sortBy: filters.sortBy,
                     cardSizes: filters.cardSizes,
@@ -406,9 +408,13 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
                     quantities: filters.quantities,
                     hasDiscount: filters.hasDiscount,
                     selectedPolishes: filters.selectedPolishes,
-                    isBestseller: filters.isBestseller
+                    isBestseller: filters.isBestseller,
+                    sales: filters.sales,
+                    selectedTags: filters.selectedTags
                 }}
                 products={allProducts}
+                tags={sortedTags}
+                showCategories={showCategories}
             />
             <StyledScrollToTop $isVisible={showScrollTop} onClick={handleScrollToTop}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
