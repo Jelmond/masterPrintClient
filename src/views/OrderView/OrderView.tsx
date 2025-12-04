@@ -468,7 +468,7 @@ export const OrderView = () => {
                                         <div>
                                             <SimpleInput 
                                                 label="Расчетный счет" 
-                                                placeholder="Введите расчетный счет (13 цифр)" 
+                                                placeholder="Введите расчетный счет" 
                                                 value={legalFormData.bankAccount}
                                                 onChange={(e) => handleInputChange('bankAccount', e.target.value, true)}
                                             />

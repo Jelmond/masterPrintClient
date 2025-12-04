@@ -4,12 +4,16 @@ import styled from "styled-components"
 import Image from "next/image"
 import { CatalogueButton } from "@/components/UI/Buttons/CatalogueButton"
 import { heightLvh } from "@/styles/utils"
+import { useWindowWidth } from "@react-hook/window-size"
 
 export const Welcome = () => {
+
+    const width = useWindowWidth()
+
     return (
         <StyledWelcome>
             <StyledContent>
-                <StyledBackgroundImage src="/heroImage.webp" alt="welcomeBackground" fill />
+                {width > 768 && <StyledBackgroundImage src="/heroImage.webp" alt="welcomeBackground" fill />}
                 <StyledLeft>
                     <StyledHeadline>
                         ВАШ ПАРТНЁР В ОБЛАСТИ ПОДАРОЧНЫХ ПЕЧАТНЫХ ИЗДЕЛИЙ

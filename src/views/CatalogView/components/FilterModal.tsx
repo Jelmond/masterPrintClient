@@ -8,6 +8,8 @@ interface FilterModalProps {
     onClose: () => void
     onFilterChange: (filterType: string, value: any) => void
     onShowResults: () => void
+    onTagToggle?: (tagTitle: string) => void
+    onClearFilters?: () => void
     filters: {
         sortBy: string
         cardSizes: string[]
@@ -16,8 +18,12 @@ interface FilterModalProps {
         hasDiscount: boolean
         selectedPolishes: string[]
         isBestseller: boolean
+        sales?: string
+        selectedTags?: string[]
     }
     products: any[]
+    tags?: any[]
+    showCategories?: boolean
 }
 
 const StyledModalOverlay = styled.div<{ isOpen: boolean }>`
@@ -540,7 +546,7 @@ const CustomDropdown = ({ value, onChange }: CustomDropdownProps) => {
     )
 }
 
-export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, filters, products }: FilterModalProps) => {
+export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, filters, products, tags = [], onTagToggle, onClearFilters, showCategories = true }: FilterModalProps) => {
     // Extract unique values from products for dynamic filter options
     const availableSizes = Array.from(new Set(products.map(p => p.size).filter(Boolean))).sort()
     const availableMaterials = Array.from(new Set(products.map(p => p.material).filter(Boolean))).sort()
@@ -565,7 +571,9 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
         filters.quantities.length,
         filters.hasDiscount ? 1 : 0,
         filters.selectedPolishes.length,
-        filters.isBestseller ? 1 : 0
+        filters.isBestseller ? 1 : 0,
+        filters.sales ? 1 : 0,
+        (filters.selectedTags?.length || 0)
     ].reduce((sum, count) => sum + count, 0)
 
     const handleCheckboxChange = (filterType: string, value: string, checked: boolean) => {
@@ -585,6 +593,11 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
         onFilterChange('hasDiscount', false)
         onFilterChange('selectedPolishes', [])
         onFilterChange('isBestseller', false)
+        onFilterChange('sales', '')
+        onFilterChange('selectedTags', [])
+        if (onClearFilters) {
+            onClearFilters()
+        }
     }
 
     const handleOverlayClick = (e: React.MouseEvent) => {
@@ -629,6 +642,86 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                     <p>Настройте параметры поиска товаров</p>
                 </StyledModalHeader>
                 
+                {showCategories && (
+                    <>
+                        <StyledSection>
+                            <StyledSectionTitle>Теги</StyledSectionTitle>
+                            <StyledCheckboxGroup>
+                                <StyledCheckboxItem>
+                                    <StyledCheckbox
+                                        type="checkbox"
+                                        checked={filters.sales === 'new'}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                onFilterChange('sales', 'new')
+                                            } else {
+                                                onFilterChange('sales', '')
+                                            }
+                                        }}
+                                    />
+                                    Новинки
+                                </StyledCheckboxItem>
+                                <StyledCheckboxItem>
+                                    <StyledCheckbox
+                                        type="checkbox"
+                                        checked={filters.sales === 'sale'}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                onFilterChange('sales', 'sale')
+                                            } else {
+                                                onFilterChange('sales', '')
+                                            }
+                                        }}
+                                    />
+                                    Акции
+                                </StyledCheckboxItem>
+                                <StyledCheckboxItem>
+                                    <StyledCheckbox
+                                        type="checkbox"
+                                        checked={filters.sales === 'popular'}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                onFilterChange('sales', 'popular')
+                                            } else {
+                                                onFilterChange('sales', '')
+                                            }
+                                        }}
+                                    />
+                                    Популярные
+                                </StyledCheckboxItem>
+                            </StyledCheckboxGroup>
+                        </StyledSection>
+
+                        <StyledSection>
+                            <StyledSectionTitle>Категории</StyledSectionTitle>
+                            <StyledCheckboxGroup>
+                                {tags.length > 0 ? tags.map((tag: any, index: number) => (
+                                    <StyledCheckboxItem key={index}>
+                                        <StyledCheckbox
+                                            type="checkbox"
+                                            checked={filters.selectedTags?.includes(tag.title) || false}
+                                            onChange={(e) => {
+                                                if (onTagToggle) {
+                                                    onTagToggle(tag.title)
+                                                } else {
+                                                    const currentTags = filters.selectedTags || []
+                                                    const newTags = e.target.checked
+                                                        ? [...currentTags, tag.title]
+                                                        : currentTags.filter((t: string) => t !== tag.title)
+                                                    onFilterChange('selectedTags', newTags)
+                                                }
+                                            }}
+                                        />
+                                        {tag.title}
+                                    </StyledCheckboxItem>
+                                )) : (
+                                    <p style={{ color: '#666', fontSize: rm(14) }}>Нет доступных категорий</p>
+                                )}
+                            </StyledCheckboxGroup>
+                        </StyledSection>
+                    </>
+                )}
+
                 <StyledSection>
                     <StyledSortContainer>
                         <StyledSortLabel>Сортировать по:</StyledSortLabel>

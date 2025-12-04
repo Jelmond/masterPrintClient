@@ -72,6 +72,10 @@ const info = {
             label: 'Доставка',
             url: '/delivery'
         },
+        {
+            label: 'Обращения',
+            url: '/requests'
+        }
     ]
 }
 
