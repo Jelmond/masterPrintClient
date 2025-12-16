@@ -4,6 +4,7 @@ import { useToastStore } from './toastStore'
 
 interface CartItem {
     productId: number
+    documentId?: string
     quantity: number
     title: string
     price: number

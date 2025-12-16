@@ -30,6 +30,7 @@ export const ProductView = ({ data }: { data: any }) => {
         
         addToCart({
             productId: data.id,
+            documentId: data.documentId,
             title: data.title,
             price: data.price,
             image: data.images[0]?.url,

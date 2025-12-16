@@ -46,6 +46,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         
         addToCart({
             productId: product.id,
+            documentId: product.documentId,
             title: product.title,
             price: currentPrice, // Use discounted price
             oldPrice: hasDiscount ? oldPrice : null, // Save old price if discount exists
@@ -115,11 +116,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                     <div className="priceWrapper">
                         {hasDiscount ? (
                             <>
-                                <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
-                                <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                                <div className="oldPrice" style={{ textDecoration: 'line-through' }}>{oldPrice?.toLocaleString('ru-RU')} руб.</div>
+                                <div className="price" style={{ textDecoration: 'none' }}>{currentPrice.toLocaleString('ru-RU')} руб.</div>
                             </>
                         ) : (
-                            <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                            <div className="price" style={{ textDecoration: 'none' }}>{currentPrice.toLocaleString('ru-RU')} руб.</div>
                         )}
                     </div>
                     <div 
@@ -232,7 +233,8 @@ const StyledContent = styled.div`
                     font-size: ${rm(16)};
                     ${fontGeist(400)};
                     color: #999;
-                    text-decoration: line-through;
+                    text-decoration: line-through !important;
+                    text-decoration-line: line-through !important;
                     line-height: 1;
 
                     ${media.md`
@@ -248,6 +250,8 @@ const StyledContent = styled.div`
                     font-size: ${rm(24)};
                     ${fontGeist(400)};
                     color: ${colors.black100};
+                    text-decoration: none !important;
+                    text-decoration-line: none !important;
                     line-height: 1;
 
                     ${media.md`
