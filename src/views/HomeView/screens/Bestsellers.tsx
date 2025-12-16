@@ -56,6 +56,7 @@ export const Bestsellers = () => {
     const handleAddToCart = (product: any) => {
         addToCart({
             productId: product.id,
+            documentId: product.documentId,
             title: product.title,
             price: product.price,
             image: product.images[0]?.url

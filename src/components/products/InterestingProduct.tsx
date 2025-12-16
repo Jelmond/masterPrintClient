@@ -46,6 +46,7 @@ export const InterestingProduct = ({ product }: InterestingProductProps) => {
         
         addToCart({
             productId: product.id,
+            documentId: product.documentId,
             title: product.title,
             price: currentPrice, // Use discounted price
             oldPrice: hasDiscount ? oldPrice : null, // Save old price if discount exists

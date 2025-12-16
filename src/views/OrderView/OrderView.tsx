@@ -267,47 +267,139 @@ export const OrderView = () => {
         if (!validateForm()) {
             return // Don't proceed if form is invalid
         }
-        
-        // Generate order number
-        const orderNumber = generateOrderNumber()
-        
-        // Prepare order data
-        const orderData = {
-            orderNumber,
-            buyerType,
-            deliveryMethod,
-            paymentMethod,
-            items: items.map(item => ({
-                productId: item.productId,
-                title: item.title,
-                price: item.price,
-                quantity: item.quantity,
-                image: item.image
-            })),
-            formData: buyerType === 'legal' ? legalFormData : individualFormData,
-            totals: {
-                productsTotal,
-                baseDiscountAmount,
-                baseDiscountPercent,
-                selfPickupDiscountAmount,
-                selfPickupDiscountPercent,
-                deliveryCost,
-                finalTotal
+
+        // Handle cash-card-pickup separately (doesn't use payment API)
+        if (paymentMethod === 'cash-card-pickup') {
+            const orderNumber = generateOrderNumber()
+            const orderData = {
+                orderNumber,
+                buyerType,
+                deliveryMethod,
+                paymentMethod,
+                items: items.map(item => ({
+                    productId: item.productId,
+                    title: item.title,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image
+                })),
+                formData: buyerType === 'legal' ? legalFormData : individualFormData,
+                totals: {
+                    productsTotal,
+                    baseDiscountAmount,
+                    baseDiscountPercent,
+                    selfPickupDiscountAmount,
+                    selfPickupDiscountPercent,
+                    deliveryCost,
+                    finalTotal
+                }
+            }
+
+            try {
+                const response = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData),
+                })
+
+                if (!response.ok) {
+                    throw new Error('Ошибка при отправке заказа')
+                }
+
+                // Clear the cart
+                items.forEach(item => {
+                    removeFromCart(item.productId)
+                })
+
+                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=cash-card`)
+            } catch (error) {
+                console.error('Error submitting order:', error)
+                alert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.')
+            }
+            return
+        }
+
+        // Map payment method to API format
+        let apiPaymentMethod: string
+        if (buyerType === 'individual') {
+            if (paymentMethod === 'alphabank') {
+                apiPaymentMethod = 'card'
+            } else if (paymentMethod === 'erip') {
+                apiPaymentMethod = 'ERIP'
+            } else {
+                alert('Неверный способ оплаты для физического лица')
+                return
+            }
+        } else {
+            if (paymentMethod === 'bank-account') {
+                apiPaymentMethod = 'paymentAccount'
+            } else if (paymentMethod === 'erip') {
+                apiPaymentMethod = 'ERIP'
+            } else {
+                alert('Неверный способ оплаты для юридического лица')
+                return
             }
         }
 
-        // Send order to API
+        // Map delivery method to type
+        const deliveryType = deliveryMethod === 'self-pickup' ? 'selfShipping' : 'shipping'
+
+        // Prepare payment request data
+        const paymentRequest: any = {
+            products: items.map(item => ({
+                productDocumentId: item.documentId || item.productId, // Use documentId if available, fallback to productId
+                quantity: item.quantity
+            })),
+            isIndividual: buyerType === 'individual',
+            paymentMethod: apiPaymentMethod,
+            type: deliveryType
+        }
+
+        // Add customer-specific fields
+        if (buyerType === 'individual') {
+            paymentRequest.fullName = individualFormData.fullName
+            paymentRequest.email = individualFormData.email
+            paymentRequest.phone = individualFormData.phone
+            paymentRequest.city = individualFormData.city
+            paymentRequest.address = individualFormData.address
+            if (individualFormData.comment) {
+                paymentRequest.comment = individualFormData.comment
+            }
+        } else {
+            paymentRequest.organization = legalFormData.organizationName
+            paymentRequest.fullName = legalFormData.fullName
+            paymentRequest.UNP = legalFormData.unp
+            paymentRequest.paymentAccount = legalFormData.bankAccount
+            paymentRequest.bankAdress = legalFormData.bankAddress
+            paymentRequest.email = legalFormData.email
+            paymentRequest.phone = legalFormData.phone
+            paymentRequest.city = legalFormData.city
+            paymentRequest.address = legalFormData.address
+            if (legalFormData.comment) {
+                paymentRequest.comment = legalFormData.comment
+            }
+        }
+
+        // Send payment request to API
         try {
-            const response = await fetch('/api/order', {
+            const response = await fetch('/api/payments/initiate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(orderData),
+                body: JSON.stringify(paymentRequest),
             })
 
+            const data = await response.json()
+
             if (!response.ok) {
-                throw new Error('Ошибка при отправке заказа')
+                throw new Error(data.error?.message || 'Ошибка при инициализации платежа')
+            }
+
+            if (!data.success) {
+                throw new Error(data.error?.message || 'Не удалось создать заказ')
             }
 
             // Clear the cart when order is successfully submitted
@@ -315,21 +407,19 @@ export const OrderView = () => {
                 removeFromCart(item.productId)
             })
 
-            // Redirect based on payment method
-            if (paymentMethod === 'cash-card-pickup') {
-                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=cash-card`)
-            } else if (paymentMethod === 'erip' || paymentMethod === 'bank-account') {
-                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=erip-bank`)
-            } else if (paymentMethod === 'alphabank') {
-                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=alphabank`)
+            // Handle response based on payment method
+            if (data.paymentLink && data.hashId) {
+                // Card payment - redirect to payment gateway
+                window.location.href = data.paymentLink
             } else {
-                // For other payment methods, show old modal
-                setShowSuccessModal(true)
+                // ERIP or paymentAccount - show success page
+                const paymentType = apiPaymentMethod === 'ERIP' ? 'erip-bank' : 'erip-bank'
+                router.push(`/order/success?orderNumber=${data.orderNumber}&paymentType=${paymentType}&orderId=${data.orderId}`)
             }
         } catch (error) {
-            console.error('Error submitting order:', error)
-            // Show error message to user
-            alert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.')
+            console.error('Error submitting payment:', error)
+            const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.'
+            alert(errorMessage)
         }
     }
 
@@ -343,8 +433,8 @@ export const OrderView = () => {
             ]
         } else if (buyerType === 'individual') {
             const methods = [
-                { value: 'erip', label: 'ЕРИП' },
-                { value: 'alphabank', label: 'Альфа-банк карточкой' }
+                { value: 'alphabank', label: 'Банковская карта (онлайн)' },
+                { value: 'erip', label: 'ЕРИП' }
             ]
             // Add cash/card option only if self-pickup is selected (only for individuals)
             if (deliveryMethod === 'self-pickup') {
