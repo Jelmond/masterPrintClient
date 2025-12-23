@@ -74,6 +74,11 @@ const StyledGrid = styled.div`
     height: 100%;
     grid-column: 1 / -1;
 
+    @media (min-width: 2000px) {
+        grid-template-rows: 5fr;
+        grid-template-columns: repeat(auto-fill, minmax(${rm(290)}, 1fr));
+    }
+
     ${media.md`
         grid-template-columns: repeat(auto-fill, minmax(${rm(200)}, 1fr));
         gap: ${rm(30)};

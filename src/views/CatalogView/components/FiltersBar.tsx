@@ -6,7 +6,7 @@ import { animated, useSpring } from "@react-spring/web"
 import styled from "styled-components"
 import { FiltersSettings } from "./FiltersSettings"
 import { fontGeist } from "@/styles/fonts"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 
 interface FiltersBarProps {
     tags: any[]
@@ -27,6 +27,7 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
 
     const [isShown, setIsShown] = useState(true)
     const [showAllTags, setShowAllTags] = useState(false)
+    const tagsWrapperRef = useRef<HTMLDivElement>(null)
 
     const visibleTags = useMemo(() => {
         return showAllTags ? tags : tags.slice(0, 9)
@@ -40,7 +41,7 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
     }, [filters])
 
     const appearSpring = useSpring({
-        width: isShown ? `${rm(202)}` : `${rm(0)}`,
+        width: isShown ? `${rm(222)}` : `${rm(0)}`,
         x: isShown ? `${rm(0)}` : `${rm(-50)}`,
         config: {
             duration: 300
@@ -48,7 +49,7 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
     })
 
     const squishSpring = useSpring({
-        width: isShown ? `${rm(202)}` : `${rm(50)}`,
+        width: isShown ? `${rm(222)}` : `${rm(50)}`,
         config: {
             duration: 300
         }
@@ -60,6 +61,28 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
             duration: 100
         }
     })
+
+    // Force scrollbar to be visible by adding a class when content is scrollable
+    useEffect(() => {
+        if (tagsWrapperRef.current) {
+            const element = tagsWrapperRef.current;
+            const checkScrollable = () => {
+                const isScrollable = element.scrollHeight > element.clientHeight;
+                if (isScrollable) {
+                    element.classList.add('has-scrollbar');
+                } else {
+                    element.classList.remove('has-scrollbar');
+                }
+            };
+            
+            checkScrollable();
+            // Check again when tags change
+            const observer = new ResizeObserver(checkScrollable);
+            observer.observe(element);
+            
+            return () => observer.disconnect();
+        }
+    }, [visibleTags, showAllTags])
 
     return (
         <StyledFiltersBarWrapper>
@@ -118,22 +141,42 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
                     )}
 
                     <StyledSectionTitle>Категории</StyledSectionTitle>
-                    <StyledTagsFilter>
-                        {visibleTags.map((tag: any, index: number) => (
-                            <StyledTagButton
-                                key={index}
-                                className={filters.selectedTags.includes(tag.title) ? 'active' : ''}
-                                onClick={() => onTagToggle(tag.title)}
-                            >
-                                <span>{tag.title}</span>
-                                <StyledCheckmarkIcon className={filters.selectedTags.includes(tag.title) ? 'active' : ''}>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </StyledCheckmarkIcon>
-                            </StyledTagButton>
-                        ))} 
-                    </StyledTagsFilter>
+                    <StyledTagsFilterWrapper
+                        ref={tagsWrapperRef}
+                        onWheel={(e) => {
+                            const element = e.currentTarget;
+                            const { scrollTop, scrollHeight, clientHeight } = element;
+                            const isAtTop = scrollTop === 0;
+                            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                            const isScrollingDown = e.deltaY > 0;
+                            const isScrollingUp = e.deltaY < 0;
+
+                            if ((isScrollingDown && isAtBottom) || (isScrollingUp && isAtTop)) {
+                                // Allow page scroll when at boundaries
+                                return;
+                            }
+                            
+                            // Prevent page scroll when scrolling inside the container
+                            e.stopPropagation();
+                        }}
+                    >
+                        <StyledTagsFilter>
+                            {visibleTags.map((tag: any, index: number) => (
+                                <StyledTagButton
+                                    key={index}
+                                    className={filters.selectedTags.includes(tag.title) ? 'active' : ''}
+                                    onClick={() => onTagToggle(tag.title)}
+                                >
+                                    <span>{tag.title}</span>
+                                    <StyledCheckmarkIcon className={filters.selectedTags.includes(tag.title) ? 'active' : ''}>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </StyledCheckmarkIcon>
+                                </StyledTagButton>
+                            ))} 
+                        </StyledTagsFilter>
+                    </StyledTagsFilterWrapper>
                     
                     {tags.length > 9 && (
                         <StyledMoreButton onClick={() => setShowAllTags(!showAllTags)}>
@@ -173,7 +216,8 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
 
 const StyledFiltersBar = styled(animated.div)`
     padding: ${rm(13)};
-    padding-right: ${rm(25)};
+    padding-right: ${rm(20)};
+    padding-left: ${rm(20)};
     position: relative;
     overflow: hidden;
     width: 100%;
@@ -313,11 +357,99 @@ const StyledFilterButton = styled.button`
     }
 `
 
+const StyledTagsFilterWrapper = styled.div`
+    max-height: ${rm(400)};
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin-bottom: ${rm(16)};
+    padding-right: ${rm(2)};
+    
+    /* Force scrollbar to always be visible */
+    scrollbar-gutter: stable;
+    
+    /* Beautiful scrollbar - always visible when scrollable */
+    scrollbar-width: thin;
+    scrollbar-color: #667eea rgba(102, 126, 234, 0.15);
+    
+    &::-webkit-scrollbar {
+        width: ${rm(10)};
+        -webkit-appearance: none;
+        appearance: none;
+        display: block;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: ${rm(10)};
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        margin: ${rm(4)} 0;
+        -webkit-box-shadow: inset 0 0 4px rgba(102, 126, 234, 0.1);
+        box-shadow: inset 0 0 4px rgba(102, 126, 234, 0.1);
+        -webkit-appearance: none;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        border-radius: ${rm(10)};
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+        min-height: ${rm(40)};
+        -webkit-box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+        -webkit-appearance: none;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.6);
+        -webkit-box-shadow: 0 2px 10px rgba(102, 126, 234, 0.6);
+    }
+    
+    &::-webkit-scrollbar-thumb:active {
+        background: linear-gradient(180deg, #5568d3 0%, #6a3d8f 100%);
+    }
+    
+    /* Always show scrollbar corner */
+    &::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+    
+    /* Force scrollbar visibility - override macOS auto-hide */
+    &.has-scrollbar {
+        &::-webkit-scrollbar {
+            display: block !important;
+            visibility: visible !important;
+        }
+        
+        &::-webkit-scrollbar-track {
+            display: block !important;
+            visibility: visible !important;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+            display: block !important;
+            visibility: visible !important;
+        }
+    }
+    
+    /* Ensure scrollbar is always visible on scrollable content */
+    &:hover::-webkit-scrollbar-thumb,
+    &::-webkit-scrollbar-thumb {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* Force visibility on macOS */
+    @supports (-webkit-overflow-scrolling: touch) {
+        &::-webkit-scrollbar {
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+`
+
 const StyledTagsFilter = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${rm(8)};
-    margin-bottom: ${rm(16)};
 `
 
 const StyledTagButton = styled.button`

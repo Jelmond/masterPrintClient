@@ -52,7 +52,7 @@ const market = {
         },
         {
             label: 'Бестселлеры',
-            url: '/promotions'
+            url: '/bestsellers'
         },
     ]
 }
@@ -73,7 +73,7 @@ const info = {
             url: '/delivery'
         },
         {
-            label: 'Обращения',
+            label: 'Обращения покупателей',
             url: '/requests'
         }
     ]

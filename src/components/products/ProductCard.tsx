@@ -108,6 +108,22 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         <span>Бестселлер</span>
                     </StyledBestsellerBadge>
                 )}
+                {(product.articul || product.size) && (
+                    <StyledProductInfoBadge>
+                        {product.articul && (
+                            <StyledInfoBadgeItem>
+                                <span className="label">Арт.</span>
+                                <span className="value">{product.articul}</span>
+                            </StyledInfoBadgeItem>
+                        )}
+                        {product.size && (
+                            <StyledInfoBadgeItem>
+                                <span className="label">Размер</span>
+                                <span className="value">{product.size}</span>
+                            </StyledInfoBadgeItem>
+                        )}
+                    </StyledProductInfoBadge>
+                )}
             </StyledImageContainer>
             <StyledHiddenLink href={`/products/${product?.id}`} target="_blank"/>
             <StyledContent>
@@ -286,6 +302,55 @@ const StyledContent = styled.div`
                 }
             }
         }
+    }
+`;
+
+const StyledProductInfoBadge = styled.div`
+    position: absolute;
+    bottom: ${rm(10)};
+    left: ${rm(10)};
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(6)};
+    background: linear-gradient(135deg, rgba(28, 28, 28, 0.9) 0%, rgba(44, 44, 44, 0.9) 100%);
+    border-radius: ${rm(8)};
+    padding: ${rm(8)} ${rm(12)};
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(0, 0, 0, 0.4), 
+                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.2);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+
+    ${media.xsm`
+        bottom: ${rm(8)};
+        left: ${rm(8)};
+        padding: ${rm(6)} ${rm(10)};
+        gap: ${rm(4)};
+        border-radius: ${rm(6)};
+    `}
+`
+
+const StyledInfoBadgeItem = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${rm(6)};
+    font-size: ${rm(11)};
+    ${fontGeist(400)};
+    white-space: nowrap;
+
+    ${media.xsm`
+        font-size: ${rm(10)};
+        gap: ${rm(4)};
+    `}
+
+    .label {
+        color: rgba(255, 255, 255, 0.7);
+        ${fontGeist(500)};
+    }
+
+    .value {
+        color: ${colors.white100};
+        ${fontGeist(600)};
     }
 `;
 

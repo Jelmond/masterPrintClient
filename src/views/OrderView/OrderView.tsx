@@ -715,6 +715,14 @@ export const OrderView = () => {
                                         Я согласен(а) с <StyledLink href="/user-agreement" target="_blank">пользовательским соглашением</StyledLink> <span style={{color: '#dc3545'}}>*</span>
                                     </StyledCheckboxLabel>
                                 </StyledCheckboxWrapper>
+                                <StyledPolicyLink href="/policy.pdf" download>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                    Скачать политику конфиденциальности
+                                </StyledPolicyLink>
                                 {errors.agreementAccepted && <StyledErrorMessage>{errors.agreementAccepted}</StyledErrorMessage>}
                             </StyledAgreementSection>
                         </>
@@ -1763,5 +1771,38 @@ const StyledLink = styled.a`
 
     &:hover {
         color: #0056b3;
+    }
+`
+
+const StyledPolicyLink = styled.a`
+    display: flex;
+    align-items: center;
+    gap: ${rm(8)};
+    margin-top: ${rm(12)};
+    font-size: ${rm(14)};
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    ${fontGeist(400)};
+
+    ${media.xsm`
+        font-size: ${rm(12)};
+        gap: ${rm(6)};
+    `}
+
+    svg {
+        width: ${rm(16)};
+        height: ${rm(16)};
+        flex-shrink: 0;
+
+        ${media.xsm`
+            width: ${rm(14)};
+            height: ${rm(14)};
+        `}
+    }
+
+    &:hover {
+        color: #0056b3;
+        text-decoration: underline;
     }
 `

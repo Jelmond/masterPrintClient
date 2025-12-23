@@ -13,7 +13,7 @@ export const Welcome = () => {
     return (
         <StyledWelcome>
             <StyledContent>
-                {width > 768 && <StyledBackgroundImage src="/heroImage.webp" alt="welcomeBackground" fill />}
+                <StyledBackgroundImage src={width > 768 ? "/hero.webp" : "/heroMobile.webp"} alt="welcomeBackground" fill />
                 <StyledLeft>
                     <StyledHeadline>
                         ВАШ ПАРТНЁР В ОБЛАСТИ ПОДАРОЧНЫХ ПЕЧАТНЫХ ИЗДЕЛИЙ
@@ -48,7 +48,8 @@ const StyledWelcome = styled.div`
     padding-bottom: ${rm(24)};
 
     ${media.lg`
-        padding: ${rm(60)} ${rm(80)};
+        padding: ${rm(96)} ${rm(80)};
+        padding-bottom: ${rm(24)};
     `}
 
     ${media.md`
@@ -57,7 +58,8 @@ const StyledWelcome = styled.div`
     `}
 
     ${media.xsm`
-        padding: ${rm(40)} ${rm(20)};
+        padding: ${rm(64)} ${rm(20)};
+        padding-bottom: ${rm(24)};
         min-height: ${rm(400)};
     `}
 `

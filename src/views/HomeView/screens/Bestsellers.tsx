@@ -4,10 +4,13 @@ import Image from "next/image"
 import styled from "styled-components"
 import { SwiperSlide } from "swiper/react"
 import { Swiper } from "swiper/react"
+import { Autoplay } from "swiper/modules"
 import { useCartStore } from "@/store/cartStore"
 import { useWindowWidth } from "@react-hook/window-size"
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
+import 'swiper/css'
+import type { Swiper as SwiperType } from 'swiper'
 
 export const Bestsellers = () => {
 
@@ -15,6 +18,7 @@ export const Bestsellers = () => {
     const [bestsellers, setBestsellers] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<Error | null>(null)
+    const swiperRef = useRef<SwiperType | null>(null)
 
     const addToCart = useCartStore(state => state.addToCart);
     const items = useCartStore(state => state.items);
@@ -68,11 +72,25 @@ export const Bestsellers = () => {
     return (
         <StyledBestsellers>
             <StyledTitle>Бестселлеры</StyledTitle>
-            <StyledProductsSwiper>
+            <StyledProductsSwiper
+                onMouseEnter={() => swiperRef.current?.autoplay?.stop()}
+                onMouseLeave={() => swiperRef.current?.autoplay?.start()}
+            >
                 <Swiper
                     spaceBetween={30}
                     slidesPerView={width > 1440 ? 5 : width > 1024 ? 3 : 1.5}
                     className="products-swiper"
+                    loop={true}
+                    speed={2000}
+                    autoplay={{
+                        delay: 2000,
+                        disableOnInteraction: false,
+                    }}
+                    allowTouchMove={false}
+                    modules={[Autoplay]}
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper
+                    }}
                 >
                     {bestsellers.map((product, index) => (
                         <SwiperSlide key={index}>
