@@ -132,10 +132,15 @@ const StyledContentContainer = styled.div`
     flex-direction: column;
     align-items: center;
     padding: ${rm(80)} ${rm(95)};
-    background-color: rgba(28, 28, 28, 0.1);
-    border-radius: ${rm(8)};
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(250, 250, 250, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: ${rm(16)};
     overflow: hidden;
     gap: ${rm(80)};
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04),
+                0 1px 4px rgba(0, 0, 0, 0.02);
 
     ${media.lg`
         padding: ${rm(60)} ${rm(60)};
@@ -159,6 +164,7 @@ const StyledTitle = styled.h2`
     color: #1C1C1C;
     margin: 0 0 ${rm(50)} 0;
     text-align: center;
+    letter-spacing: ${rm(-0.5)};
 
     ${media.lg`
         font-size: ${rm(32)};
@@ -206,10 +212,23 @@ const StyledCard = styled.div`
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: ${rm(20)};
+    gap: ${rm(24)};
+    padding: ${rm(32)} ${rm(24)};
+    border-radius: ${rm(12)};
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+
+    &:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
+                    0 2px 8px rgba(0, 0, 0, 0.04);
+    }
 
     ${media.xsm`
         gap: ${rm(16)};
+        padding: ${rm(24)} ${rm(20)};
     `}
     
     .content{
@@ -222,6 +241,7 @@ const StyledCard = styled.div`
             color: #1C1C1C;
             ${fontGeist(700)};
             margin: 0;
+            letter-spacing: ${rm(-0.3)};
 
             ${media.lg`
                 font-size: ${rm(18)};
@@ -238,10 +258,10 @@ const StyledCard = styled.div`
         
         .description{
             font-size: ${rm(14)};
-            color: #1C1C1C;
+            color: #4A4A4A;
             ${fontGeist(400)};
             margin: 0;
-            line-height: 140%;
+            line-height: 150%;
             max-width: ${rm(250)};
 
             ${media.lg`
@@ -260,26 +280,38 @@ const StyledCard = styled.div`
 `
 
 const StyledIconContainer = styled.div`
-    width: ${rm(150)};
-    height: ${rm(150)};
+    width: ${rm(80)};
+    height: ${rm(80)};
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
+    background: rgba(28, 28, 28, 0.03);
+    border-radius: ${rm(12)};
+    padding: ${rm(16)};
+    transition: all 0.3s ease;
+
+    ${StyledCard}:hover & {
+        background: rgba(28, 28, 28, 0.05);
+        transform: scale(1.05);
+    }
 
     ${media.lg`
         width: ${rm(70)};
         height: ${rm(70)};
+        padding: ${rm(14)};
     `}
 
     ${media.md`
         width: ${rm(60)};
         height: ${rm(60)};
+        padding: ${rm(12)};
     `}
 
     ${media.xsm`
         width: ${rm(50)};
         height: ${rm(50)};
+        padding: ${rm(10)};
     `}
 
     svg{

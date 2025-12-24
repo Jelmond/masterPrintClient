@@ -343,6 +343,14 @@ export default function RequestsPage() {
                                     Я согласен на обработку персональных данных
                                 </StyledCheckboxLabel>
                             </StyledCheckboxWrapper>
+                            <StyledPolicyLink href="/policy.pdf" download>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Скачать политику конфиденциальности
+                            </StyledPolicyLink>
                             {errors.consent && <StyledError>{errors.consent}</StyledError>}
                             
                             {submitMessage && (
@@ -785,6 +793,41 @@ const StyledSpinner = styled.div`
         to {
             transform: rotate(360deg);
         }
+    }
+`
+
+const StyledPolicyLink = styled.a`
+    display: flex;
+    align-items: center;
+    gap: ${rm(8)};
+    font-size: ${rm(14)};
+    color: #1C1C1C;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    ${fontGeist(400)};
+    margin-top: ${rm(8)};
+    margin-left: ${rm(32)};
+
+    ${media.xsm`
+        font-size: ${rm(12)};
+        gap: ${rm(6)};
+        margin-left: ${rm(28)};
+    `}
+
+    svg {
+        width: ${rm(16)};
+        height: ${rm(16)};
+        flex-shrink: 0;
+
+        ${media.xsm`
+            width: ${rm(14)};
+            height: ${rm(14)};
+        `}
+    }
+
+    &:hover {
+        color: #007bff;
+        text-decoration: underline;
     }
 `
 

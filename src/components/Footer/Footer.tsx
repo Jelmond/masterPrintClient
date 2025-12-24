@@ -52,7 +52,7 @@ const market = {
         },
         {
             label: 'Бестселлеры',
-            url: '/promotions'
+            url: '/bestsellers'
         },
     ]
 }
@@ -73,7 +73,7 @@ const info = {
             url: '/delivery'
         },
         {
-            label: 'Обращения',
+            label: 'Обращения покупателей',
             url: '/requests'
         }
     ]
@@ -165,7 +165,7 @@ export const Footer = () => {
 
 const StyledFooter = styled.div`
     width: 100%;
-    background-color: #E6E8E6;
+    background-color: #F5F7F5;
     position: relative;
     z-index: 1;
 `

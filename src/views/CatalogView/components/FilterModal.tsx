@@ -137,6 +137,49 @@ const StyledFilterCard = styled.div<{ isOpen: boolean }>`
     }
 `
 
+const StyledActiveFiltersBadge = styled.div`
+    position: fixed;
+    top: ${rm(75)};
+    right: ${rm(15)};
+    z-index: 1001;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    border-radius: 50%;
+    width: ${rm(40)};
+    height: ${rm(40)};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: ${rm(16)};
+    ${fontGeist(700)};
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(255, 107, 107, 0.4), 
+                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    animation: pulse 2s ease-in-out infinite;
+
+    ${media.xsm`
+        top: ${rm(70)};
+        right: ${rm(15)};
+        width: ${rm(36)};
+        height: ${rm(36)};
+        font-size: ${rm(14)};
+    `}
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 ${rm(4)} ${rm(12)} rgba(255, 107, 107, 0.4), 
+                        0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.2);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 ${rm(6)} ${rm(16)} rgba(255, 107, 107, 0.5), 
+                        0 ${rm(3)} ${rm(8)} rgba(0, 0, 0, 0.3);
+        }
+    }
+`
+
 const StyledCloseButton = styled.button`
     position: absolute;
     top: ${rm(20)};
@@ -633,6 +676,11 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                 onTouchStart={handleCardTouchStart}
                 onClick={(e) => e.stopPropagation()}
             >
+                {activeFiltersCount > 0 && (
+                    <StyledActiveFiltersBadge>
+                        {activeFiltersCount}
+                    </StyledActiveFiltersBadge>
+                )}
                 <StyledCloseButton onClick={onClose}>
                     ×
                 </StyledCloseButton>
@@ -674,20 +722,6 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                                         }}
                                     />
                                     Акции
-                                </StyledCheckboxItem>
-                                <StyledCheckboxItem>
-                                    <StyledCheckbox
-                                        type="checkbox"
-                                        checked={filters.sales === 'popular'}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
-                                                onFilterChange('sales', 'popular')
-                                            } else {
-                                                onFilterChange('sales', '')
-                                            }
-                                        }}
-                                    />
-                                    Популярные
                                 </StyledCheckboxItem>
                             </StyledCheckboxGroup>
                         </StyledSection>
@@ -835,7 +869,7 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                     </StyledClearAllButton>
                 )}
                 <StyledShowResultsButton onClick={onShowResults}>
-                    Показать результаты {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+                    Показать результаты
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>

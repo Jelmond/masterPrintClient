@@ -19,6 +19,7 @@ import { AnimatedRouterLayout } from "@/layouts/AnimatedRouterLayout/AnimatedRou
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
 import { Toast } from "@/components/Toast/Toast";
+import { Snowfall } from "@/components/Snowfall/Snowfall";
 
 const onest = Onest({
   variable: "--font-onest",
@@ -65,6 +66,7 @@ export default function RootLayout({
             <SmartCSSGrid />
             <Lvh />
             <GlobalStyles />
+            <Snowfall />
             <AssetsLoaderLayout>
               <Cookie />
               <Toast />

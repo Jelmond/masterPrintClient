@@ -140,18 +140,31 @@ export const ProductView = ({ data }: { data: any }) => {
                     <p className="quantity">
                         В наличии: <span>{data.stock !== undefined && data.stock > 0 ? `${data.stock} ${getWordForCount(data.stock)}` : 'нет'}</span>
                     </p>
-                    <p className="info">
-                        Размер: <span>{data.size}</span>
-                    </p>
-                    <p className="info">
-                        Материал: <span>{data.material}</span>
-                    </p>
-                    <p className="info">
-                        Плотность: <span>{data.density}</span>
-                    </p>
-                    <p className="info">
-                        Количество в наборе: <span>{data.quantityInPack} {getWordForCount(data.quantityInPack)}</span>
-                    </p>
+                    {data.articul && (
+                        <p className="info">
+                            Артикул: <span>{data.articul}</span>
+                        </p>
+                    )}
+                    {data.size && (
+                        <p className="info">
+                            Размер: <span>{data.size}</span>
+                        </p>
+                    )}
+                    {data.material && (
+                        <p className="info">
+                            Материал: <span>{data.material}</span>
+                        </p>
+                    )}
+                    {data.density && (
+                        <p className="info">
+                            Плотность: <span>{data.density}</span>
+                        </p>
+                    )}
+                    {data.quantityInPack && (
+                        <p className="info">
+                            Количество в наборе: <span>{data.quantityInPack} {getWordForCount(data.quantityInPack)}</span>
+                        </p>
+                    )}
                     <StyledActions>
                         <div className="quantityContainer">
                             <button className="quantity-button" onClick={() => {
@@ -175,17 +188,24 @@ export const ProductView = ({ data }: { data: any }) => {
                                 </svg>
                             </button>
                         </div>
-                        <button 
-                            className="button" 
+                        <StyledAddToCartButton 
                             onClick={handleAddToCart}
                             disabled={isOutOfStock}
-                            style={{ 
-                                opacity: isOutOfStock ? 0.5 : 1, 
-                                cursor: isOutOfStock ? 'not-allowed' : 'pointer' 
-                            }}
+                            $isOutOfStock={isOutOfStock}
                         >
-                            {isOutOfStock ? 'Нет в наличии' : 'Добавить в корзину'}
-                        </button>
+                            <span className="button-content">
+                                {!isOutOfStock && (
+                                    <svg className="cart-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                )}
+                                <span className="button-text">
+                                    {isOutOfStock ? 'Нет в наличии' : 'Добавить в корзину'}
+                                </span>
+                            </span>
+                        </StyledAddToCartButton>
                     </StyledActions>
                 </div>
             </Right>
@@ -298,41 +318,6 @@ const StyledActions = styled.div`
         }
     }
 
-        .button{
-        padding: ${rm(13)} ${rm(22)};
-        background: #A6A6A6;
-        border-radius: ${rm(15)};
-        color: ${colors.white100};
-        font-size: ${rm(24)};
-        margin-top: ${rm(15)};
-        ${fontGeist(500)};
-        cursor: pointer;
-        border: none;
-
-        transition: opacity 0.3s ease;
-
-        ${media.md`
-            font-size: ${rm(20)};
-            padding: ${rm(12)} ${rm(20)};
-            margin-top: ${rm(12)};
-        `}
-
-        ${media.xsm`
-            font-size: ${rm(18)};
-            padding: ${rm(12)} ${rm(16)};
-            margin-top: 0;
-            width: 100%;
-        `}
-
-        &:hover:not(:disabled){
-            opacity: 0.8;
-        }
-        
-        &:disabled{
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-    }
 `
 
 const Right = styled.div`
@@ -592,5 +577,65 @@ const Thumb = styled.div`
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+`
+
+const StyledAddToCartButton = styled.button<{ $isOutOfStock: boolean }>`
+    padding: ${rm(18)} ${rm(40)};
+    background: ${props => props.$isOutOfStock ? '#A6A6A6' : '#1C1C1C'};
+    border-radius: ${rm(8)};
+    color: ${colors.white100};
+    font-size: ${rm(18)};
+    margin-top: ${rm(15)};
+    ${fontGeist(500)};
+    cursor: ${props => props.$isOutOfStock ? 'not-allowed' : 'pointer'};
+    border: none;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+
+    ${media.md`
+        font-size: ${rm(16)};
+        padding: ${rm(16)} ${rm(32)};
+        margin-top: ${rm(12)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(16)};
+        padding: ${rm(14)} ${rm(24)};
+        margin-top: 0;
+        width: 100%;
+    `}
+
+    .button-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: ${rm(12)};
+
+        ${media.xsm`
+            gap: ${rm(8)};
+        `}
+    }
+
+    .cart-icon,
+    .arrow-icon {
+        flex-shrink: 0;
+    }
+
+    .button-text {
+        white-space: nowrap;
+    }
+
+    &:hover:not(:disabled) {
+        background: ${props => props.$isOutOfStock ? '#A6A6A6' : '#2C2C2C'};
+        opacity: 0.9;
+    }
+
+    &:active:not(:disabled) {
+        opacity: 0.8;
+    }
+    
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 `

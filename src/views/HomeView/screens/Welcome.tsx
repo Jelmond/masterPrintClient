@@ -13,7 +13,7 @@ export const Welcome = () => {
     return (
         <StyledWelcome>
             <StyledContent>
-                {width > 768 && <StyledBackgroundImage src="/heroImage.webp" alt="welcomeBackground" fill />}
+                <StyledBackgroundImage src={width > 768 ? "/hero.webp" : "/heroMobile.webp"} alt="welcomeBackground" fill />
                 <StyledLeft>
                     <StyledHeadline>
                         ВАШ ПАРТНЁР В ОБЛАСТИ ПОДАРОЧНЫХ ПЕЧАТНЫХ ИЗДЕЛИЙ
@@ -48,7 +48,8 @@ const StyledWelcome = styled.div`
     padding-bottom: ${rm(24)};
 
     ${media.lg`
-        padding: ${rm(60)} ${rm(80)};
+        padding: ${rm(96)} ${rm(80)};
+        padding-bottom: ${rm(24)};
     `}
 
     ${media.md`
@@ -57,7 +58,8 @@ const StyledWelcome = styled.div`
     `}
 
     ${media.xsm`
-        padding: ${rm(40)} ${rm(20)};
+        padding: ${rm(64)} ${rm(20)};
+        padding-bottom: ${rm(24)};
         min-height: ${rm(400)};
     `}
 `
@@ -100,12 +102,21 @@ const StyledLeft = styled.div`
     flex-direction: column;
     gap: ${rm(24)};
     position: relative;
-    z-index: 1;
+    z-index: 2;
     width: ${rm(820)};
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: ${rm(40)} ${rm(48)};
+    border-radius: ${rm(16)};
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.5);
 
     ${media.lg`
         width: 100%;
         max-width: ${rm(700)};
+        padding: ${rm(35)} ${rm(40)};
     `}
 
     ${media.md`
@@ -114,10 +125,13 @@ const StyledLeft = styled.div`
         max-width: 100%;
         align-items: center;
         text-align: center;
+        padding: ${rm(30)} ${rm(35)};
     `}
 
     ${media.xsm`
         gap: ${rm(16)};
+        padding: ${rm(24)} ${rm(20)};
+        border-radius: ${rm(12)};
     `}
 `
 
@@ -125,10 +139,14 @@ const StyledHeadline = styled.h1`
     ${fontGeist(900)};
     font-size: ${rm(36)};
     line-height: 120%;
-    color: #1C1C1C;
+    background: linear-gradient(135deg, #1C1C1C 0%, #2D2D2D 50%, #1C1C1C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-transform: uppercase;
     margin: 0;
     width: 100%;
+    letter-spacing: ${rm(-0.5)};
 
     ${media.lg`
         font-size: ${rm(40)};
@@ -141,16 +159,17 @@ const StyledHeadline = styled.h1`
     ${media.xsm`
         font-size: ${rm(24)};
         line-height: 130%;
+        letter-spacing: ${rm(-0.3)};
     `}
 `
 
 const StyledFeatures = styled.div`
     display: flex;
     align-items: center;
-    gap: ${rm(8)};
+    gap: ${rm(10)};
     font-size: ${rm(18)};
     ${fontGeist(700)};
-    color: #1C1C1C;
+    color: #2D2D2D;
 
     ${media.md`
         justify-content: center;
@@ -159,14 +178,16 @@ const StyledFeatures = styled.div`
 
     ${media.xsm`
         font-size: ${rm(14)};
-        gap: ${rm(6)};
+        gap: ${rm(8)};
     `}
 
     .dot {
-        width: ${rm(5)};
-        height: ${rm(5)};
+        width: ${rm(6)};
+        height: ${rm(6)};
         border-radius: 50%;
-        border: 1px solid #1C1C1C;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        flex-shrink: 0;
+        box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
     }
 `
 
@@ -174,7 +195,7 @@ const StyledDescription = styled.p`
     ${fontGeist(500)};
     font-size: ${rm(16)};
     line-height: 140%;
-    color: #323232;
+    color: #4A4A4A;
     margin: 0;
 
     ${media.lg`
