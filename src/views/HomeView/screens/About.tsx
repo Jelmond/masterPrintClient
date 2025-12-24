@@ -10,6 +10,7 @@ interface FormErrors {
     email?: string
     company?: string
     message?: string
+    consent?: string
 }
 
 const floatAnimation = keyframes`
@@ -47,7 +48,8 @@ export const About = () => {
         phone: '',
         company: '',
         email: '',
-        message: ''
+        message: '',
+        consent: false
     })
     const [errors, setErrors] = useState<FormErrors>({})
     const [isLoading, setIsLoading] = useState(false)
@@ -85,15 +87,21 @@ export const About = () => {
             }
         }
 
+        // Consent validation
+        if (!formData.consent) {
+            newErrors.consent = 'Необходимо согласие на обработку персональных данных'
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
+        const { name, value, type } = e.target
+        const checked = (e.target as HTMLInputElement).checked
         setFormData({
             ...formData,
-            [name]: value
+            [name]: type === 'checkbox' ? checked : value
         })
         // Clear error for this field when user starts typing
         if (errors[name as keyof FormErrors]) {
@@ -152,7 +160,8 @@ export const About = () => {
                 phone: '',
                 company: '',
                 email: '',
-                message: ''
+                message: '',
+                consent: false
             })
             setErrors({})
 
@@ -266,6 +275,20 @@ export const About = () => {
                         />
                         {errors.message && <StyledError>{errors.message}</StyledError>}
                     </StyledTextareaWrapper>
+                    <StyledCheckboxWrapper>
+                        <StyledCheckbox
+                            type="checkbox"
+                            name="consent"
+                            id="consent"
+                            checked={formData.consent}
+                            onChange={handleChange}
+                            $hasError={!!errors.consent}
+                        />
+                        <StyledCheckboxLabel htmlFor="consent">
+                            Я согласен на обработку персональных данных
+                        </StyledCheckboxLabel>
+                    </StyledCheckboxWrapper>
+                    {errors.consent && <StyledError>{errors.consent}</StyledError>}
                     {submitMessage && (
                         <StyledStatusMessage $isSuccess={submitStatus === 'success'}>
                             <StyledStatusIcon $isSuccess={submitStatus === 'success'}>
@@ -468,6 +491,31 @@ const StyledTextareaWrapper = styled.div`
     position: relative;
     display: flex;
     flex-direction: column;
+`
+
+const StyledCheckboxWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${rm(12)};
+`
+
+const StyledCheckbox = styled.input<{ $hasError?: boolean }>`
+    width: ${rm(20)};
+    height: ${rm(20)};
+    cursor: pointer;
+    accent-color: #1C1C1C;
+    flex-shrink: 0;
+`
+
+const StyledCheckboxLabel = styled.label`
+    ${fontGeist(400)};
+    font-size: ${rm(16)};
+    color: #1C1C1C;
+    cursor: pointer;
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
 `
 
 const StyledLabel = styled.label<{ $isFocused?: boolean; $hasError?: boolean }>`

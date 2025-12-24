@@ -2,9 +2,6 @@
 
 import styled from "styled-components"
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Navigation, Pagination } from "swiper/modules"
-import Link from "next/link"
-import Image from "next/image"
 import { rm, colors, media } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import { useStrapi } from "@/hooks/useStrapi"
@@ -40,12 +37,6 @@ export const CatalogSwiper = () => {
                     <SwiperSlide key={category.id}>
                         <StyledSlide href={`/catalog/${category.id}`}>
                             <StyledSlideImage>
-                                {/* <Image 
-                                    src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${category?.image[0]?.url}`}
-                                    alt={category?.title}
-                                    fill 
-                                    style={{ objectFit: 'cover' }} 
-                                /> */}
                                 {category.icon === 'stickers' && <CardsSvg />}
                                 {category.icon === 'box' && <BoxSvg />}
                                 {category.icon === 'convert' && <ConvertsSvg />}

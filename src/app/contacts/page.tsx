@@ -12,6 +12,7 @@ interface FormErrors {
     email?: string
     company?: string
     message?: string
+    consent?: string
 }
 
 export default function ContactsPage() {
@@ -20,7 +21,8 @@ export default function ContactsPage() {
         phone: '',
         company: '',
         email: '',
-        message: ''
+        message: '',
+        consent: false
     })
     const [errors, setErrors] = useState<FormErrors>({})
     const [isLoading, setIsLoading] = useState(false)
@@ -57,15 +59,21 @@ export default function ContactsPage() {
             }
         }
 
+        // Consent validation
+        if (!formData.consent) {
+            newErrors.consent = 'Необходимо согласие на обработку персональных данных'
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
+        const { name, value, type } = e.target
+        const checked = (e.target as HTMLInputElement).checked
         setFormData({
             ...formData,
-            [name]: value
+            [name]: type === 'checkbox' ? checked : value
         })
         // Clear error for this field when user starts typing
         if (errors[name as keyof FormErrors]) {
@@ -116,7 +124,8 @@ export default function ContactsPage() {
                 phone: '',
                 company: '',
                 email: '',
-                message: ''
+                message: '',
+                consent: false
             })
             setErrors({})
 
@@ -276,11 +285,20 @@ export default function ContactsPage() {
                                     />
                                     {errors.message && <StyledError>{errors.message}</StyledError>}
                                 </StyledTextareaWrapper>
-                                {submitMessage && (
-                                    <StyledStatusMessage $isSuccess={submitStatus === 'success'}>
-                                        {submitMessage}
-                                    </StyledStatusMessage>
-                                )}
+                                <StyledCheckboxWrapper>
+                                    <StyledCheckbox
+                                        type="checkbox"
+                                        name="consent"
+                                        id="consent"
+                                        checked={formData.consent}
+                                        onChange={handleChange}
+                                        $hasError={!!errors.consent}
+                                    />
+                                    <StyledCheckboxLabel htmlFor="consent">
+                                        Я согласен на обработку персональных данных
+                                    </StyledCheckboxLabel>
+                                </StyledCheckboxWrapper>
+                                {errors.consent && <StyledError>{errors.consent}</StyledError>}
                                 <StyledPolicyLink href="/policy.pdf" download>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -610,6 +628,31 @@ const StyledInput = styled.input<{ $hasError?: boolean }>`
     &:hover {
         background-color: #F5F5F5;
     }
+`
+
+const StyledCheckboxWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${rm(12)};
+`
+
+const StyledCheckbox = styled.input<{ $hasError?: boolean }>`
+    width: ${rm(20)};
+    height: ${rm(20)};
+    cursor: pointer;
+    accent-color: #1C1C1C;
+    flex-shrink: 0;
+`
+
+const StyledCheckboxLabel = styled.label`
+    ${fontGeist(400)};
+    font-size: ${rm(16)};
+    color: #1C1C1C;
+    cursor: pointer;
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
 `
 
 const StyledTextarea = styled.textarea<{ $hasError?: boolean }>`

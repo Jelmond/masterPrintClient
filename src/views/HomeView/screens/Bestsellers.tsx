@@ -226,7 +226,7 @@ const StyledSlide = styled(AnimLink)<{ isUp: boolean }>`
     height: ${rm(580)};
     width: ${rm(340)};
     gap: ${rm(20)};
-    background: ${colors.bgMain};
+    background:rgb(221, 235, 255);
     border-radius: ${rm(20)};
     overflow: hidden;
     // height: 100%;
