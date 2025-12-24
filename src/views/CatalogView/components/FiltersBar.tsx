@@ -125,17 +125,6 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
                                         </svg>
                                     )}
                                 </StyledFilterButton>
-                                <StyledFilterButton 
-                                    className={filters.sales === 'popular' ? 'active' : ''}
-                                    onClick={() => onFilterChange('sales', filters.sales === 'popular' ? '' : 'popular')}
-                                >
-                                    <span>Популярные</span>
-                                    {filters.sales === 'popular' && (
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    )}
-                                </StyledFilterButton>
                             </StyledSalesFilter>
                         </>
                     )}
@@ -369,7 +358,7 @@ const StyledTagsFilterWrapper = styled.div`
     
     /* Beautiful scrollbar - always visible when scrollable */
     scrollbar-width: thin;
-    scrollbar-color: #667eea rgba(102, 126, 234, 0.15);
+    scrollbar-color: #1C1C1C rgba(0, 0, 0, 0.1);
     
     &::-webkit-scrollbar {
         width: ${rm(10)};
@@ -379,33 +368,33 @@ const StyledTagsFilterWrapper = styled.div`
     }
     
     &::-webkit-scrollbar-track {
-        background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        background: rgba(0, 0, 0, 0.05);
         border-radius: ${rm(10)};
-        border: 1px solid rgba(102, 126, 234, 0.2);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         margin: ${rm(4)} 0;
-        -webkit-box-shadow: inset 0 0 4px rgba(102, 126, 234, 0.1);
-        box-shadow: inset 0 0 4px rgba(102, 126, 234, 0.1);
+        -webkit-box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.05);
+        box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.05);
         -webkit-appearance: none;
     }
     
     &::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        background: #1C1C1C;
         border-radius: ${rm(10)};
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         min-height: ${rm(40)};
-        -webkit-box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+        -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         -webkit-appearance: none;
     }
     
     &::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
-        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.6);
-        -webkit-box-shadow: 0 2px 10px rgba(102, 126, 234, 0.6);
+        background: #2C2C2C;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
     
     &::-webkit-scrollbar-thumb:active {
-        background: linear-gradient(180deg, #5568d3 0%, #6a3d8f 100%);
+        background: #0C0C0C;
     }
     
     /* Always show scrollbar corner */

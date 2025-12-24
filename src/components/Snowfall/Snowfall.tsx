@@ -21,6 +21,7 @@ const bloomVertexShader = `
 const bloomFragmentShader = `
   uniform float uIntensity;
   uniform vec3 uCameraPosition;
+  uniform vec3 uColor;
   varying vec3 vNormal;
   varying vec3 vPosition;
   varying vec3 vWorldPosition;
@@ -42,9 +43,8 @@ const bloomFragmentShader = `
     // Combine both effects
     float finalGlow = (fresnel * 0.7 + centerGlow * 0.3) * uIntensity;
     
-    // Make it very bright and visible
-    vec3 color = vec3(1.0, 1.0, 1.1);
-    gl_FragColor = vec4(color, finalGlow);
+    // Use the random color tint
+    gl_FragColor = vec4(uColor, finalGlow);
   }
 `
 
@@ -54,9 +54,10 @@ interface SnowflakeProps {
   size: number
   scrollVelocity: number
   zDepth: number
+  color: [number, number, number]
 }
 
-function Snowflake({ position, speed, size, scrollVelocity, zDepth }: SnowflakeProps) {
+function Snowflake({ position, speed, size, scrollVelocity, zDepth, color }: SnowflakeProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const bloomMaterialRef = useRef<THREE.ShaderMaterial | null>(null)
   const initialY = position[1]
@@ -68,7 +69,8 @@ function Snowflake({ position, speed, size, scrollVelocity, zDepth }: SnowflakeP
   const bloomUniforms = useMemo(() => ({
     uIntensity: { value: 2.5 },
     uCameraPosition: { value: new THREE.Vector3(0, 0, 5) },
-  }), [])
+    uColor: { value: new THREE.Vector3(color[0], color[1], color[2]) },
+  }), [color])
 
   useFrame((state, delta) => {
     if (meshRef.current && typeof window !== 'undefined') {
@@ -237,6 +239,23 @@ function SnowScene() {
     setScrollVelocity(scrollVelocityRef.current)
   })
   
+  // Generate random color tints - blue-based pastel shades with variations
+  const generateRandomColor = (): [number, number, number] => {
+    const colors = [
+      [0.85, 0.90, 1.0],      // Soft blue
+      [0.88, 0.92, 1.0],      // Light blue
+      [0.82, 0.88, 1.0],      // Sky blue
+      [0.90, 0.93, 1.0],      // Pale blue
+      [0.86, 0.91, 1.0],      // Powder blue
+      [0.84, 0.89, 0.98],     // Blue with slight green
+      [0.87, 0.90, 1.0],      // Periwinkle blue
+      [0.88, 0.91, 0.99],     // Light blue-gray
+      [0.85, 0.92, 1.0],      // Baby blue
+      [0.86, 0.90, 1.0],      // Ice blue
+    ]
+    return colors[Math.floor(Math.random() * colors.length)] as [number, number, number]
+  }
+
   const snowflakes = useMemo(() => {
     const count = 200
     return Array.from({ length: count }, (_, i) => ({
@@ -248,6 +267,7 @@ function SnowScene() {
       ] as [number, number, number],
       speed: 0.5 + Math.random() * 0.5,
       size: (0.01 + Math.random() * 0.023) * 1.2, // Scaled up
+      color: generateRandomColor(),
     }))
   }, [])
 
@@ -310,6 +330,7 @@ function SnowScene() {
             size={flake.size}
             scrollVelocity={scrollVelocity}
             zDepth={flake.position[2]}
+            color={flake.color}
           />
         ))}
       </group>

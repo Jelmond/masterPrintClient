@@ -45,7 +45,7 @@ export const CardsSvg = () => {
             xmlns="http://www.w3.org/2000/svg"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', transform: 'translateY(-10px)' }}
         >
             {/* Back tag (deep purple) */}
             <animated.g

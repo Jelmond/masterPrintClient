@@ -83,7 +83,7 @@ export const Bestsellers = () => {
                     loop={true}
                     speed={2000}
                     autoplay={{
-                        delay: 2000,
+                        delay: 500,
                         disableOnInteraction: false,
                     }}
                     allowTouchMove={false}

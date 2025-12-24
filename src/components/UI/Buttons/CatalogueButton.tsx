@@ -32,8 +32,8 @@ export const CatalogueButton = ({ link, children, color, isArrowLeft }: Catalogu
                     </defs>
                 </svg>
                 :
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7.81313 9.25758L9.9798 7.09091M9.9798 7.09091L7.81313 4.92425M9.9798 7.09091H4.20202M13.5909 7.09091C13.5909 3.50106 10.6808 0.590912 7.09091 0.590912C3.50106 0.590912 0.59091 3.50106 0.59091 7.09091C0.59091 10.6808 3.50106 13.5909 7.09091 13.5909C10.6808 13.5909 13.5909 10.6808 13.5909 7.09091Z" stroke="#E6E8E6" stroke-width="1.18182" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             }
                 {children}
@@ -46,31 +46,43 @@ const StyledAddButton = styled.div<{ color: string, backgroundColor: string, isA
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: ${rm(10)} ${rm(19)};
-    color: ${({ color }) => color};
-    background-color: ${({ backgroundColor }) => backgroundColor};
-    border-radius: ${rm(9)};
+    padding: ${rm(12)} ${rm(24)};
+    color: ${({ color, backgroundColor }) => backgroundColor === '#1C1C1C' ? '#FFFFFF' : '#1C1C1C'};
+    background-color: ${({ backgroundColor }) => backgroundColor === '#1C1C1C' ? '#1C1C1C' : '#FFFFFF'};
+    border-radius: ${rm(8)};
     cursor: pointer;
-    font-size: ${rm(16)};
-    ${fontGeist(400)};
+    font-size: ${rm(15)};
+    ${fontGeist(500)};
     width: fit-content;
+    border: 1.5px solid ${({ backgroundColor }) => backgroundColor === '#1C1C1C' ? '#1C1C1C' : '#E5E5E5'};
+    transition: all 0.2s ease;
 
-    transition: opacity 0.3s ease;
+    &:hover {
+        background-color: ${({ backgroundColor }) => backgroundColor === '#1C1C1C' ? '#2C2C2C' : '#F8F8F8'};
+        border-color: ${({ backgroundColor }) => backgroundColor === '#1C1C1C' ? '#2C2C2C' : '#D5D5D5'};
 
-    &:hover{
-        opacity: 0.8;
+        svg {
+            transform: ${({ isArrowLeft }) => isArrowLeft ? 'translateX(-2px)' : 'translateX(2px)'};
+        }
     }
 
-    svg{
-        width: ${rm(13)};
-        height: ${rm(13)};
+    &:active {
+        transform: scale(0.98);
     }
 
-    a{
+    svg {
+        width: ${rm(14)};
+        height: ${rm(14)};
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    a {
         display: flex;
         align-items: center;
-        gap: ${rm(10)};
-
+        gap: ${rm(8)};
         flex-direction: ${({ isArrowLeft }) => isArrowLeft ? 'row' : 'row-reverse'};
+        text-decoration: none;
+        color: inherit;
     }
 `

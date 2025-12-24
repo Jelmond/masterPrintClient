@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID
-
 interface OrderItem {
     productId: string
     title: string
@@ -106,41 +103,6 @@ ${formatOrderItems(items)}
 ${generateEmailFooter()}`
 }
 
-function generateTelegramMessage(orderData: OrderData): string {
-    const { orderNumber, buyerType, deliveryMethod, paymentMethod, items, formData, totals } = orderData
-    
-    const buyerInfo = buyerType === 'legal' 
-        ? `🏢 <b>Организация:</b> ${formData.organizationName || 'Не указано'}\n📋 <b>УНП:</b> ${formData.unp || 'Не указано'}\n💳 <b>Расчетный счет:</b> ${formData.bankAccount || 'Не указано'}\n🏦 <b>Адрес банка:</b> ${formData.bankAddress || 'Не указано'}`
-        : ''
-    
-    const itemsList = items.map(item => 
-        `  • ${item.title} (${item.quantity} шт.) - ${item.price.toFixed(2)} руб.`
-    ).join('\n')
-    
-    return `
-📦 <b>Новый заказ #${orderNumber}</b>
-
-👤 <b>Тип покупателя:</b> ${buyerType === 'legal' ? 'Юридическое лицо' : 'Физическое лицо'}
-${buyerInfo}
-👤 <b>ФИО:</b> ${formData.fullName}
-📧 <b>Email:</b> ${formData.email}
-📞 <b>Телефон:</b> ${formData.phone}
-📍 <b>Город:</b> ${formData.city}
-🏠 <b>Адрес:</b> ${formData.address}
-🚚 <b>Доставка:</b> ${deliveryMethod === 'self-pickup' ? 'Самовывоз' : deliveryMethod === 'dpd' ? 'DPD' : 'Альтернативная'}
-💳 <b>Оплата:</b> ${paymentMethod === 'erip' ? 'ЕРИП' : paymentMethod === 'bank-account' ? 'Расчетный счет' : paymentMethod === 'cash-card-pickup' ? 'Наличными/картой при самовывозе' : 'Альфа-банк'}
-
-🛒 <b>Товары:</b>
-${itemsList}
-
-💰 <b>Итого:</b> ${totals.finalTotal.toFixed(2)} руб.
-${totals.baseDiscountAmount > 0 ? `🎁 <b>Скидка ${totals.baseDiscountPercent}%:</b> ${totals.baseDiscountAmount.toFixed(2)} руб.` : ''}
-${totals.selfPickupDiscountAmount > 0 ? `🎁 <b>Скидка за самовывоз 3%:</b> ${totals.selfPickupDiscountAmount.toFixed(2)} руб.` : ''}
-🚚 <b>Доставка:</b> ${totals.deliveryCost === 0 ? 'Бесплатно' : `${totals.deliveryCost.toFixed(2)} руб.`}
-${formData.comment ? `💬 <b>Комментарий:</b> ${formData.comment}` : ''}
-    `.trim()
-}
-
 export async function POST(request: NextRequest) {
     try {
         const orderData: OrderData = await request.json()
@@ -151,29 +113,6 @@ export async function POST(request: NextRequest) {
                 { error: 'Недостаточно данных для оформления заказа' },
                 { status: 400 }
             )
-        }
-
-        // Send notification to Telegram
-        if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-            const telegramMessage = generateTelegramMessage(orderData)
-            const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`
-            
-            try {
-                await fetch(telegramUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: telegramMessage,
-                        parse_mode: 'HTML',
-                    }),
-                })
-            } catch (telegramError) {
-                console.error('Telegram notification error:', telegramError)
-                // Don't fail the order if Telegram fails
-            }
         }
 
         // Send email to customer
