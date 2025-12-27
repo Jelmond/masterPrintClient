@@ -94,35 +94,37 @@ export const InterestingProduct = ({ product }: InterestingProductProps) => {
                         <span>Бестселлер</span>
                     </StyledBestsellerBadge>
                 )}
-                {(product.articul || product.size) && (
-                    <StyledProductInfoBadge>
-                        {product.articul && (
-                            <StyledInfoBadgeItem>
-                                <span className="label">Арт.</span>
-                                <span className="value">{product.articul}</span>
-                            </StyledInfoBadgeItem>
-                        )}
-                        {product.size && (
-                            <StyledInfoBadgeItem>
-                                <span className="label">Размер</span>
-                                <span className="value">{product.size}</span>
-                            </StyledInfoBadgeItem>
-                        )}
-                    </StyledProductInfoBadge>
-                )}
             </StyledImageContainer>
             <StyledHiddenLink href={`/products/${product?.id}`} target="_blank"/>
             <StyledContent>
                 <div className="title">{product.title}</div>
+                <div className="infoBadges">
+                    {product.articul && (
+                        <span className="infoBadge">Арт. {product.articul}</span>
+                    )}
+                    {product.size && (
+                        <span className="infoBadge">Размер: {product.size}</span>
+                    )}
+                </div>
                 <div className="priceContainer">
                     <div className="priceWrapper">
                         {hasDiscount ? (
                             <>
                                 <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
-                                <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                                <div className="priceRow">
+                                    <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                                    {product.quantityInPack && (
+                                        <span className="quantityInPack">({product.quantityInPack}шт)</span>
+                                    )}
+                                </div>
                             </>
                         ) : (
-                            <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                            <div className="priceRow">
+                                <div className="price">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                                {product.quantityInPack && (
+                                    <span className="quantityInPack">({product.quantityInPack}шт)</span>
+                                )}
+                            </div>
                         )}
                     </div>
                     <div 
@@ -204,19 +206,47 @@ const StyledContent = styled.div`
             font-size: ${rm(18)};
             ${fontGeist(400)};
             color: ${colors.black100};
-            height: ${rm(50)};
-            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+            max-height: ${rm(50)};
+            margin-bottom: ${rm(8)};
 
             ${media.md`
                 font-size: ${rm(16)};
-                height: ${rm(45)};
+                max-height: ${rm(45)};
             `}
 
             ${media.xsm`
                 font-size: ${rm(14)};
-                height: ${rm(40)};
+                max-height: ${rm(40)};
             `}
+        }
+
+        .infoBadges{
+            display: flex;
+            flex-wrap: wrap;
+            gap: ${rm(6)};
+            margin-bottom: ${rm(8)};
+            align-items: center;
+
+            .infoBadge{
+                font-size: ${rm(11)};
+                ${fontGeist(400)};
+                color: #666;
+                background: rgba(0, 0, 0, 0.03);
+                padding: ${rm(4)} ${rm(8)};
+                border-radius: ${rm(4)};
+                border: 1px solid rgba(0, 0, 0, 0.06);
+
+                ${media.xsm`
+                    font-size: ${rm(10)};
+                    padding: ${rm(3)} ${rm(6)};
+                `}
+            }
         }
 
         .priceContainer{
@@ -247,6 +277,13 @@ const StyledContent = styled.div`
                     `}
                 }
 
+                .priceRow{
+                    display: flex;
+                    align-items: baseline;
+                    gap: ${rm(6)};
+                    flex-wrap: wrap;
+                }
+
                 .price{
                     font-size: ${rm(24)};
                     ${fontGeist(400)};
@@ -259,6 +296,21 @@ const StyledContent = styled.div`
 
                     ${media.xsm`
                         font-size: ${rm(18)};
+                    `}
+                }
+
+                .quantityInPack{
+                    font-size: ${rm(14)};
+                    ${fontGeist(400)};
+                    color: #666;
+                    line-height: 1;
+
+                    ${media.md`
+                        font-size: ${rm(13)};
+                    `}
+
+                    ${media.xsm`
+                        font-size: ${rm(12)};
                     `}
                 }
             }
@@ -480,13 +532,13 @@ const StyledBestsellerBadge = styled.div`
     bottom: ${rm(10)};
     right: ${rm(10)};
     z-index: 10;
-    background: linear-gradient(135deg, #f39c12 0%, #e67e22 50%, #d35400 100%);
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
     border-radius: ${rm(8)};
     padding: ${rm(6)} ${rm(12)};
-    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(243, 156, 18, 0.4), 
-                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(217, 119, 6, 0.35), 
+                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
 
     ${media.xsm`
         bottom: ${rm(8)};

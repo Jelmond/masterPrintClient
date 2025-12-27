@@ -27,6 +27,7 @@ export const OrderView = () => {
     const [showSuccessModal, setShowSuccessModal] = useState(false)
     const [showAlternativeDelivery, setShowAlternativeDelivery] = useState(false) // Hidden by default
     const [agreementAccepted, setAgreementAccepted] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
     
     // Form state - Individual
     const [individualFormData, setIndividualFormData] = useState({
@@ -263,10 +264,17 @@ export const OrderView = () => {
             return // Don't proceed if below minimum
         }
         
+        // Prevent double submission
+        if (isSubmitting) {
+            return
+        }
+        
         // Validate form
         if (!validateForm()) {
             return // Don't proceed if form is invalid
         }
+        
+        setIsSubmitting(true)
 
         // Handle cash-card-pickup separately (doesn't use payment API)
         if (paymentMethod === 'cash-card-pickup') {
@@ -316,6 +324,7 @@ export const OrderView = () => {
                 router.push(`/order/success?orderNumber=${orderNumber}&paymentType=cash-card`)
             } catch (error) {
                 console.error('Error submitting order:', error)
+                setIsSubmitting(false)
                 alert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.')
             }
             return
@@ -410,6 +419,7 @@ export const OrderView = () => {
             // Handle response based on payment method
             if (data.paymentLink && data.hashId) {
                 // Card payment - redirect to payment gateway
+                // Keep isSubmitting true and don't clear form data - redirect will happen
                 window.location.href = data.paymentLink
             } else {
                 // ERIP or paymentAccount - show success page
@@ -418,6 +428,7 @@ export const OrderView = () => {
             }
         } catch (error) {
             console.error('Error submitting payment:', error)
+            setIsSubmitting(false)
             const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.'
             alert(errorMessage)
         }
@@ -752,9 +763,9 @@ export const OrderView = () => {
                             </StyledBackButton>
                             <StyledPaymentButton 
                                 onClick={handleSubmit}
-                                disabled={isBelowMinimum}
+                                disabled={isBelowMinimum || isSubmitting}
                             >
-                                Оформить заказ
+                                {isSubmitting ? 'Обработка...' : 'Оформить заказ'}
                             </StyledPaymentButton>
                         </StyledButtonContainer>
                         </StyledCommentSection>
@@ -835,6 +846,13 @@ export const OrderView = () => {
                         </StyledTrackingButton>
                     </StyledModal>
                 </StyledModalOverlay>
+            )}
+            {isSubmitting && (
+                <StyledLoadingOverlay>
+                    <StyledLoadingContent>
+                        <StyledLoadingText>Обработка платежа...</StyledLoadingText>
+                    </StyledLoadingContent>
+                </StyledLoadingOverlay>
             )}
         </>
     )
@@ -1805,4 +1823,50 @@ const StyledPolicyLink = styled.a`
         color: #0056b3;
         text-decoration: underline;
     }
+`
+
+const StyledLoadingOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    background: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-in-out;
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+`
+
+const StyledLoadingContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: ${rm(20)};
+`
+
+const StyledLoadingText = styled.div`
+    font-size: ${rm(20)};
+    ${fontGeist(500)};
+    color: #1C1C1C;
+    text-align: center;
+    
+    ${media.xsm`
+        font-size: ${rm(18)};
+    `}
 `
