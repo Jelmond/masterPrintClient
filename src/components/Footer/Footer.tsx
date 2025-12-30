@@ -38,8 +38,19 @@ const contacts = {
 
 const workingHours = {
     title: 'Время работы',
-    list: [
-        'Пн-Пт: 9:00 - 17:00'
+    sections: [
+        {
+            subtitle: 'Обработка заказов менеджером:',
+            items: [
+                'Пн-Пт: 9:00 - 17:00',
+            ]
+        },
+        {
+            subtitle: 'Прием заказов:',
+            items: [
+                'Круглосуточно',
+            ]
+        }
     ]
 }
 
@@ -148,9 +159,14 @@ export const Footer = () => {
                         {workingHours.title}
                     </div>
                     <div className="list">
-                        {workingHours.list.map((item, index) => (
-                            <div className="item" key={index}>
-                                {item}
+                        {workingHours.sections.map((section, sectionIndex) => (
+                            <div key={sectionIndex} className="working-hours-section">
+                                <div className="subtitle">{section.subtitle}</div>
+                                {section.items.map((item, itemIndex) => (
+                                    <div className="item" key={itemIndex}>
+                                        {item}
+                                    </div>
+                                ))}
                             </div>
                         ))}
                     </div>
@@ -209,6 +225,10 @@ const StyledSection = styled.div`
         }
     `}
 
+    .workingHours{
+        font-weight: 700 !important;
+    }
+
     .title{
         font-size: ${rm(34)};
         ${fontGeist(700)};
@@ -224,6 +244,28 @@ const StyledSection = styled.div`
         display: flex;
         flex-direction: column;
         gap: ${rm(12)};
+
+        .working-hours-section {
+            display: flex;
+            flex-direction: column;
+            gap: ${rm(8)};
+            margin-bottom: ${rm(16)};
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .subtitle {
+                font-size: ${rm(16)};
+                ${fontGeist(600)};
+                color: #111111;
+                margin-bottom: ${rm(4)};
+
+                ${media.xsm`
+                    font-size: ${rm(14)};
+                `}
+            }
+        }
 
         .item{
             font-size: ${rm(16)};
