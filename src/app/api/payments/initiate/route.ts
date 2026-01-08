@@ -73,17 +73,33 @@ export async function POST(request: NextRequest) {
                 )
             }
 
-            if (body.paymentMethod !== 'card' && body.paymentMethod !== 'ERIP') {
+            if (body.paymentMethod !== 'card' && body.paymentMethod !== 'ERIP' && body.paymentMethod !== 'pickupPayment') {
                 return NextResponse.json(
                     {
                         error: {
                             status: 400,
                             name: 'BadRequestError',
-                            message: 'For individuals, paymentMethod must be ERIP or card'
+                            message: 'For individuals, paymentMethod must be ERIP, card, or pickupPayment'
                         }
                     },
                     { status: 400 }
                 )
+            }
+
+            // Validate pickupPayment requirements
+            if (body.paymentMethod === 'pickupPayment') {
+                if (body.type !== 'selfShipping') {
+                    return NextResponse.json(
+                        {
+                            error: {
+                                status: 400,
+                                name: 'BadRequestError',
+                                message: 'pickupPayment is only available for self-pickup (type must be selfShipping)'
+                            }
+                        },
+                        { status: 400 }
+                    )
+                }
             }
         } else {
             // Validate organization fields

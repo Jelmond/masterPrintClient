@@ -276,60 +276,6 @@ export const OrderView = () => {
         
         setIsSubmitting(true)
 
-        // Handle cash-card-pickup separately (doesn't use payment API)
-        if (paymentMethod === 'cash-card-pickup') {
-            const orderNumber = generateOrderNumber()
-            const orderData = {
-                orderNumber,
-                buyerType,
-                deliveryMethod,
-                paymentMethod,
-                items: items.map(item => ({
-                    productId: item.productId,
-                    title: item.title,
-                    price: item.price,
-                    quantity: item.quantity,
-                    image: item.image
-                })),
-                formData: buyerType === 'legal' ? legalFormData : individualFormData,
-                totals: {
-                    productsTotal,
-                    baseDiscountAmount,
-                    baseDiscountPercent,
-                    selfPickupDiscountAmount,
-                    selfPickupDiscountPercent,
-                    deliveryCost,
-                    finalTotal
-                }
-            }
-
-            try {
-                const response = await fetch('/api/order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(orderData),
-                })
-
-                if (!response.ok) {
-                    throw new Error('Ошибка при отправке заказа')
-                }
-
-                // Clear the cart
-                items.forEach(item => {
-                    removeFromCart(item.productId)
-                })
-
-                router.push(`/order/success?orderNumber=${orderNumber}&paymentType=cash-card`)
-            } catch (error) {
-                console.error('Error submitting order:', error)
-                setIsSubmitting(false)
-                alert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.')
-            }
-            return
-        }
-
         // Map payment method to API format
         let apiPaymentMethod: string
         if (buyerType === 'individual') {
@@ -337,6 +283,8 @@ export const OrderView = () => {
                 apiPaymentMethod = 'card'
             } else if (paymentMethod === 'erip') {
                 apiPaymentMethod = 'ERIP'
+            } else if (paymentMethod === 'cash-card-pickup') {
+                apiPaymentMethod = 'pickupPayment'
             } else {
                 alert('Неверный способ оплаты для физического лица')
                 return
@@ -348,6 +296,20 @@ export const OrderView = () => {
                 apiPaymentMethod = 'ERIP'
             } else {
                 alert('Неверный способ оплаты для юридического лица')
+                return
+            }
+        }
+
+        // Validate pickupPayment requirements
+        if (apiPaymentMethod === 'pickupPayment') {
+            if (buyerType !== 'individual') {
+                alert('Оплата наличными или картой при самовывозе доступна только для физических лиц')
+                setIsSubmitting(false)
+                return
+            }
+            if (deliveryMethod !== 'self-pickup') {
+                alert('Оплата наличными или картой при самовывозе доступна только при самовывозе')
+                setIsSubmitting(false)
                 return
             }
         }
@@ -422,8 +384,15 @@ export const OrderView = () => {
                 // Keep isSubmitting true and don't clear form data - redirect will happen
                 window.location.href = data.paymentLink
             } else {
-                // ERIP or paymentAccount - show success page
-                const paymentType = apiPaymentMethod === 'ERIP' ? 'erip-bank' : 'erip-bank'
+                // ERIP, paymentAccount, or pickupPayment - show success page
+                let paymentType: string
+                if (apiPaymentMethod === 'pickupPayment') {
+                    paymentType = 'cash-card'
+                } else if (apiPaymentMethod === 'ERIP') {
+                    paymentType = 'erip-bank'
+                } else {
+                    paymentType = 'erip-bank'
+                }
                 router.push(`/order/success?orderNumber=${data.orderNumber}&paymentType=${paymentType}&orderId=${data.orderId}`)
             }
         } catch (error) {
