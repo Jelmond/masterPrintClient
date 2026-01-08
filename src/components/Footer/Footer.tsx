@@ -76,6 +76,10 @@ const info = {
             url: '/about'
         },
         {
+            label: 'Оформление заказа',
+            url: '/order-instructions'
+        },
+        {
             label: 'Способы оплаты',
             url: '/payment'
         },

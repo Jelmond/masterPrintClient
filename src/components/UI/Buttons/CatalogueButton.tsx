@@ -38,6 +38,7 @@ export const CatalogueButton = ({ link, children, color, isArrowLeft }: Catalogu
             }
                 {children}
             </AnimLink>
+            <StyledHiddenLink href={link}/>
         </StyledAddButton>
     )
 }
@@ -56,6 +57,7 @@ const StyledAddButton = styled.div<{ color: string, backgroundColor: string, isA
     width: fit-content;
     border: 1.5px solid ${({ backgroundColor }) => backgroundColor === '#1C1C1C' ? '#1C1C1C' : '#E5E5E5'};
     transition: all 0.2s ease;
+    position: relative;
 
     &:hover {
         background-color: ${({ backgroundColor }) => backgroundColor === '#1C1C1C' ? '#2C2C2C' : '#F8F8F8'};
@@ -85,4 +87,13 @@ const StyledAddButton = styled.div<{ color: string, backgroundColor: string, isA
         text-decoration: none;
         color: inherit;
     }
+`
+
+const StyledHiddenLink = styled(AnimLink)`
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
 `
