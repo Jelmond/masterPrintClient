@@ -51,6 +51,9 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     if (typeof window === "undefined") return;
     if (!isMounted) return;
 
+    // Scroll to top on route change
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
     routeChangeComplete();
     changing.current = false;
     document.body.style.cursor = "default";
@@ -59,6 +62,9 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     const handleRouteChange = () => {
       pathnameRef.current = window.location.pathname;
       searchParamsRef.current = new URLSearchParams(window.location.search);
+
+      // Scroll to top on route change
+      window.scrollTo({ top: 0, behavior: 'instant' });
 
       routeChangeComplete();
       changing.current = false;
@@ -91,18 +97,13 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     };
   }, [isMounted]);
 
+  // Always scroll to top on route change
   useLayoutEffect(() => {
     if (!isMounted) return;
-    // if (typeof window === "undefined") {
-    //   return;
-    // }
-    // const y = lastScrollPosition.current[window.location.pathname];
-    const y = lastScrollPosition.current[pathnameRef.current];
-
-    if (y) {
-      scrollTo(Number(y));
-    }
-  }, [isMounted]);
+    if (typeof window === "undefined") return;
+    // Scroll to top immediately when route changes
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname, isMounted]);
 
   const routeChangeStart = (href: string, backMode?: boolean) => {
     if (!isMounted) return;
@@ -144,6 +145,10 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
   };
   const routeChangeComplete = () => {
     if (!isMounted) return;
+    // Scroll to top when route change completes
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
     transitionRef.current?.hide();
   };
 

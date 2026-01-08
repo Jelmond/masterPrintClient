@@ -3,8 +3,8 @@ import { generateMetadata } from "@/utils/generateMetadata";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateMetadata({
-  title: "Бестселлеры MPPSHOP",
-  description: "Бестселлеры и популярные товары MPPSHOP",
+  title: "Бестселлеры | MPPSHOP",
+  description: "Популярные товары и бестселлеры в интернет-магазине MPPSHOP. Самые востребованные полиграфические изделия.",
 });
 
 interface Product {

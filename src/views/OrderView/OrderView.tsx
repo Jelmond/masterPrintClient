@@ -97,7 +97,7 @@ export const OrderView = () => {
         switch (deliveryMethod) {
             case 'dpd':
                 if (productsTotalAfterAllDiscounts < 200) return 20
-                if (productsTotalAfterAllDiscounts < 400) return 10
+                if (productsTotalAfterAllDiscounts < 400) return 0
                 return 0
             case 'self-pickup':
                 return 0
