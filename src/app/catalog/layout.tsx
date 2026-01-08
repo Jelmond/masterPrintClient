@@ -2,8 +2,8 @@ import { generateMetadata } from "@/utils/generateMetadata";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateMetadata({
-  title: "Каталог MPPSHOP",
-  description: "Каталог товаров MPPSHOP",
+  title: "Каталог товаров | MPPSHOP",
+  description: "Каталог полиграфической продукции MPPSHOP. Открытки, конверты, упаковка, подарочная продукция и многое другое.",
 });
 
 export default function CatalogLayout({

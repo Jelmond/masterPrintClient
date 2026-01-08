@@ -4,8 +4,8 @@ import { generateMetadata } from "@/utils/generateMetadata";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateMetadata({
-  title: "Главная MPPSHOP",
-  description: "Главная страница MPPSHOP",
+  title: "Главная | MPPSHOP",
+  description: "Интернет-магазин MPPSHOP - качественная полиграфическая продукция в Беларуси. Открытки, конверты, упаковка и многое другое.",
 });
 
 export default function Home() {

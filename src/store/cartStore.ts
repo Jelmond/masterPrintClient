@@ -72,13 +72,29 @@ export const useCartStore = create<CartStore>()(
             },
             
             updateQuantity: (productId, quantity) => {
-                set((state) => ({
-                    items: state.items.map(item =>
-                        item.productId === productId
-                            ? { ...item, quantity }
-                            : item
-                    )
-                }))
+                set((state) => {
+                    const item = state.items.find(i => i.productId === productId)
+                    if (!item) return state
+                    
+                    // Validate quantity: must be at least 1
+                    if (quantity < 1) {
+                        return state
+                    }
+                    
+                    // Check stock limit if stock is defined
+                    if (item.stock !== undefined && quantity > item.stock) {
+                        // Limit quantity to available stock
+                        quantity = item.stock
+                    }
+                    
+                    return {
+                        items: state.items.map(i =>
+                            i.productId === productId
+                                ? { ...i, quantity }
+                                : i
+                        )
+                    }
+                })
             },
             
             clearCart: () => {

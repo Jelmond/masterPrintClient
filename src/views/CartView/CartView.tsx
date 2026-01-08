@@ -89,11 +89,25 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                                         </StyledPriceContainer>
                                     </StyledInfo>
                                     <StyledQuantityBox>
-                                        <StyledQuantityButton onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}>
+                                        <StyledQuantityButton 
+                                            onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}
+                                            disabled={item.quantity <= 1}
+                                        >
                                             -
                                         </StyledQuantityButton>
                                         <StyledQuantity>{item.quantity}</StyledQuantity>
-                                        <StyledQuantityButton onClick={() => updateQuantity(item.productId, item.quantity + 1)}>
+                                        <StyledQuantityButton 
+                                            onClick={() => {
+                                                const newQuantity = item.quantity + 1
+                                                // Check stock limit
+                                                if (item.stock !== undefined && newQuantity > item.stock) {
+                                                    showToast(`Доступно только ${item.stock} шт.`, 'error')
+                                                    return
+                                                }
+                                                updateQuantity(item.productId, newQuantity)
+                                            }}
+                                            disabled={item.stock !== undefined && item.quantity >= item.stock}
+                                        >
                                             +
                                         </StyledQuantityButton>
                                     </StyledQuantityBox>
@@ -458,6 +472,17 @@ const StyledQuantityButton = styled.button`
         height: ${rm(32)};
         font-size: ${rm(16)};
     `}
+
+    &:hover:not(:disabled) {
+        background: #e9ecef;
+        border-color: #dee2e6;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f8f9fa;
+    }
     
     &:hover {
         background-color: #e9ecef;
