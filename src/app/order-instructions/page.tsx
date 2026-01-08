@@ -41,9 +41,9 @@ export default function OrderInstructionsPage() {
                             <StyledStepItem>
                                 <StyledStepNumber>3</StyledStepNumber>
                                 <StyledStepContent>
-                                    <StyledStepTitle>Переходите в корзину</StyledStepTitle>
+                                    <StyledStepTitle>Переходите к оформлению</StyledStepTitle>
                                     <StyledStepText>
-                                        Переходите в корзину и нажимаете на иконку корзины
+                                        Переходите в корзину и нажимаете <strong>«Перейти к оформлению заказа»</strong>
                                     </StyledStepText>
                                 </StyledStepContent>
                             </StyledStepItem>
@@ -61,26 +61,14 @@ export default function OrderInstructionsPage() {
                             <StyledStepItem>
                                 <StyledStepNumber>5</StyledStepNumber>
                                 <StyledStepContent>
-                                    <StyledStepTitle>Отправляете заказ</StyledStepTitle>
+                                    <StyledStepTitle>Оформляете заказ</StyledStepTitle>
                                     <StyledStepText>
-                                        Нажимаете <strong>«Отправить»</strong> и ожидаете э/письмо, на указанный Вами адрес электронной почты, со счетом или номером заказа подтверждающим принятие заказа и заключение договора оферты.
+                                        Нажимаете <strong>«Оформить заказ»</strong> и ожидаете э/письмо, на указанный Вами адрес электронной почты, со счетом или номером заказа подтверждающим принятие заказа и заключение договора оферты.
                                     </StyledStepText>
                                 </StyledStepContent>
                             </StyledStepItem>
                         </StyledStepsList>
                     </StyledSection>
-
-                    <StyledInfoBox>
-                        <StyledInfoIcon>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M12 16V12M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                        </StyledInfoIcon>
-                        <StyledInfoText>
-                            После оформления заказа вы получите подтверждение на указанный адрес электронной почты с деталями заказа и инструкциями по оплате.
-                        </StyledInfoText>
-                    </StyledInfoBox>
                 </StyledContent>
             </StyledContainer>
         </StyledPage>
