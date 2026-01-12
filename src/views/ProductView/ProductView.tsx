@@ -28,9 +28,13 @@ export const ProductView = ({ data }: { data: any }) => {
             return;
         }
         
+        if (!data.slug) {
+            console.error('Product missing slug:', data);
+            return;
+        }
+        
         addToCart({
-            productId: data.id,
-            documentId: data.documentId,
+            productSlug: data.slug,
             title: data.title,
             price: data.price,
             image: data.images[0]?.url,

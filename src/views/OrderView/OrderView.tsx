@@ -28,6 +28,11 @@ export const OrderView = () => {
     const [showAlternativeDelivery, setShowAlternativeDelivery] = useState(false) // Hidden by default
     const [agreementAccepted, setAgreementAccepted] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [promocode, setPromocode] = useState('')
+    const [promocodeValid, setPromocodeValid] = useState<{ valid: boolean; data?: any; message?: string } | null>(null)
+    const [isValidatingPromocode, setIsValidatingPromocode] = useState(false)
+    const [priceData, setPriceData] = useState<any>(null)
+    const [isCalculatingPrice, setIsCalculatingPrice] = useState(false)
     
     // Form state - Individual
     const [individualFormData, setIndividualFormData] = useState({
@@ -70,6 +75,89 @@ export const OrderView = () => {
     })
     
     useEffect(() => { setMounted(true) }, [])
+
+    // Calculate price from backend
+    useEffect(() => {
+        const calculatePrice = async () => {
+            if (items.length === 0) {
+                setPriceData(null)
+                return
+            }
+
+            setIsCalculatingPrice(true)
+            try {
+                const response = await fetch('/api/orders/calculate-price', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        products: items.map(item => ({
+                            productSlug: item.productSlug,
+                            quantity: item.quantity
+                        })),
+                        type: deliveryMethod === 'self-pickup' ? 'selfShipping' : 'shipping',
+                        // Apply promocode only if it's validated and valid
+                        ...(promocodeValid?.valid && promocode.trim() ? { promocode: promocode.trim() } : {})
+                    }),
+                })
+
+                if (response.ok) {
+                    const data = await response.json()
+                    if (data.success) {
+                        setPriceData(data.data)
+                    }
+                }
+            } catch (error) {
+                console.error('Error calculating price:', error)
+            } finally {
+                setIsCalculatingPrice(false)
+            }
+        }
+
+        calculatePrice()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [items, deliveryMethod, promocodeValid]) // Removed promocode from dependencies to prevent recalculation on every keystroke
+
+    // Validate promocode
+    const handleValidatePromocode = async () => {
+        if (!promocode.trim()) {
+            setPromocodeValid(null)
+            return
+        }
+
+        setIsValidatingPromocode(true)
+        try {
+            const response = await fetch('/api/promocodes/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: promocode.trim()
+                }),
+            })
+
+            const data = await response.json()
+            setPromocodeValid(data)
+        } catch (error) {
+            console.error('Error validating promocode:', error)
+            setPromocodeValid({
+                valid: false,
+                message: 'Ошибка при проверке промокода'
+            })
+        } finally {
+            setIsValidatingPromocode(false)
+        }
+    }
+
+    // Clear promocode validation when promocode is cleared
+    useEffect(() => {
+        if (!promocode.trim() && promocodeValid) {
+            setPromocodeValid(null)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [promocode])
 
     if (!mounted) return null
 
@@ -116,7 +204,8 @@ export const OrderView = () => {
     
     // Step 5: Check minimum order amount
     const minimumOrderAmount = 50
-    const isBelowMinimum = finalTotal < minimumOrderAmount
+    const finalTotalFromAPI = priceData?.totalAmount || finalTotal
+    const isBelowMinimum = finalTotalFromAPI < minimumOrderAmount
 
     // Validation functions
     const validateFullName = (name: string) => {
@@ -274,6 +363,14 @@ export const OrderView = () => {
             return // Don't proceed if form is invalid
         }
         
+        // Send Yandex Metrica checkout_start event with real order price
+        const orderPrice = priceData?.totalAmount || finalTotalFromAPI
+        if (typeof window !== 'undefined' && (window as any).ym) {
+            (window as any).ym(106182797, 'reachGoal', 'checkout_start', { 
+                order_price: parseFloat(orderPrice.toFixed(2))
+            })
+        }
+        
         setIsSubmitting(true)
 
         // Map payment method to API format
@@ -320,12 +417,13 @@ export const OrderView = () => {
         // Prepare payment request data
         const paymentRequest: any = {
             products: items.map(item => ({
-                productDocumentId: item.documentId || item.productId, // Use documentId if available, fallback to productId
+                productSlug: item.productSlug,
                 quantity: item.quantity
             })),
             isIndividual: buyerType === 'individual',
             paymentMethod: apiPaymentMethod,
-            type: deliveryType
+            type: deliveryType,
+            ...(promocode && promocodeValid?.valid ? { promocode } : {})
         }
 
         // Add customer-specific fields
@@ -375,7 +473,7 @@ export const OrderView = () => {
 
             // Clear the cart when order is successfully submitted
             items.forEach(item => {
-                removeFromCart(item.productId)
+                removeFromCart(item.productSlug)
             })
 
             // Handle response based on payment method
@@ -437,7 +535,7 @@ export const OrderView = () => {
                     </StyledSubtitle>
                     <StyledProducts>
                         {items.map(item => (
-                            <StyledProduct key={item.productId}>
+                            <StyledProduct key={item.productSlug}>
                                 <StyledImageBox>
                                     {item.image ? (
                                         <Image src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${item.image}`} alt={item.title} fill style={{objectFit:'cover'}} />
@@ -720,6 +818,37 @@ export const OrderView = () => {
                     )}
                     {buyerType && (
                         <StyledCommentSection>
+                            <StyledSubtitle>
+                                Промокод (опционально)
+                            </StyledSubtitle>
+                            <StyledPromocodeSection>
+                                <StyledPromocodeInput
+                                    type="text"
+                                    placeholder="Введите промокод"
+                                    value={promocode}
+                                    onChange={(e) => {
+                                        setPromocode(e.target.value)
+                                        if (promocodeValid) {
+                                            setPromocodeValid(null)
+                                        }
+                                    }}
+                                    onBlur={handleValidatePromocode}
+                                />
+                                <StyledPromocodeButton
+                                    onClick={handleValidatePromocode}
+                                    disabled={!promocode.trim() || isValidatingPromocode}
+                                >
+                                    {isValidatingPromocode ? 'Проверка...' : 'Применить'}
+                                </StyledPromocodeButton>
+                            </StyledPromocodeSection>
+                            {promocodeValid && (
+                                <StyledPromocodeMessage className={promocodeValid.valid ? 'valid' : 'invalid'}>
+                                    {promocodeValid.valid 
+                                        ? `Промокод применен! Скидка ${promocodeValid.data?.percentDiscount || 0}%`
+                                        : promocodeValid.message || 'Промокод недействителен'
+                                    }
+                                </StyledPromocodeMessage>
+                            )}
                             <StyledCommentTextarea 
                                 placeholder="Добавьте свой комментарий..."
                                 rows={4}
@@ -743,32 +872,69 @@ export const OrderView = () => {
                 
                 <StyledOrderSummary className={isBelowMinimum ? 'below-minimum' : ''}>
                     <StyledSummaryTitle>Общая сумма заказа</StyledSummaryTitle>
-                    <StyledSummaryRow>
-                        <StyledSummaryLabel>Товары:</StyledSummaryLabel>
-                        <StyledSummaryValue>{productsTotal.toFixed(2)} руб.</StyledSummaryValue>
-                    </StyledSummaryRow>
-                    {baseDiscountAmount > 0 && (
-                        <StyledSummaryRow className="discount">
-                            <StyledSummaryLabel>Скидка {baseDiscountPercent}%:</StyledSummaryLabel>
-                            <StyledSummaryValue>-{baseDiscountAmount.toFixed(2)} руб.</StyledSummaryValue>
+                    {isCalculatingPrice ? (
+                        <StyledSummaryRow>
+                            <StyledSummaryLabel>Расчет...</StyledSummaryLabel>
                         </StyledSummaryRow>
+                    ) : priceData ? (
+                        <>
+                            <StyledSummaryRow>
+                                <StyledSummaryLabel>Товары:</StyledSummaryLabel>
+                                <StyledSummaryValue>{priceData.subtotal.toFixed(2)} руб.</StyledSummaryValue>
+                            </StyledSummaryRow>
+                            {priceData.discount.totalDiscount > 0 && (
+                                <StyledSummaryRow className="discount">
+                                    <StyledSummaryLabel>Скидка ({priceData.discount.description}):</StyledSummaryLabel>
+                                    <StyledSummaryValue>-{priceData.discount.totalDiscount.toFixed(2)} руб.</StyledSummaryValue>
+                                </StyledSummaryRow>
+                            )}
+                            {priceData.promocode && (
+                                <StyledSummaryRow className="discount">
+                                    <StyledSummaryLabel>Промокод {priceData.promocode.name} ({priceData.promocode.percentDiscount}%):</StyledSummaryLabel>
+                                    <StyledSummaryValue>-{priceData.promocode.discountAmount.toFixed(2)} руб.</StyledSummaryValue>
+                                </StyledSummaryRow>
+                            )}
+                            <StyledSummaryRow>
+                                <StyledSummaryLabel>Доставка:</StyledSummaryLabel>
+                                <StyledSummaryValue>
+                                    {priceData.shippingCost === 0 ? 'Бесплатно' : `${priceData.shippingCost.toFixed(2)} руб.`}
+                                </StyledSummaryValue>
+                            </StyledSummaryRow>
+                            <StyledSummaryRow>
+                                <StyledSummaryLabel>Итого:</StyledSummaryLabel>
+                                <StyledSummaryValue className="final">{priceData.totalAmount.toFixed(2)} руб.</StyledSummaryValue>
+                            </StyledSummaryRow>
+                        </>
+                    ) : (
+                        <>
+                            <StyledSummaryRow>
+                                <StyledSummaryLabel>Товары:</StyledSummaryLabel>
+                                <StyledSummaryValue>{productsTotal.toFixed(2)} руб.</StyledSummaryValue>
+                            </StyledSummaryRow>
+                            {baseDiscountAmount > 0 && (
+                                <StyledSummaryRow className="discount">
+                                    <StyledSummaryLabel>Скидка {baseDiscountPercent}%:</StyledSummaryLabel>
+                                    <StyledSummaryValue>-{baseDiscountAmount.toFixed(2)} руб.</StyledSummaryValue>
+                                </StyledSummaryRow>
+                            )}
+                            {selfPickupDiscountAmount > 0 && (
+                                <StyledSummaryRow className="discount">
+                                    <StyledSummaryLabel>Скидка за самовывоз 3%:</StyledSummaryLabel>
+                                    <StyledSummaryValue>-{selfPickupDiscountAmount.toFixed(2)} руб.</StyledSummaryValue>
+                                </StyledSummaryRow>
+                            )}
+                            <StyledSummaryRow>
+                                <StyledSummaryLabel>Доставка:</StyledSummaryLabel>
+                                <StyledSummaryValue>
+                                    {deliveryCost === 0 ? 'Бесплатно' : `${deliveryCost.toFixed(2)} руб.`}
+                                </StyledSummaryValue>
+                            </StyledSummaryRow>
+                            <StyledSummaryRow>
+                                <StyledSummaryLabel>Итого:</StyledSummaryLabel>
+                                <StyledSummaryValue className="final">{finalTotal.toFixed(2)} руб.</StyledSummaryValue>
+                            </StyledSummaryRow>
+                        </>
                     )}
-                    {selfPickupDiscountAmount > 0 && (
-                        <StyledSummaryRow className="discount">
-                            <StyledSummaryLabel>Скидка за самовывоз 3%:</StyledSummaryLabel>
-                            <StyledSummaryValue>-{selfPickupDiscountAmount.toFixed(2)} руб.</StyledSummaryValue>
-                        </StyledSummaryRow>
-                    )}
-                    <StyledSummaryRow>
-                        <StyledSummaryLabel>Доставка:</StyledSummaryLabel>
-                        <StyledSummaryValue>
-                            {deliveryCost === 0 ? 'Бесплатно' : `${deliveryCost.toFixed(2)} руб.`}
-                        </StyledSummaryValue>
-                    </StyledSummaryRow>
-                    <StyledSummaryRow>
-                        <StyledSummaryLabel>Итого:</StyledSummaryLabel>
-                        <StyledSummaryValue className="final">{finalTotal.toFixed(2)} руб.</StyledSummaryValue>
-                    </StyledSummaryRow>
                     {isBelowMinimum && (
                         <StyledMinimumNotice>
                             Минимальная сумма заказа — 50 руб.
@@ -1837,5 +2003,87 @@ const StyledLoadingText = styled.div`
     
     ${media.xsm`
         font-size: ${rm(18)};
+    `}
+`
+
+const StyledPromocodeSection = styled.div`
+    display: flex;
+    gap: ${rm(12)};
+    margin-bottom: ${rm(16)};
+    
+    ${media.xsm`
+        flex-direction: column;
+        gap: ${rm(8)};
+    `}
+`
+
+const StyledPromocodeInput = styled.input`
+    flex: 1;
+    padding: ${rm(12)} ${rm(16)};
+    border: 1px solid #ddd;
+    border-radius: ${rm(8)};
+    font-size: ${rm(14)};
+    ${fontGeist(400)};
+    color: ${colors.black100};
+    
+    &:focus {
+        outline: none;
+        border-color: ${colors.black100};
+    }
+    
+    ${media.xsm`
+        padding: ${rm(10)} ${rm(12)};
+        font-size: ${rm(13)};
+    `}
+`
+
+const StyledPromocodeButton = styled.button`
+    padding: ${rm(12)} ${rm(24)};
+    background: ${colors.black100};
+    color: white;
+    border: none;
+    border-radius: ${rm(8)};
+    font-size: ${rm(14)};
+    ${fontGeist(500)};
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    
+    &:hover:not(:disabled) {
+        opacity: 0.8;
+    }
+    
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    ${media.xsm`
+        padding: ${rm(10)} ${rm(20)};
+        font-size: ${rm(13)};
+    `}
+`
+
+const StyledPromocodeMessage = styled.div`
+    padding: ${rm(10)} ${rm(12)};
+    border-radius: ${rm(8)};
+    font-size: ${rm(13)};
+    ${fontGeist(400)};
+    margin-bottom: ${rm(16)};
+    
+    &.valid {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    &.invalid {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    ${media.xsm`
+        padding: ${rm(8)} ${rm(10)};
+        font-size: ${rm(12)};
     `}
 `
