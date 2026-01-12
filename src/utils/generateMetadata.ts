@@ -23,6 +23,10 @@ export function generateMetadata({
     themeColor = '#000',
     siteName = 'New Project',
 }: MetadataProps): Metadata {
+    // Получаем базовый URL из переменной окружения или используем дефолтный домен
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mppshop.by';
+    const baseUrl = url ? new URL(url) : new URL(siteUrl);
+    
     return {
         title,
         description,
@@ -31,7 +35,7 @@ export function generateMetadata({
         creator: author,
         publisher: author,
         themeColor,
-        metadataBase: url ? new URL(url) : null,
+        metadataBase: baseUrl,
         alternates: {
             canonical: url || undefined,
         },
