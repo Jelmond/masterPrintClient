@@ -66,7 +66,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                     ) : (
                         <StyledProducts>
                             {items.map(item => (
-                                <StyledProduct key={item.productId}>
+                                <StyledProduct key={item.productSlug}>
                                     <StyledImageBox>
                                         {item.image ? (
                                             <Image src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${item.image}`} alt={item.title} fill style={{objectFit:'cover'}} />
@@ -90,7 +90,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                                     </StyledInfo>
                                     <StyledQuantityBox>
                                         <StyledQuantityButton 
-                                            onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}
+                                            onClick={() => updateQuantity(item.productSlug, Math.max(1, item.quantity - 1))}
                                             disabled={item.quantity <= 1}
                                         >
                                             -
@@ -104,14 +104,14 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                                                     showToast(`Доступно только ${item.stock} шт.`, 'error')
                                                     return
                                                 }
-                                                updateQuantity(item.productId, newQuantity)
+                                                updateQuantity(item.productSlug, newQuantity)
                                             }}
                                             disabled={item.stock !== undefined && item.quantity >= item.stock}
                                         >
                                             +
                                         </StyledQuantityButton>
                                     </StyledQuantityBox>
-                                    <StyledRemoveButton onClick={() => removeFromCart(item.productId)}>
+                                    <StyledRemoveButton onClick={() => removeFromCart(item.productSlug)}>
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>

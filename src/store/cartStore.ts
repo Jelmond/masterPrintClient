@@ -3,8 +3,7 @@ import { persist } from 'zustand/middleware'
 import { useToastStore } from './toastStore'
 
 interface CartItem {
-    productId: number
-    documentId?: string
+    productSlug: string
     quantity: number
     title: string
     price: number
@@ -16,8 +15,8 @@ interface CartItem {
 interface CartStore {
     items: CartItem[]
     addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void
-    removeFromCart: (productId: number) => void
-    updateQuantity: (productId: number, quantity: number) => void
+    removeFromCart: (productSlug: string) => void
+    updateQuantity: (productSlug: string, quantity: number) => void
     clearCart: () => void
     getTotalItems: () => number
     getTotalPrice: () => number
@@ -35,7 +34,7 @@ export const useCartStore = create<CartStore>()(
                 }
                 
                 set((state) => {
-                    const existingItem = state.items.find(i => i.productId === item.productId)
+                    const existingItem = state.items.find(i => i.productSlug === item.productSlug)
                     
                     if (existingItem) {
                         // Check if adding quantity would exceed stock
@@ -49,7 +48,7 @@ export const useCartStore = create<CartStore>()(
                         
                         return {
                             items: state.items.map(i =>
-                                i.productId === item.productId
+                                i.productSlug === item.productSlug
                                     ? { ...i, quantity: newQuantity }
                                     : i
                             )
@@ -65,15 +64,15 @@ export const useCartStore = create<CartStore>()(
                 })
             },
             
-            removeFromCart: (productId) => {
+            removeFromCart: (productSlug) => {
                 set((state) => ({
-                    items: state.items.filter(item => item.productId !== productId)
+                    items: state.items.filter(item => item.productSlug !== productSlug)
                 }))
             },
             
-            updateQuantity: (productId, quantity) => {
+            updateQuantity: (productSlug, quantity) => {
                 set((state) => {
-                    const item = state.items.find(i => i.productId === productId)
+                    const item = state.items.find(i => i.productSlug === productSlug)
                     if (!item) return state
                     
                     // Validate quantity: must be at least 1
@@ -89,7 +88,7 @@ export const useCartStore = create<CartStore>()(
                     
                     return {
                         items: state.items.map(i =>
-                            i.productId === productId
+                            i.productSlug === productSlug
                                 ? { ...i, quantity }
                                 : i
                         )

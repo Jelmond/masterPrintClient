@@ -4,9 +4,10 @@ const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL
 
 interface PaymentRequest {
     products: Array<{
-        productDocumentId: string | number
+        productSlug: string
         quantity: number
     }>
+    promocode?: string
     isIndividual: boolean
     paymentMethod: string
     type?: 'shipping' | 'selfShipping'
@@ -44,13 +45,13 @@ export async function POST(request: NextRequest) {
 
         // Validate products
         for (const product of body.products) {
-            if (!product.productDocumentId || product.quantity <= 0) {
+            if (!product.productSlug || product.quantity <= 0) {
                 return NextResponse.json(
                     {
                         error: {
                             status: 400,
                             name: 'BadRequestError',
-                            message: 'Product quantity must be greater than 0'
+                            message: 'Product slug is required and quantity must be greater than 0'
                         }
                     },
                     { status: 400 }
@@ -137,7 +138,8 @@ export async function POST(request: NextRequest) {
             isIndividual: body.isIndividual,
             paymentMethod: body.paymentMethod,
             type: body.type || 'shipping',
-            ...(body.comment && { comment: body.comment })
+            ...(body.comment && { comment: body.comment }),
+            ...(body.promocode && { promocode: body.promocode })
         }
 
         // Add customer-specific fields

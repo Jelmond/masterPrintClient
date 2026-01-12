@@ -137,6 +137,21 @@ export default function OrderSuccessPage() {
                     </StyledThankYouMessage>
                 )}
 
+                <StyledReviewSection>
+                    <StyledReviewTitle>
+                        Оставьте отзыв о нас в Яндекс
+                    </StyledReviewTitle>
+                    <StyledReviewContainer>
+                        <iframe 
+                            src="https://yandex.ru/sprav/widget/rating-badge/233082182450?type=rating&theme=dark" 
+                            width="150" 
+                            height="50" 
+                            frameBorder="0"
+                            title="Яндекс отзывы"
+                        />
+                    </StyledReviewContainer>
+                </StyledReviewSection>
+
                 <StyledActions>
                     <StyledActionButton onClick={() => router.push('/catalog')}>
                         Продолжить покупки
@@ -483,5 +498,47 @@ const StyledThankYouMessage = styled.p`
         font-size: ${rm(20)};
         margin-top: ${rm(30)};
     `}
+`
+
+const StyledReviewSection = styled.div`
+    margin: ${rm(40)} 0;
+    padding: ${rm(32)};
+    background-color: #F8F9FA;
+    border-radius: ${rm(12)};
+    text-align: center;
+
+    ${media.xsm`
+        padding: ${rm(24)};
+        margin: ${rm(30)} 0;
+    `}
+`
+
+const StyledReviewTitle = styled.h3`
+    ${fontGeist(600)};
+    font-size: ${rm(20)};
+    color: #111111;
+    margin: 0 0 ${rm(20)} 0;
+
+    ${media.md`
+        font-size: ${rm(18)};
+        margin-bottom: ${rm(16)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(16)};
+        margin-bottom: ${rm(14)};
+    `}
+`
+
+const StyledReviewContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: ${rm(16)};
+
+    iframe {
+        border: none;
+        border-radius: ${rm(8)};
+    }
 `
 

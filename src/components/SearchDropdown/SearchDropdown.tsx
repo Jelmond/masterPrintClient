@@ -7,6 +7,7 @@ import Link from "next/link"
 interface SearchResult {
     id: number
     documentId: string
+    slug?: string
     title: string
     price: number
     oldPrice?: number
@@ -524,7 +525,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                     Товары в категории &quot;{category.title}&quot; ({category.products.length})
                                 </StyledSectionTitle>
                                 {category.products.map((product) => (
-                                    <Link key={product.id} href={`/products/${product.id}`}>
+                                    <Link key={product.id} href={`/products/${product.slug || product.id}`}>
                                         <StyledProductItem>
                                             <StyledProductImage>
                                                 <img
@@ -572,7 +573,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                 Товары ({searchData.totalResults.products})
                             </StyledSectionTitle>
                             {searchData.products.map((product) => (
-                                <Link key={product.id} href={`/products/${product.id}`}>
+                                <Link key={product.id} href={`/products/${product.slug || product.id}`}>
                                     <StyledProductItem>
                                         <StyledProductImage>
                                             <img

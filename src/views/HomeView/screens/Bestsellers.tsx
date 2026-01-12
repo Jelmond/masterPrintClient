@@ -58,9 +58,13 @@ export const Bestsellers = () => {
     if (bestsellers.length === 0) return null;
     
     const handleAddToCart = (product: any) => {
+        if (!product.slug) {
+            console.error('Product missing slug:', product);
+            return;
+        }
+        
         addToCart({
-            productId: product.id,
-            documentId: product.documentId,
+            productSlug: product.slug,
             title: product.title,
             price: product.price,
             image: product.images[0]?.url
@@ -94,7 +98,7 @@ export const Bestsellers = () => {
                 >
                     {bestsellers.map((product, index) => (
                         <SwiperSlide key={index}>
-                            <StyledSlide href={`/products/${product?.id}`} isUp={index % 2 === 1}>
+                            <StyledSlide href={`/products/${product?.slug || product?.id}`} isUp={index % 2 === 1}>
                                 <StyledSlideImage>
                                     <Image 
                                         src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${product?.images[0]?.url}`}

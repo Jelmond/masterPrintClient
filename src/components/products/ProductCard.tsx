@@ -44,9 +44,13 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             return;
         }
         
+        if (!product.slug) {
+            console.error('Product missing slug:', product);
+            return;
+        }
+        
         addToCart({
-            productId: product.id,
-            documentId: product.documentId,
+            productSlug: product.slug,
             title: product.title,
             price: currentPrice, // Use discounted price
             oldPrice: hasDiscount ? oldPrice : null, // Save old price if discount exists
@@ -109,7 +113,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                     </StyledBestsellerBadge>
                 )}
             </StyledImageContainer>
-            <StyledHiddenLink href={`/products/${product?.id}`} target="_blank"/>
+            <StyledHiddenLink href={`/products/${product?.slug || product?.id}`} target="_blank"/>
             <StyledContent>
                 <div className="title">{product.title}</div>
                 <div className="infoBadges">
