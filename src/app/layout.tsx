@@ -34,22 +34,33 @@ const poppins = Poppins({
 
 const geistSans = GeistSans.variable
 
+// Получаем базовый URL для metadataBase
+const getSiteUrl = () => {
+  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+  // Fallback на домен из конфига или дефолтный
+  return 'https://mppshop.by';
+};
+
 export const metadata: Metadata = {
   ...generateMetadata({
     title: "New Project",
     description: "New Project",
+    url: getSiteUrl(),
   }),
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
-      { url: '/favicon.ico', sizes: 'any' },
     ],
     apple: [
-      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
       { url: '/apple-icon-180x180.png', sizes: '180x180', type: 'image/png' },
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
+    shortcut: '/favicon.ico',
   },
 };
 
