@@ -72,6 +72,23 @@ export default function RootLayout({
   return (
     <html lang="ru" translate="no">
       <head>
+        {/* Google tag (gtag.js) */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17871808122"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-17871808122');
+            `,
+          }}
+        />
+        {/* /Google tag (gtag.js) */}
+        
         {/* Yandex.Metrika counter */}
         <script
           type="text/javascript"
