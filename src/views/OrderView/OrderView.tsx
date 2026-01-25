@@ -53,6 +53,10 @@ export const OrderView = () => {
         unp: '',
         bankAccount: '',
         bankAddress: '',
+        // Юридический адрес (для документов)
+        legalCity: '',
+        legalAddress: '',
+        // Адрес доставки (куда отправляем посылку)
         city: '',
         address: '',
         comment: ''
@@ -68,6 +72,8 @@ export const OrderView = () => {
         unp: '',
         bankAccount: '',
         bankAddress: '',
+        legalCity: '',
+        legalAddress: '',
         city: '',
         address: '',
         paymentMethod: '',
@@ -228,9 +234,16 @@ export const OrderView = () => {
     }
 
     const validateBankAccount = (account: string) => {
-        if (!account.trim()) return 'Расчетный счет обязательно для заполнения'
-        const accountRegex = /^\d{13}$/
-        if (!accountRegex.test(account.trim())) return 'Расчетный счет должен содержать 13 цифр'
+        if (!account.trim()) return 'Расчетный счет обязателен для заполнения'
+
+        // Допускаем пробелы в вводе, но проверяем IBAN-подобный формат: 28 символов, латинские буквы и цифры
+        const normalized = account.replace(/\s+/g, '').toUpperCase()
+        const ibanRegex = /^[A-Z0-9]{28}$/
+
+        if (!ibanRegex.test(normalized)) {
+            return 'Расчетный счет должен содержать 28 символов (латинские буквы и цифры), пример: BY13 NBRB 3600 9000 0000 2Z00 AB00'
+        }
+
         return ''
     }
 
@@ -330,6 +343,10 @@ export const OrderView = () => {
                 unp: validateUNP(legalFormData.unp),
                 bankAccount: validateBankAccount(legalFormData.bankAccount),
                 bankAddress: validateBankAddress(legalFormData.bankAddress),
+                // Юридический адрес
+                legalCity: validateCity(legalFormData.legalCity),
+                legalAddress: validateAddress(legalFormData.legalAddress),
+                // Адрес доставки
                 city: validateCity(legalFormData.city),
                 address: validateAddress(legalFormData.address)
             }
@@ -432,7 +449,9 @@ export const OrderView = () => {
             paymentRequest.email = individualFormData.email
             paymentRequest.phone = individualFormData.phone
             paymentRequest.city = individualFormData.city
+            // Для совместимости отправляем и address, и deliveryAddress
             paymentRequest.address = individualFormData.address
+            paymentRequest.deliveryAddress = individualFormData.address
             if (individualFormData.comment) {
                 paymentRequest.comment = individualFormData.comment
             }
@@ -444,8 +463,12 @@ export const OrderView = () => {
             paymentRequest.bankAdress = legalFormData.bankAddress
             paymentRequest.email = legalFormData.email
             paymentRequest.phone = legalFormData.phone
+            // Город компании
             paymentRequest.city = legalFormData.city
-            paymentRequest.address = legalFormData.address
+            // Юридический адрес (город + улица и т.п.)
+            paymentRequest.legalAddress = `${legalFormData.legalCity}, ${legalFormData.legalAddress}`.trim()
+            // Адрес доставки (город + адрес)
+            paymentRequest.deliveryAddress = `${legalFormData.city}, ${legalFormData.address}`.trim()
             if (legalFormData.comment) {
                 paymentRequest.comment = legalFormData.comment
             }
@@ -672,29 +695,83 @@ export const OrderView = () => {
                                     {errors.phone && <StyledErrorMessage>{errors.phone}</StyledErrorMessage>}
                                 </div>
                             </StyledPersonalInfo>
-                            <StyledSubtitle>
-                                Адрес получателя
-                            </StyledSubtitle>
-                            <StyledAdressContainer>
-                                <div>
-                                    <SimpleInput 
-                                        label="Город" 
-                                        placeholder="Введите название города" 
-                                        value={buyerType === 'legal' ? legalFormData.city : individualFormData.city}
-                                        onChange={(e) => handleInputChange('city', e.target.value, buyerType === 'legal')}
-                                    />
-                                    {errors.city && <StyledErrorMessage>{errors.city}</StyledErrorMessage>}
-                                </div>
-                                <div>
-                                    <SimpleInput 
-                                        label="Улица, дом, квартира" 
-                                        placeholder="Введите адрес" 
-                                        value={buyerType === 'legal' ? legalFormData.address : individualFormData.address}
-                                        onChange={(e) => handleInputChange('address', e.target.value, buyerType === 'legal')}
-                                    />
-                                    {errors.address && <StyledErrorMessage>{errors.address}</StyledErrorMessage>}
-                                </div>
-                            </StyledAdressContainer>
+                            {buyerType === 'legal' ? (
+                                <>
+                                    <StyledSubtitle>
+                                        Юридический адрес
+                                    </StyledSubtitle>
+                                    <StyledAdressContainer>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Город" 
+                                                placeholder="Введите название города" 
+                                                value={legalFormData.legalCity}
+                                                onChange={(e) => handleInputChange('legalCity', e.target.value, true)}
+                                            />
+                                            {errors.legalCity && <StyledErrorMessage>{errors.legalCity}</StyledErrorMessage>}
+                                        </div>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Улица, дом, офис" 
+                                                placeholder="Введите юридический адрес" 
+                                                value={legalFormData.legalAddress}
+                                                onChange={(e) => handleInputChange('legalAddress', e.target.value, true)}
+                                            />
+                                            {errors.legalAddress && <StyledErrorMessage>{errors.legalAddress}</StyledErrorMessage>}
+                                        </div>
+                                    </StyledAdressContainer>
+
+                                    <StyledSubtitle>
+                                        Адрес доставки
+                                    </StyledSubtitle>
+                                    <StyledAdressContainer>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Город" 
+                                                placeholder="Введите название города" 
+                                                value={legalFormData.city}
+                                                onChange={(e) => handleInputChange('city', e.target.value, true)}
+                                            />
+                                            {errors.city && <StyledErrorMessage>{errors.city}</StyledErrorMessage>}
+                                        </div>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Улица, дом, офис / склад" 
+                                                placeholder="Введите адрес доставки" 
+                                                value={legalFormData.address}
+                                                onChange={(e) => handleInputChange('address', e.target.value, true)}
+                                            />
+                                            {errors.address && <StyledErrorMessage>{errors.address}</StyledErrorMessage>}
+                                        </div>
+                                    </StyledAdressContainer>
+                                </>
+                            ) : (
+                                <>
+                                    <StyledSubtitle>
+                                        Адрес получателя
+                                    </StyledSubtitle>
+                                    <StyledAdressContainer>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Город" 
+                                                placeholder="Введите название города" 
+                                                value={individualFormData.city}
+                                                onChange={(e) => handleInputChange('city', e.target.value, false)}
+                                            />
+                                            {errors.city && <StyledErrorMessage>{errors.city}</StyledErrorMessage>}
+                                        </div>
+                                        <div>
+                                            <SimpleInput 
+                                                label="Улица, дом, квартира" 
+                                                placeholder="Введите адрес" 
+                                                value={individualFormData.address}
+                                                onChange={(e) => handleInputChange('address', e.target.value, false)}
+                                            />
+                                            {errors.address && <StyledErrorMessage>{errors.address}</StyledErrorMessage>}
+                                        </div>
+                                    </StyledAdressContainer>
+                                </>
+                            )}
                         </>
                     )}
                     {buyerType && (
@@ -723,9 +800,12 @@ export const OrderView = () => {
                                             <div>
                                                 <StyledOptionTitle>Курьер DPD (дверь-в-дверь)</StyledOptionTitle>
                                                 <StyledOptionDescription>
-                                                    {productsTotalAfterAllDiscounts < 200 ? '20 руб.' : 
-                                                     productsTotalAfterAllDiscounts < 400 ? '10 руб.' : 
-                                                     'Бесплатно'}
+                                                    {priceData && priceData.shippingType === 'shipping' 
+                                                        ? (priceData.shippingCost === 0 && priceData.freeShipping 
+                                                            ? 'Бесплатно (от 400 руб.)' 
+                                                            : `${priceData.shippingCost.toFixed(0)} руб.`)
+                                                        : (productsTotal < 400 ? '20 руб.' : 'Бесплатно (от 400 руб.)')
+                                                    }
                                                 </StyledOptionDescription>
                                             </div>
                                         </StyledOptionText>
@@ -882,10 +962,21 @@ export const OrderView = () => {
                                 <StyledSummaryLabel>Товары:</StyledSummaryLabel>
                                 <StyledSummaryValue>{priceData.subtotal.toFixed(2)} руб.</StyledSummaryValue>
                             </StyledSummaryRow>
-                            {priceData.discount.totalDiscount > 0 && (
+                            {priceData.discount.baseDiscount > 0 && (
                                 <StyledSummaryRow className="discount">
-                                    <StyledSummaryLabel>Скидка ({priceData.discount.description}):</StyledSummaryLabel>
-                                    <StyledSummaryValue>-{priceData.discount.totalDiscount.toFixed(2)} руб.</StyledSummaryValue>
+                                    <StyledSummaryLabel>
+                                        Скидка на объем {
+                                            priceData.discount.description.includes('5%') ? '5%' :
+                                            priceData.discount.description.includes('20%') ? '20%' : '0%'
+                                        }:
+                                    </StyledSummaryLabel>
+                                    <StyledSummaryValue>-{priceData.discount.baseDiscount.toFixed(2)} руб.</StyledSummaryValue>
+                                </StyledSummaryRow>
+                            )}
+                            {priceData.discount.selfShippingDiscount > 0 && (
+                                <StyledSummaryRow className="discount">
+                                    <StyledSummaryLabel>Скидка на самовывоз 3%:</StyledSummaryLabel>
+                                    <StyledSummaryValue>-{priceData.discount.selfShippingDiscount.toFixed(2)} руб.</StyledSummaryValue>
                                 </StyledSummaryRow>
                             )}
                             {priceData.promocode && (
@@ -897,7 +988,15 @@ export const OrderView = () => {
                             <StyledSummaryRow>
                                 <StyledSummaryLabel>Доставка:</StyledSummaryLabel>
                                 <StyledSummaryValue>
-                                    {priceData.shippingCost === 0 ? 'Бесплатно' : `${priceData.shippingCost.toFixed(2)} руб.`}
+                                    {priceData.shippingCost === 0 ? (
+                                        priceData.freeShipping ? (
+                                            <span style={{ color: '#28a745' }}>Бесплатно (от 400 руб.)</span>
+                                        ) : (
+                                            'Бесплатно'
+                                        )
+                                    ) : (
+                                        `${priceData.shippingCost.toFixed(2)} руб.`
+                                    )}
                                 </StyledSummaryValue>
                             </StyledSummaryRow>
                             <StyledSummaryRow>

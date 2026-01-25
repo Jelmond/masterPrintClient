@@ -176,9 +176,14 @@ export const Footer = () => {
                     </div>
                 </StyledSection>
             </StyledTop>
-            <StyledBottomLogos>
-                <Image src={width > 1024 ? "/al.png" : "/alphaMobile.png"} alt="wildberries" fill/>
-            </StyledBottomLogos>
+            <StyledBottom>
+                <StyledPriceNote>
+                    * цены в каталоге указаны с НДС
+                </StyledPriceNote>
+                <StyledBottomLogos>
+                    <Image src={width > 1024 ? "/al.png" : "/alphaMobile.png"} alt="wildberries" fill/>
+                </StyledBottomLogos>
+            </StyledBottom>
         </StyledFooter>
     )
 }
@@ -188,6 +193,41 @@ const StyledFooter = styled.div`
     background-color: #F5F7F5;
     position: relative;
     z-index: 1;
+`
+
+const StyledBottom = styled.div`
+    width: 100%;
+    padding: 0 ${rm(125)} ${rm(30)} ${rm(125)};
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: ${rm(20)};
+
+    ${media.lg`
+        padding: 0 ${rm(80)} ${rm(30)} ${rm(80)};
+    `}
+
+    ${media.md`
+        padding: 0 ${rm(40)} ${rm(30)} ${rm(40)};
+        flex-direction: column;
+        align-items: flex-start;
+    `}
+
+    ${media.xsm`
+        padding: 0 ${rm(20)} ${rm(24)} ${rm(20)};
+        flex-direction: column;
+        align-items: flex-start;
+    `}
+`
+
+const StyledPriceNote = styled.div`
+    font-size: ${rm(14)};
+    ${fontGeist(400)};
+    color: #666666;
+
+    ${media.xsm`
+        font-size: ${rm(12)};
+    `}
 `
 
 const StyledTop = styled.div`

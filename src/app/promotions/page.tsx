@@ -4,8 +4,9 @@ import { generateMetadata } from "@/utils/generateMetadata";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateMetadata({
-  title: "Бестселлеры MPPSHOP",
-  description: "Популярные товары и бестселлеры MPPSHOP",
+  title: "Акции и скидки на полиграфию | MPPSHOP - Выгодные предложения",
+  description: "Акции и специальные предложения MPPSHOP. Скидки на полиграфическую продукцию до 20%. Промокоды и выгодные предложения. Распродажа открыток, конвертов, упаковки. Экономьте на качественной полиграфии.",
+  keywords: "акции mppshop, скидки на полиграфию, промокоды mppshop, распродажа открыток, специальные предложения, выгодная полиграфия",
 });
 
 interface Product {

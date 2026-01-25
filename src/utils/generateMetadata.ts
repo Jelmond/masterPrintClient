@@ -13,15 +13,15 @@ interface MetadataProps {
 }
 
 export function generateMetadata({
-    title = 'New Project',
-    description = 'New Project',
-    keywords = 'New Project',
+    title = 'MPPSHOP - Полиграфическая продукция в Беларуси',
+    description = 'Интернет-магазин полиграфической продукции MPPSHOP. Открытки, конверты, упаковка, подарочная продукция. Доставка по Беларуси. Качество и выгодные цены.',
+    keywords = 'полиграфия, открытки, конверты, упаковка, подарочная продукция, печать, полиграфическая продукция беларусь, купить открытки минск',
     url = '',
     ogImage = '/open-graph.png',
-    twitterHandle = '@newproject',
-    author = 'New Project',
-    themeColor = '#000',
-    siteName = 'New Project',
+    twitterHandle = '@mppshop',
+    author = 'ООО Мастерпринт-Пак',
+    themeColor = '#111111',
+    siteName = 'MPPSHOP',
 }: MetadataProps): Metadata {
     // Получаем базовый URL из переменной окружения или используем дефолтный домен
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mppshop.by';
@@ -47,12 +47,14 @@ export function generateMetadata({
             images: [
                 {
                     url: ogImage,
-                    width: 1080,
-                    height: 720,
+                    width: 1200,
+                    height: 630,
+                    alt: title,
                 }
             ],
             locale: 'ru_RU',
             type: 'website',
+            countryName: 'Belarus',
         },
         twitter: {
             card: 'summary_large_image',

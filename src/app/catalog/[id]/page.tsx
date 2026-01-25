@@ -30,9 +30,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         if (categoryRes.ok) {
             const categoryData = await categoryRes.json();
             const categoryTitle = categoryData?.title || 'Категория';
+            const productCount = categoryData?.products?.length || 0;
+            
             return generateMetadataUtil({
-                title: `${categoryTitle} MPPSHOP`,
-                description: `Категория ${categoryTitle} в MPPSHOP`,
+                title: `${categoryTitle} | MPPSHOP - Купить полиграфию в Беларуси`,
+                description: `${categoryTitle} в интернет-магазине MPPSHOP. ${productCount > 0 ? `Более ${productCount} товаров. ` : ''}Качественная полиграфическая продукция. Доставка по Беларуси. Скидки до 20%. Производство с 2014 года. Цены производителя.`,
+                keywords: `${categoryTitle.toLowerCase()}, купить ${categoryTitle.toLowerCase()}, ${categoryTitle.toLowerCase()} беларусь, ${categoryTitle.toLowerCase()} минск, полиграфия mppshop`,
             });
         }
     } catch (error) {
@@ -40,8 +43,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     }
 
     return generateMetadataUtil({
-        title: "Категория MPPSHOP",
-        description: "Категория товаров MPPSHOP",
+        title: "Категория товаров | MPPSHOP - Полиграфическая продукция",
+        description: "Категория полиграфических товаров в интернет-магазине MPPSHOP. Качественная продукция, доставка по Беларуси, выгодные цены.",
+        keywords: "категория полиграфия, товары mppshop, полиграфическая продукция беларусь",
     });
 }
 
