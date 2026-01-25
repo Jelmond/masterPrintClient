@@ -45,8 +45,9 @@ const getSiteUrl = () => {
 
 export const metadata: Metadata = {
   ...generateMetadata({
-    title: "New Project",
-    description: "New Project",
+    title: "MPPSHOP - Интернет-магазин полиграфической продукции в Беларуси",
+    description: "Интернет-магазин MPPSHOP - качественная полиграфическая продукция в Беларуси. Открытки, конверты, упаковка, подарочные наборы. Доставка по всей Беларуси. Скидки до 20%. Купить полиграфию оптом и в розницу.",
+    keywords: "полиграфия беларусь, купить открытки минск, конверты оптом, упаковка подарочная, полиграфическая продукция, печать открыток, мастерпринт пак, открытки купить, конверты купить, упаковка купить",
     url: getSiteUrl(),
   }),
   icons: {
@@ -115,6 +116,79 @@ export default function RootLayout({
           </div>
         </noscript>
         {/* /Yandex.Metrika counter */}
+
+        {/* Structured Data (JSON-LD) for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "ООО Мастерпринт-Пак",
+              "alternateName": "MPPSHOP",
+              "url": "https://mppshop.by",
+              "logo": "https://mppshop.by/logo.svg",
+              "description": "Производитель и интернет-магазин качественной полиграфической продукции в Беларуси. Открытки, конверты, упаковка с 2014 года.",
+              "foundingDate": "2014-02-18",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "ул. Титова, 24",
+                "addressLocality": "Гродно",
+                "postalCode": "230000",
+                "addressCountry": "BY"
+              },
+              "contactPoint": [
+                {
+                  "@type": "ContactPoint",
+                  "telephone": "+375447495465",
+                  "contactType": "customer service",
+                  "areaServed": "BY",
+                  "availableLanguage": ["ru", "be"]
+                },
+                {
+                  "@type": "ContactPoint",
+                  "telephone": "+375445842911",
+                  "contactType": "sales",
+                  "areaServed": "BY",
+                  "availableLanguage": ["ru", "be"]
+                }
+              ],
+              "sameAs": [
+                "https://mppshop.by"
+              ],
+              "priceRange": "$$",
+              "openingHours": "Mo-Fr 09:00-17:00",
+              "email": "info@mppshop.by",
+              "taxID": "591511468"
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "MPPSHOP",
+              "url": "https://mppshop.by",
+              "description": "Интернет-магазин полиграфической продукции в Беларуси",
+              "publisher": {
+                "@type": "Organization",
+                "name": "ООО Мастерпринт-Пак"
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://mppshop.by/catalog?search={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+              },
+              "inLanguage": "ru-BY"
+            })
+          }}
+        />
+        {/* /Structured Data */}
       </head>
       <body className={`${onest.variable} ${geistSans} ${poppins.variable}`} style={{ opacity: 0 }}>
         <StyledComponentsLayout>

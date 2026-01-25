@@ -19,10 +19,26 @@ export async function generateMetadata({ params }: { params: { slug: string } })
             
             if (product) {
                 const productTitle = product?.title || 'Товар';
+                const price = product?.price || '';
+                const category = product?.category?.title || '';
+                const imageUrl = product?.image?.url ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.image.url}` : '/open-graph.png';
+                
+                // Создаем SEO-оптимизированное описание
+                let description = product?.description || `${productTitle} - качественная полиграфическая продукция от MPPSHOP.`;
+                if (price) {
+                    description += ` Цена: ${price} BYN.`;
+                }
+                if (category) {
+                    description += ` Категория: ${category}.`;
+                }
+                description += ` Доставка по Беларуси. Скидки до 20%. Купить с доставкой или самовывозом в Гродно.`;
+                
                 return generateMetadataUtil({
-                    title: `${productTitle} MPPSHOP`,
-                    description: product?.description || `Товар ${productTitle} в MPPSHOP`,
+                    title: `${productTitle} купить в Беларуси${price ? ` - ${price} BYN` : ''} | MPPSHOP`,
+                    description: description,
+                    keywords: `${productTitle.toLowerCase()}, купить ${productTitle.toLowerCase()}, ${productTitle.toLowerCase()} цена, ${productTitle.toLowerCase()} беларусь, ${category.toLowerCase()}, полиграфия mppshop`,
                     url: `${siteUrl}/products/${product.slug}`,
+                    ogImage: imageUrl,
                 });
             }
         }
@@ -31,8 +47,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
 
     return generateMetadataUtil({
-        title: "Товар MPPSHOP",
-        description: "Товар MPPSHOP",
+        title: "Полиграфическая продукция | MPPSHOP - Купить в Беларуси",
+        description: "Качественная полиграфическая продукция в интернет-магазине MPPSHOP. Доставка по Беларуси. Выгодные цены от производителя.",
+        keywords: "полиграфия купить, товары mppshop, продукция беларусь",
     });
 }
 

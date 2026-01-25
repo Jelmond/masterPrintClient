@@ -18,11 +18,13 @@ interface PaymentRequest {
     phone?: string
     city?: string
     address?: string
+    deliveryAddress?: string
     // Organization fields
     organization?: string
     UNP?: string
     paymentAccount?: string
     bankAdress?: string
+    legalAddress?: string
 }
 
 export async function POST(request: NextRequest) {
@@ -61,13 +63,13 @@ export async function POST(request: NextRequest) {
 
         // Validate individual customer fields
         if (body.isIndividual) {
-            if (!body.fullName || !body.email || !body.phone || !body.city || !body.address) {
+            if (!body.fullName || !body.email || !body.phone || !body.city || (!body.address && !body.deliveryAddress)) {
                 return NextResponse.json(
                     {
                         error: {
                             status: 400,
                             name: 'BadRequestError',
-                            message: 'For individuals, fullName, email, phone, city, and address are required'
+                            message: 'For individuals, fullName, email, phone, city, and address or deliveryAddress are required'
                         }
                     },
                     { status: 400 }
@@ -105,13 +107,13 @@ export async function POST(request: NextRequest) {
         } else {
             // Validate organization fields
             if (!body.organization || !body.fullName || !body.UNP || !body.paymentAccount || 
-                !body.bankAdress || !body.email || !body.phone || !body.city || !body.address) {
+                !body.bankAdress || !body.email || !body.phone || !body.city || !body.legalAddress || !body.deliveryAddress) {
                 return NextResponse.json(
                     {
                         error: {
                             status: 400,
                             name: 'BadRequestError',
-                            message: 'For organizations, organization, fullName, UNP, paymentAccount, bankAdress, email, phone, city, and address are required'
+                            message: 'For organizations, organization, fullName, UNP, paymentAccount, bankAdress, email, phone, city, legalAddress, and deliveryAddress are required'
                         }
                     },
                     { status: 400 }
@@ -148,7 +150,10 @@ export async function POST(request: NextRequest) {
             strapiRequest.email = body.email
             strapiRequest.phone = body.phone
             strapiRequest.city = body.city
-            strapiRequest.address = body.address
+            // Передаём предпочтительно deliveryAddress, но для совместимости дублируем в address
+            const deliveryAddress = body.deliveryAddress || body.address
+            strapiRequest.deliveryAddress = deliveryAddress
+            strapiRequest.address = deliveryAddress
         } else {
             strapiRequest.organization = body.organization
             strapiRequest.fullName = body.fullName
@@ -158,7 +163,9 @@ export async function POST(request: NextRequest) {
             strapiRequest.email = body.email
             strapiRequest.phone = body.phone
             strapiRequest.city = body.city
-            strapiRequest.address = body.address
+            // Юридический адрес и адрес доставки
+            strapiRequest.legalAddress = body.legalAddress
+            strapiRequest.deliveryAddress = body.deliveryAddress
         }
 
         // Call Strapi payment API
