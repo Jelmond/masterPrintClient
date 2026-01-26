@@ -181,7 +181,13 @@ export const Footer = () => {
                     * цены в каталоге указаны с НДС
                 </StyledPriceNote>
                 <StyledBottomLogos>
-                    <Image src={width > 1024 ? "/al.png" : "/alphaMobile.png"} alt="wildberries" fill/>
+                    <Image 
+                        src={width > 1024 ? "/al.png" : "/alphaMobile.png"} 
+                        alt="Альфа-Банк и платежные системы" 
+                        width={width > 1024 ? 920 : 300}
+                        height={width > 1024 ? 80 : 60}
+                        style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
+                    />
                 </StyledBottomLogos>
             </StyledBottom>
         </StyledFooter>
@@ -398,12 +404,16 @@ const StyledSection = styled.div`
 const StyledBottomLogos = styled.div`
     margin-top: ${rm(20)};
     width: 100%;
+    max-width: 100%;
     height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    
+
+    ${media.xsm`
+        max-width: 100%;
+    `}
 
     img{
         width: 100%;
