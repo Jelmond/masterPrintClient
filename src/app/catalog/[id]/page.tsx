@@ -52,7 +52,6 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function SingleCatalogPage({ params }: { params: { id: string } }) {
     const categoryUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getPopulatedCategory/${params.id}`;
     const tagsUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getTagsForCategory/${params.id}`;
-    console.log('Fetching category from URL:', categoryUrl);
 
     const categoryRes = await fetch(categoryUrl, { 
         cache: 'no-store',

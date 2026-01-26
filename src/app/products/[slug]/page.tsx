@@ -9,19 +9,19 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     
     try {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[slug][$eq]=${params.slug}&populate=*`,
+            `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products/${params.slug}`,
             { cache: 'no-store' }
         );
-        
+
         if (res.ok) {
             const data = await res.json();
-            const product = data?.data?.[0];
+            const product = data?.data; // Теперь это объект, а не массив
             
             if (product) {
                 const productTitle = product?.title || 'Товар';
                 const price = product?.price || '';
-                const category = product?.category?.title || '';
-                const imageUrl = product?.image?.url ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.image.url}` : '/open-graph.png';
+                const category = product?.categories?.[0]?.title || '';
+                const imageUrl = product?.images?.[0]?.url ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}` : '/open-graph.png';
                 
                 // Создаем SEO-оптимизированное описание
                 let description = product?.description || `${productTitle} - качественная полиграфическая продукция от MPPSHOP.`;
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function ProductPage({ params }: { params: { slug: string } }) {
     try {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[slug][$eq]=${params.slug}&populate=*`,
+            `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products/${params.slug}`,
             { cache: 'no-store' }
         );
         
@@ -65,7 +65,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         }
         
         const data = await res.json();
-        const product = data?.data?.[0];
+        const product = data?.data; // Теперь это объект, а не массив
 
         if (!product) {
             console.warn(`Product not found for slug: ${params.slug}`);

@@ -73,6 +73,9 @@ export default function RootLayout({
   return (
     <html lang="ru" translate="no">
       <head>
+        {/* Google Site Verification */}
+        <meta name="google-site-verification" content="wdP82tLM1jjYjaifit8o3yPV2lD2kzZ8I0G3uM12HZQ" />
+        
         {/* Google tag (gtag.js) */}
         <script
           async

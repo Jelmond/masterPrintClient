@@ -42,6 +42,17 @@ const contactOptions = [
                 <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
         )
+    },
+    {
+        type: 'instagram',
+        label: 'Instagram',
+        value: '@mppshopgrodno',
+        href: 'https://www.instagram.com/mppshopgrodno?igsh=MXZ5eWxoYXczOGE1dQ%3D%3D&utm_source=qr',
+        icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 22h20L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        )
     }
 ]
 
@@ -51,7 +62,7 @@ export const ContactDropdown = ({ isOpen, onClose }: ContactDropdownProps) => {
     return (
         <StyledDropdown>
             {contactOptions.map((option, index) => (
-                <StyledContactOption key={index} href={option.href} target={option.type === 'telegram' ? '_blank' : undefined} onClick={onClose}>
+                <StyledContactOption key={index} href={option.href} target={(option.type === 'telegram' || option.type === 'instagram') ? '_blank' : undefined} onClick={onClose}>
                     <StyledIconWrapper>
                         {option.icon}
                     </StyledIconWrapper>
