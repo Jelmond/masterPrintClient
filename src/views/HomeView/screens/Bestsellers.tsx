@@ -89,8 +89,9 @@ export const Bestsellers = () => {
                     autoplay={{
                         delay: 500,
                         disableOnInteraction: false,
+                        pauseOnMouseEnter: true,
                     }}
-                    allowTouchMove={false}
+                    allowTouchMove={true}
                     modules={[Autoplay]}
                     onSwiper={(swiper) => {
                         swiperRef.current = swiper
