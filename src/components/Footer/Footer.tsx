@@ -90,6 +90,10 @@ const info = {
         {
             label: 'Обращения покупателей',
             url: '/requests'
+        },
+        {
+            label: 'Возврат',
+            url: '/return'
         }
     ]
 }
