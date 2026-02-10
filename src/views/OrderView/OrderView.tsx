@@ -1096,23 +1096,23 @@ export const OrderView = () => {
 const StyledContainer = styled.div`
     display: flex;
     gap: ${rm(40)};
-    padding: ${rm(110)} ${rm(125)} ${rm(125)} ${rm(125)};
+    padding: ${rm(100)} ${rm(125)} ${rm(80)} ${rm(125)};
     min-height: 60vh;
 
     ${media.lg`
-        padding: ${rm(90)} ${rm(80)};
-        gap: ${rm(30)};
+        padding: ${rm(80)} ${rm(80)} ${rm(60)} ${rm(80)};
+        gap: ${rm(32)};
     `}
 
     ${media.md`
-        padding: ${rm(70)} ${rm(40)};
-        gap: ${rm(20)};
+        padding: ${rm(60)} ${rm(40)} ${rm(50)} ${rm(40)};
+        gap: ${rm(24)};
         flex-direction: column;
     `}
 
     ${media.xsm`
-        padding: ${rm(60)} ${rm(20)};
-        gap: ${rm(20)};
+        padding: ${rm(48)} ${rm(20)} ${rm(40)} ${rm(20)};
+        gap: ${rm(24)};
     `}
 `
 
@@ -1217,22 +1217,30 @@ const StyledTitle = styled.p`
 const StyledSubtitle = styled.p`
     ${fontGeist(400)};
     font-size: ${rm(36)};
-    margin-bottom: ${rm(40)};
+    margin-top: ${rm(32)};
+    margin-bottom: ${rm(24)};
     color: ${colors.black100};
+
+    .StyledCart > &:first-of-type {
+        margin-top: 0;
+    }
 
     ${media.lg`
         font-size: ${rm(30)};
-        margin-bottom: ${rm(30)};
+        margin-top: ${rm(28)};
+        margin-bottom: ${rm(20)};
     `}
 
     ${media.md`
         font-size: ${rm(24)};
-        margin-bottom: ${rm(20)};
+        margin-top: ${rm(24)};
+        margin-bottom: ${rm(18)};
     `}
 
     ${media.xsm`
         font-size: ${rm(20)};
-        margin-bottom: ${rm(16)};
+        margin-top: ${rm(20)};
+        margin-bottom: ${rm(14)};
     `}
 `
 
@@ -1499,11 +1507,11 @@ const StyledDeliveryOptions = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${rm(12)};
-    margin-bottom: ${rm(20)};
+    margin-bottom: ${rm(28)};
 
     ${media.xsm`
         gap: ${rm(10)};
-        margin-bottom: ${rm(16)};
+        margin-bottom: ${rm(22)};
     `}
 `
 
@@ -1537,13 +1545,13 @@ const StyledRadioLabel = styled.label`
     padding: ${rm(16)} ${rm(20)};
     background: #f8f9fa;
     border: 1px solid #e9ecef;
-    border-radius: ${rm(8)};
+    border-radius: ${rm(10)};
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
 
     ${media.xsm`
-        padding: ${rm(12)} ${rm(16)};
+        padding: ${rm(14)} ${rm(18)};
     `}
     
     &::before {
@@ -1594,6 +1602,13 @@ const StyledOptionText = styled.div`
     flex-direction: column;
     gap: ${rm(4)};
     width: 100%;
+
+    & > div {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: ${rm(8)};
+    }
 `
 
 const StyledOptionTitle = styled.span`
@@ -1958,11 +1973,11 @@ const StyledPaymentOptions = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${rm(12)};
-    margin-bottom: ${rm(20)};
+    margin-bottom: ${rm(28)};
 
     ${media.xsm`
         gap: ${rm(10)};
-        margin-bottom: ${rm(16)};
+        margin-bottom: ${rm(22)};
     `}
 `
 
@@ -1971,15 +1986,15 @@ const StyledPaymentOption = styled.div`
 `
 
 const StyledAgreementSection = styled.div`
-    margin-bottom: ${rm(24)};
-    padding: ${rm(20)};
+    margin-bottom: ${rm(28)};
+    padding: ${rm(20)} ${rm(24)};
     background: #f8f9fa;
-    border-radius: ${rm(8)};
+    border-radius: ${rm(10)};
     border: 1px solid #e9ecef;
 
     ${media.xsm`
-        padding: ${rm(16)};
-        margin-bottom: ${rm(20)};
+        padding: ${rm(16)} ${rm(18)};
+        margin-bottom: ${rm(24)};
     `}
 `
 

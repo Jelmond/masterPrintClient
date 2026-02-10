@@ -12,9 +12,11 @@ import { colors } from "@/styles/colors";
 interface CatalogViewProps {
     data: any;
     products: any;
-    tags: any
-    tagsProductsData: any
-    showCategories?: boolean
+    tags: any;
+    tagsProductsData: any;
+    uniqueProducts?: any[];
+    batchesOrder?: Array<{ id: string | number; name: string; priority?: number }>;
+    showCategories?: boolean;
 }
 
 const StyledCatalogView = styled.div`
@@ -28,7 +30,7 @@ const StyledCatalogView = styled.div`
     `}
 `
 
-export const  CatalogView = ({ data, products, tags, tagsProductsData, showCategories = true }: CatalogViewProps) => {
+export const  CatalogView = ({ data, products, tags, tagsProductsData, uniqueProducts = [], batchesOrder = [], showCategories = true }: CatalogViewProps) => {
     // Filter state
     const [filters, setFilters] = useState({
         sales: '', // 'new', 'sale', 'popular'
@@ -55,25 +57,33 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
     // Scroll to top button state
     const [showScrollTop, setShowScrollTop] = useState(false)
 
-    // Flatten all products for filtering
+    // Список для фильтрации: uniqueProducts (без дублей), каждому продукту добавляем tag для фильтра по тегам
     const allProducts = useMemo(() => {
-        const flatProducts: any[] = []
-        tagsProductsData.forEach((tagGroup: any) => {
-            tagGroup.products.forEach((product: any) => {
-                flatProducts.push({
-                    ...product,
-                    tag: tagGroup.title
+        const list = uniqueProducts.length > 0 ? uniqueProducts : (() => {
+            const flat: any[] = []
+            tagsProductsData.forEach((tagGroup: any) => {
+                (tagGroup.products || []).forEach((product: any) => {
+                    flat.push({ ...product, tag: tagGroup.title })
                 })
             })
+            return flat
+        })()
+        const withTag = list.map((product: any) => {
+            const tag = product.tag ?? product.tags?.[0]?.title ?? (() => {
+                const id = product.id ?? product.documentId
+                const found = tagsProductsData.find((g: any) =>
+                    (g.products || []).some((p: any) => (p.id ?? p.documentId) === id)
+                )
+                return found?.title ?? 'Без тега'
+            })()
+            return { ...product, tag }
         })
-        return flatProducts
-    }, [tagsProductsData])
+        return withTag
+    }, [uniqueProducts, tagsProductsData])
 
     // Filter products based on current filters
     const filteredProducts = useMemo(() => {
         let filtered = allProducts
-
-        console.log('filtered', filtered)
 
         // Search filter
         if (filters.searchQuery) {
@@ -199,68 +209,92 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, showCateg
             .filter(Boolean) as any[]
     }, [tags, originalTagOrder])
 
-    // Group filtered products by tag for display, maintaining original order
+    // Группировка для отображения: батчи по порядку из API (batchesOrder), теги из data (tagsProductsData)
     const groupedFilteredProducts = useMemo(() => {
-        // Separate products with batch and without batch
-        const productsWithBatch: any[] = []
-        const productsWithoutBatch: any[] = []
-        
-        filteredProducts.forEach(product => {
-            const hasBatch = product.batch !== null && 
-                           product.batch !== undefined && 
-                           product.batch.name;
-            
-            if (hasBatch) {
-                productsWithBatch.push(product)
-            } else {
-                productsWithoutBatch.push(product)
-            }
-        })
-        
-        // Group products with batch by batch name
-        const batchGroups: { [key: string]: any[] } = {}
-        productsWithBatch.forEach(product => {
-            const batchName = product.batch.name
-            if (!batchGroups[batchName]) {
-                batchGroups[batchName] = []
-            }
-            batchGroups[batchName].push(product)
-        })
-        
-        // Convert batch groups to array format
-        const batchGroupsArray = Object.keys(batchGroups)
-            .map(batchName => ({
-                title: batchName,
-                products: batchGroups[batchName]
-            }))
-            .sort((a, b) => a.title.localeCompare(b.title, 'ru')) // Sort batch groups alphabetically
-        
-        // Group products without batch by tag
-        const tagGroups: { [key: string]: any[] } = {}
-        
-        // Initialize groups in original order
-        originalTagOrder.forEach((title: string) => {
-            tagGroups[title] = []
-        })
-        
-        // Add products without batch to their tag groups
-        productsWithoutBatch.forEach(product => {
-            if (tagGroups[product.tag]) {
-                tagGroups[product.tag].push(product)
-            }
-        })
+        const filteredIds = new Set(
+            filteredProducts.map((p: any) => p?.id ?? p?.documentId).filter(Boolean)
+        )
 
-        // Return batch groups first, then tag groups in the original order
+        // Батчи: группировка по batch.documentId ?? batch.id ?? batch.name (поддержка Strapi)
+        const byBatchId = filteredProducts.reduce((acc: Record<string, any[]>, product: any) => {
+            const batch = product.batch
+            const batchKey = batch?.documentId ?? batch?.id ?? batch?.name
+            if (batchKey == null || batchKey === '') return acc
+            const key = String(batchKey)
+            if (!acc[key]) acc[key] = []
+            acc[key].push(product)
+            return acc
+        }, {} as Record<string, any[]>)
+
+        // Секции батчей: порядок по priority из GET /api/batches; поиск продуктов по id, documentId и name
+        const batchGroupsArray: { title: string; products: any[] }[] = []
+        const orderedBatches = [...(batchesOrder || [])].sort(
+            (a: any, b: any) => (a?.priority ?? 0) - (b?.priority ?? 0)
+        )
+        if (orderedBatches.length > 0) {
+            for (const batch of orderedBatches as any[]) {
+                const id = batch?.id != null ? String(batch.id) : null
+                const documentId = batch?.documentId != null ? String(batch.documentId) : null
+                const name = batch?.name ?? batch?.attributes?.name ?? ''
+                const products: any[] = (documentId ? byBatchId[documentId] : undefined) ?? (id ? byBatchId[id] : undefined) ?? (name ? byBatchId[String(name)] : undefined) ?? []
+                if (products.length > 0) {
+                    batchGroupsArray.push({ title: name || id || documentId || 'Батч', products })
+                }
+            }
+        }
+        // Fallback: если порядок батчей с API пустой — вывести все группы по батчу, отсортированные по priority из product.batch
+        const usedKeys = new Set(
+            batchGroupsArray.flatMap((g) =>
+                g.products.map((p: any) => String(p.batch?.documentId ?? p.batch?.id ?? p.batch?.name ?? ''))
+            )
+        )
+        const fallbackGroups: { title: string; products: any[]; priority: number }[] = []
+        Object.keys(byBatchId).forEach((key) => {
+            if (usedKeys.has(key)) return
+            const products = byBatchId[key]
+            if (products.length > 0) {
+                const batch = products[0]?.batch
+                const priority = typeof batch?.priority === 'number' ? batch.priority : (batch?.attributes?.priority ?? 0)
+                const title = batch?.name ?? batch?.attributes?.name ?? key
+                fallbackGroups.push({ title: title || key, products, priority })
+            }
+        })
+        fallbackGroups.sort((a, b) => a.priority - b.priority)
+        fallbackGroups.forEach((g) => batchGroupsArray.push({ title: g.title, products: g.products }))
+
+        if (Object.keys(byBatchId).length > 0 || orderedBatches.length > 0) {
+            console.log('[CatalogView] Batches debug:', {
+                batchesOrderLength: orderedBatches.length,
+                batchesOrderByPriority: orderedBatches.slice(0, 5).map((b: any) => ({ id: b?.id, name: b?.name, priority: b?.priority })),
+                byBatchIdKeys: Object.keys(byBatchId),
+                byBatchIdCounts: Object.fromEntries(
+                    Object.entries(byBatchId).map(([k, arr]) => [k, arr.length])
+                ),
+                batchGroupsArrayLength: batchGroupsArray.length,
+                batchGroupsTitles: batchGroupsArray.map((g) => ({ title: g.title, count: g.products.length })),
+                productWithBatchSample: filteredProducts.find((p: any) => p?.batch)?.batch,
+            })
+        }
+
+        // Группы по тегам: из data (tagsProductsData), в каждой группе только продукты из filteredProducts (без дублей по id)
         const tagGroupsArray = originalTagOrder
-            .map((title: string) => ({
-                title,
-                products: tagGroups[title] || []
-            }))
+            .map((title: string) => {
+                const tagGroup = tagsProductsData.find((g: any) => g?.title === title)
+                const groupProducts = tagGroup?.products ?? []
+                const seenIds = new Set<string | number>()
+                const productsInGroup = groupProducts.filter((p: any) => {
+                    const id = p?.id ?? p?.documentId
+                    if (!filteredIds.has(id)) return false
+                    if (seenIds.has(id)) return false
+                    seenIds.add(id)
+                    return true
+                })
+                return { title, products: productsInGroup }
+            })
             .filter((group: any) => group.products.length > 0)
-        
-        // Combine: batch groups first, then tag groups
+
         return [...batchGroupsArray, ...tagGroupsArray]
-    }, [filteredProducts, originalTagOrder])
+    }, [filteredProducts, originalTagOrder, tagsProductsData, batchesOrder])
 
     const handleFilterChange = (filterType: string, value: any) => {
         setFilters(prev => ({

@@ -2,6 +2,7 @@
 
 import styled from "styled-components"
 import { Swiper, SwiperSlide } from "swiper/react"
+import { Navigation } from "swiper/modules"
 import { rm, colors, media } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import { useStrapi } from "@/hooks/useStrapi"
@@ -29,6 +30,8 @@ export const CatalogSwiper = () => {
         <StyledCatalogSwiper>
             <StyledTitle>Наша Продукция</StyledTitle>
             <Swiper
+                modules={[Navigation]}
+                navigation
                 spaceBetween={30}
                 slidesPerView={width > 576 ? 4 : 2.1}
                 className="catalog-swiper"
@@ -74,10 +77,33 @@ const StyledCatalogSwiper = styled.div`
     .swiper-button-next,
     .swiper-button-prev {
         color: ${colors.black100};
+        width: ${rm(44)};
+        height: ${rm(44)};
+        background: #F5F7F5;
+        border-radius: 50%;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+
+        &::after {
+            font-size: ${rm(18)};
+            font-weight: 700;
+        }
+
+        &:hover {
+            background: #E8EAED;
+        }
 
         ${media.xsm`
-            display: none;
+            width: ${rm(36)};
+            height: ${rm(36)};
+            &::after {
+                font-size: ${rm(14)};
+            }
         `}
+    }
+
+    .swiper-button-disabled {
+        opacity: 0.35;
+        pointer-events: none;
     }
     
     .swiper-pagination-bullet-active {
@@ -96,7 +122,7 @@ const StyledCatalogSwiper = styled.div`
         `}
 
         ${media.xsm`
-            padding: 0 ${rm(20)};
+            padding: 0 ${rm(48)};
         `}
     }
 `

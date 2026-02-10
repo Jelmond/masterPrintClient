@@ -180,6 +180,11 @@ export const Footer = () => {
                     </div>
                 </StyledSection>
             </StyledTop>
+            <StyledMobileContactsButtonWrapper>
+                <AnimLink href="/contacts">
+                    <StyledMobileContactsButton>Контакты</StyledMobileContactsButton>
+                </AnimLink>
+            </StyledMobileContactsButtonWrapper>
             <StyledBottom>
                 <StyledPriceNote>
                     * цены в каталоге указаны с НДС
@@ -203,6 +208,38 @@ const StyledFooter = styled.div`
     background-color: #F5F7F5;
     position: relative;
     z-index: 1;
+`
+
+const StyledMobileContactsButtonWrapper = styled.div`
+    display: none;
+    width: 100%;
+    padding: 0 ${rm(20)} ${rm(20)};
+
+    ${media.xsm`
+        display: flex;
+        justify-content: center;
+    `}
+`
+
+const StyledMobileContactsButton = styled.span`
+    display: inline-block;
+    padding: ${rm(14)} ${rm(32)};
+    background-color: #1C1C1C;
+    color: ${colors.white100};
+    font-size: ${rm(16)};
+    ${fontGeist(600)};
+    border-radius: ${rm(10)};
+    text-align: center;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+        background-color: #333;
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
 `
 
 const StyledBottom = styled.div`
