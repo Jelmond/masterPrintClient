@@ -78,7 +78,7 @@ const StyledToastContainer = styled.div`
     pointer-events: none;
 
     ${media.xsm`
-        top: ${rm(16)};
+        top: ${rm(42)};
         right: ${rm(16)};
         left: ${rm(16)};
         gap: ${rm(10)};

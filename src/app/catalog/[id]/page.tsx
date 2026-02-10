@@ -1,6 +1,7 @@
 import { CatalogView } from '@/views/CatalogView/CatalogView';
 import { notFound } from 'next/navigation';
 import { generateMetadata as generateMetadataUtil } from "@/utils/generateMetadata";
+import { fetchBatchesFromStrapi } from '@/utils/fetchBatches';
 import { Metadata } from "next";
 
 interface Product {
@@ -53,31 +54,27 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     const categoryUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getPopulatedCategory/${params.id}`;
     const tagsUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getTagsForCategory/${params.id}`;
 
-    const categoryRes = await fetch(categoryUrl, { 
-        cache: 'no-store',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    const tagsRes = await fetch(tagsUrl, { 
-        cache: 'no-store',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    if (!categoryRes.ok) {
-        throw new Error(`Failed to fetch category: ${categoryRes.statusText}`);
-    }
-
-    if (!tagsRes.ok) {
-        throw new Error(`Failed to fetch tags: ${tagsRes.statusText}`);
-    }
+    const [categoryRes, tagsRes, batchesOrder] = await Promise.all([
+        fetch(categoryUrl, {
+            cache: 'no-store',
+            headers: { 'Content-Type': 'application/json' },
+        }),
+        fetch(tagsUrl, {
+            cache: 'no-store',
+            headers: { 'Content-Type': 'application/json' },
+        }),
+        fetchBatchesFromStrapi(),
+    ]);
 
     const tagsData = await tagsRes.json();
     const categoryData = await categoryRes.json();
 
+    if (!categoryRes.ok) {
+        throw new Error(`Failed to fetch category: ${categoryRes.statusText}`);
+    }
+    if (!tagsRes.ok) {
+        throw new Error(`Failed to fetch tags: ${tagsRes.statusText}`);
+    }
     if (!categoryData) {
         notFound();
     }
@@ -85,8 +82,9 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     // 1. Products constant
     const products = categoryData.products || [];
 
-    // 2. Tags constant - collecting all unique tags from both products and tagsProductsData
+    // 2. data — группы по тегам (для табов/фильтров), uniqueProducts — все продукты категории без дублей (для группировки по батчу)
     const tagsProductsData = tagsData?.data || [];
+    const uniqueProducts = tagsData?.uniqueProducts || [];
     
     const allTags = [
         ...products.flatMap((product: Product) => product.tags || []),
@@ -109,7 +107,36 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
 
     const tags = Array.from(uniqueTagsMap.values());
 
+    // Логирование данных с бэкенда для отладки дубликатов
+    const productsFromCategory = (categoryData?.products || []).length;
+    const productIdsFromCategory = (categoryData?.products || []).map((p: any) => p?.id ?? p?.documentId).filter(Boolean);
+    const uniqueIdsFromCategory = new Set(productIdsFromCategory).size;
+    console.log('[Catalog] Category response:', {
+        categoryTitle: categoryData?.title,
+        productsCount: productsFromCategory,
+        uniqueProductIdsCount: uniqueIdsFromCategory,
+        hasDuplicatesInCategory: productsFromCategory !== uniqueIdsFromCategory,
+        productIds: productIdsFromCategory,
+    });
+    console.log('[Catalog] tagsProductsData (from getTagsForCategory):', {
+        groupsCount: tagsProductsData.length,
+        groups: tagsProductsData.map((g: any) => ({
+            title: g?.title,
+            productsCount: g?.products?.length ?? 0,
+            productIds: (g?.products ?? []).map((p: any) => p?.id ?? p?.documentId),
+            productSlugs: (g?.products ?? []).map((p: any) => p?.slug),
+        })),
+        totalProductsAcrossGroups: tagsProductsData.reduce((sum: number, g: any) => sum + (g?.products?.length ?? 0), 0),
+    });
+
     return (
-        <CatalogView data={categoryData} products={products} tags={tags} tagsProductsData={tagsProductsData} />
+        <CatalogView
+            data={categoryData}
+            products={products}
+            tags={tags}
+            tagsProductsData={tagsProductsData}
+            uniqueProducts={uniqueProducts}
+            batchesOrder={batchesOrder}
+        />
     );
 } 

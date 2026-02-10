@@ -100,7 +100,7 @@ export const TransitionBg = forwardRef(({}, outerRef) => {
             }}
         >
             <StyledLogo>
-                <Image src="/logo.svg" alt="logo" width={155} height={40} />
+                <Image src="/assets/logoSpring.svg" alt="logo" width={155} height={40} />
             </StyledLogo>
         </StyledLoader>
     )

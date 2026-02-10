@@ -1,6 +1,7 @@
 import { CatalogView } from '@/views/CatalogView/CatalogView';
 import { notFound } from 'next/navigation';
 import { generateMetadata } from "@/utils/generateMetadata";
+import { fetchBatchesFromStrapi } from '@/utils/fetchBatches';
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateMetadata({
@@ -27,19 +28,11 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     const tagsUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getTagsForCategory/${params.id}`;
     console.log('Fetching category from URL:', categoryUrl);
 
-    const categoryRes = await fetch(categoryUrl, { 
-        cache: 'no-store',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    const tagsRes = await fetch(tagsUrl, { 
-        cache: 'no-store',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+    const [categoryRes, tagsRes, batchesOrder] = await Promise.all([
+        fetch(categoryUrl, { cache: 'no-store', headers: { 'Content-Type': 'application/json' } }),
+        fetch(tagsUrl, { cache: 'no-store', headers: { 'Content-Type': 'application/json' } }),
+        fetchBatchesFromStrapi(),
+    ]);
 
     if (!categoryRes.ok) {
         throw new Error(`Failed to fetch category: ${categoryRes.statusText}`);
@@ -59,8 +52,9 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     // 1. Products constant
     const products = categoryData.products || [];
 
-    // 2. Tags constant - collecting all unique tags from both products and tagsProductsData
+    // 2. data — группы по тегам, uniqueProducts — продукты категории без дублей (для батчей)
     const tagsProductsData = tagsData?.data || [];
+    const uniqueProducts = tagsData?.uniqueProducts || [];
     
     const allTags = [
         ...products.flatMap((product: Product) => product.tags || []),
@@ -84,6 +78,13 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     const tags = Array.from(uniqueTagsMap.values());
 
     return (
-        <CatalogView data={categoryData} products={products} tags={tags} tagsProductsData={tagsProductsData} />
+        <CatalogView
+            data={categoryData}
+            products={products}
+            tags={tags}
+            tagsProductsData={tagsProductsData}
+            uniqueProducts={uniqueProducts}
+            batchesOrder={batchesOrder}
+        />
     );
 } 

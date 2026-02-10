@@ -130,7 +130,7 @@ export default function RootLayout({
               "name": "ООО Мастерпринт-Пак",
               "alternateName": "MPPSHOP",
               "url": "https://mppshop.by",
-              "logo": "https://mppshop.by/logo.svg",
+              "logo": "https://mppshop.by/assets/logoSpring.svg",
               "description": "Производитель и интернет-магазин качественной полиграфической продукции в Беларуси. Открытки, конверты, упаковка с 2014 года.",
               "foundingDate": "2014-02-18",
               "address": {

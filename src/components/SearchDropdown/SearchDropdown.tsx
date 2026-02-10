@@ -619,16 +619,23 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                             <StyledSectionTitle>
                                 Теги ({searchData.totalResults.tags})
                             </StyledSectionTitle>
-                            {searchData.tags.map((tag) => (
-                                <StyledTagItem key={tag.id}>
-                                    <StyledTagTitle>{tag.title}</StyledTagTitle>
-                                    <StyledBreadcrumb>
-                                        <StyledBreadcrumbItem>Открытки и бирки</StyledBreadcrumbItem>
-                                        {' > '}
-                                        <StyledBreadcrumbItem>Каталог</StyledBreadcrumbItem>
-                                    </StyledBreadcrumb>
-                                </StyledTagItem>
-                            ))}
+                            {searchData.tags.map((tag) => {
+                                const firstProduct = tag.products?.[0]
+                                const categoryId = firstProduct?.categories?.[0]?.id
+                                const href = categoryId ? `/catalog/${categoryId}` : '/catalog'
+                                return (
+                                    <Link key={tag.id} href={href} onClick={onClose}>
+                                        <StyledTagItem>
+                                            <StyledTagTitle>{tag.title}</StyledTagTitle>
+                                            <StyledBreadcrumb>
+                                                <StyledBreadcrumbItem>Открытки и бирки</StyledBreadcrumbItem>
+                                                {' > '}
+                                                <StyledBreadcrumbItem>Каталог</StyledBreadcrumbItem>
+                                            </StyledBreadcrumb>
+                                        </StyledTagItem>
+                                    </Link>
+                                )
+                            })}
                         </StyledSection>
                     )}
 

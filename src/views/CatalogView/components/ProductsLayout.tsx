@@ -100,6 +100,7 @@ const StyledContent = styled.div`
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(${rm(250)}, 1fr));
             gap: ${rm(54)};
+            align-items: stretch;
 
             ${media.lg`
                 grid-template-columns: repeat(auto-fill, minmax(${rm(220)}, 1fr));

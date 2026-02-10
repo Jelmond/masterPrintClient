@@ -74,16 +74,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
     // Debug: Log products with oldPrice
     if (product.oldPrice !== null && product.oldPrice !== undefined) {
-        console.log('Product with oldPrice:', {
-            id: product.id,
-            title: product.title,
-            oldPrice: product.oldPrice,
-            price: product.price,
-            oldPriceFinal: oldPrice,
-            currentPriceFinal: currentPrice,
-            hasDiscount,
-            discountPercent
-        });
     }
     
 
@@ -173,6 +163,7 @@ const StyledProductCard = styled.div`
     display: flex;
     flex-direction: column;
     width: ${rm(315)};
+    height: 100%;
     overflow: visible;
     position: relative;
 
@@ -223,6 +214,8 @@ const StyledImageContainer = styled.div`
 const StyledContent = styled.div`
         display: flex;
         flex-direction: column;
+        flex: 1;
+        min-height: 0;
         margin-top: ${rm(10)};
         z-index: 2;
 
@@ -278,7 +271,7 @@ const StyledContent = styled.div`
             align-items: center;
             width: 100%;
             justify-content: space-between;
-            margin-top: ${rm(10)};
+            margin-top: auto;
 
             .priceWrapper{
                 display: flex;
@@ -537,7 +530,7 @@ const StyledPolishesBadge = styled.div`
         padding: ${rm(5)} ${rm(8)};
         gap: ${rm(4)};
         border-radius: ${rm(6)};
-        max-width: ${rm(150)};
+        max-width: ${rm(140)};
     `}
 
     .polishName {
@@ -547,6 +540,10 @@ const StyledPolishesBadge = styled.div`
         line-height: 1;
         text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        max-width: 100%;
 
         ${media.xsm`
             font-size: ${rm(10)};
