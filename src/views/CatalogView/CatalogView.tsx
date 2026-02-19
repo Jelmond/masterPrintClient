@@ -5,6 +5,7 @@ import { ProductsLayout } from "./components/ProductsLayout";
 import { FiltersBar } from "./components/FiltersBar";
 import { FilterModal } from "./components/FilterModal";
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { media, rm } from "@/styles";
 import { useScroll } from "@/layouts/ScrollLayout/useScroll";
 import { colors } from "@/styles/colors";
@@ -31,19 +32,39 @@ const StyledCatalogView = styled.div`
 `
 
 export const  CatalogView = ({ data, products, tags, tagsProductsData, uniqueProducts = [], batchesOrder = [], showCategories = true }: CatalogViewProps) => {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    
+    // Parse filters from URL
+    const parseFiltersFromURL = useMemo(() => {
+        const sales = searchParams.get('sales') || ''
+        const selectedTags = searchParams.get('tags')?.split(',').filter(Boolean) || []
+        const searchQuery = searchParams.get('search') || ''
+        const sortBy = searchParams.get('sort') || ''
+        const cardSizes = searchParams.get('sizes')?.split(',').filter(Boolean) || []
+        const tagSizes = searchParams.get('materials')?.split(',').filter(Boolean) || []
+        const quantities = searchParams.get('quantities')?.split(',').filter(Boolean) || []
+        const hasDiscount = searchParams.get('discount') === 'true'
+        const selectedPolishes = searchParams.get('polishes')?.split(',').filter(Boolean) || []
+        const isBestseller = searchParams.get('bestseller') === 'true'
+        
+        return {
+            sales,
+            selectedTags,
+            searchQuery,
+            sortBy,
+            cardSizes,
+            tagSizes,
+            quantities,
+            hasDiscount,
+            selectedPolishes,
+            isBestseller
+        }
+    }, [searchParams])
+
     // Filter state
-    const [filters, setFilters] = useState({
-        sales: '', // 'new', 'sale', 'popular'
-        selectedTags: [] as string[],
-        searchQuery: '',
-        sortBy: '',
-        cardSizes: [] as string[],
-        tagSizes: [] as string[],
-        quantities: [] as string[],
-        hasDiscount: false,
-        selectedPolishes: [] as string[],
-        isBestseller: false
-    })
+    const [filters, setFilters] = useState(parseFiltersFromURL)
+    const isUpdatingFromURL = useRef(false)
 
     // Modal state
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
@@ -56,6 +77,72 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, uniquePro
     
     // Scroll to top button state
     const [showScrollTop, setShowScrollTop] = useState(false)
+
+    // Sync filters with URL when URL changes (browser back/forward)
+    useEffect(() => {
+        if (isUpdatingFromURL.current) {
+            isUpdatingFromURL.current = false
+            return
+        }
+        
+        const urlFilters = parseFiltersFromURL
+        const currentFiltersStr = JSON.stringify(filters)
+        const urlFiltersStr = JSON.stringify(urlFilters)
+        
+        if (currentFiltersStr !== urlFiltersStr) {
+            setFilters(urlFilters)
+        }
+    }, [
+        parseFiltersFromURL.sales,
+        parseFiltersFromURL.selectedTags.join(','),
+        parseFiltersFromURL.searchQuery,
+        parseFiltersFromURL.sortBy,
+        parseFiltersFromURL.cardSizes.join(','),
+        parseFiltersFromURL.tagSizes.join(','),
+        parseFiltersFromURL.quantities.join(','),
+        parseFiltersFromURL.hasDiscount,
+        parseFiltersFromURL.selectedPolishes.join(','),
+        parseFiltersFromURL.isBestseller
+    ])
+
+    // Update URL when filters change
+    useEffect(() => {
+        isUpdatingFromURL.current = true
+        
+        const params = new URLSearchParams()
+        
+        if (filters.sales) params.set('sales', filters.sales)
+        if (filters.selectedTags.length > 0) params.set('tags', filters.selectedTags.join(','))
+        if (filters.searchQuery) params.set('search', filters.searchQuery)
+        if (filters.sortBy) params.set('sort', filters.sortBy)
+        if (filters.cardSizes.length > 0) params.set('sizes', filters.cardSizes.join(','))
+        if (filters.tagSizes.length > 0) params.set('materials', filters.tagSizes.join(','))
+        if (filters.quantities.length > 0) params.set('quantities', filters.quantities.join(','))
+        if (filters.hasDiscount) params.set('discount', 'true')
+        if (filters.selectedPolishes.length > 0) params.set('polishes', filters.selectedPolishes.join(','))
+        if (filters.isBestseller) params.set('bestseller', 'true')
+        
+        const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname
+        const currentUrl = window.location.pathname + window.location.search
+        
+        if (newUrl !== currentUrl) {
+            router.replace(newUrl, { scroll: false })
+        } else {
+            isUpdatingFromURL.current = false
+        }
+    }, [
+        filters.sales,
+        filters.selectedTags.join(','),
+        filters.searchQuery,
+        filters.sortBy,
+        filters.cardSizes.join(','),
+        filters.tagSizes.join(','),
+        filters.quantities.join(','),
+        filters.hasDiscount,
+        filters.selectedPolishes.join(','),
+        filters.isBestseller,
+        router
+    ])
 
     // Список для фильтрации: uniqueProducts (без дублей), каждому продукту добавляем tag для фильтра по тегам
     const allProducts = useMemo(() => {
@@ -325,6 +412,7 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, uniquePro
             selectedPolishes: [],
             isBestseller: false
         })
+        // URL will be updated automatically via useEffect
     }
 
     const handleShowResults = () => {

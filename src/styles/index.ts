@@ -3,7 +3,7 @@
 import { createGlobalStyle } from "styled-components"
 import { printVars } from "./utils"
 import { _colors, colors } from "./colors"
-import { fontOnest } from "./fonts"
+import { fontOnest, fontPoppins } from "./fonts"
 
 import { initSmartCSSGrid } from "@/styles/grid/grid"
 
@@ -68,6 +68,7 @@ const GlobalStyles = createGlobalStyle`
         -webkit-overflow-scrolling: touch;
         position: relative;
         overscroll-behavior-y: none;
+        ${fontPoppins(400)} !important;
     }
     body::-webkit-scrollbar { width: 0; }
 
@@ -78,6 +79,11 @@ const GlobalStyles = createGlobalStyle`
     body {
         display: flex;
         flex-direction: column;
+        padding-bottom: 0;
+
+        ${media.xsm`
+            padding-bottom: ${rm(65)};
+        `}
     }
 
 

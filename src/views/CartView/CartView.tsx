@@ -5,17 +5,15 @@ import { rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
 import Image from "next/image"
+import Link from "next/link"
 import { CatalogueButton } from "@/components/UI/Buttons/CatalogueButton"
 import { CanBeInteresting } from "@/components/CanBeInteresting/CanBeInteresting"
 import { useCartStore } from "@/store/cartStore"
 import { useToastStore } from "@/store/toastStore"
 import { useEffect, useState } from "react"
+import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 
-interface CartViewProps {
-    similarProducts: any[]
-}
-
-export const CartView = ({ similarProducts }: CartViewProps) => {
+export const CartView = () => {
     const items = useCartStore(state => state.items)
     const updateQuantity = useCartStore(state => state.updateQuantity)
     const removeFromCart = useCartStore(state => state.removeFromCart)
@@ -24,6 +22,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
     // To avoid hydration issues
     const [mounted, setMounted] = useState(false)
     const [isAfterWorkingHours, setIsAfterWorkingHours] = useState(false)
+    const [similarProducts, setSimilarProducts] = useState<any>({ data: [] })
     
     useEffect(() => { 
         setMounted(true)
@@ -36,6 +35,40 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
             setIsAfterWorkingHours(true)
         }
     }, [])
+
+    // Fetch similar products based on first item in cart
+    useEffect(() => {
+        if (!mounted || items.length === 0) {
+            setSimilarProducts({ data: [] })
+            return
+        }
+
+        const firstItemSlug = items[0]?.productSlug
+        if (!firstItemSlug) {
+            setSimilarProducts({ data: [] })
+            return
+        }
+
+        const fetchSimilarProducts = async () => {
+            try {
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getSimilarProducts/${firstItemSlug}`,
+                    { cache: 'no-store' }
+                )
+                if (res.ok) {
+                    const data = await res.json()
+                    setSimilarProducts(data || { data: [] })
+                } else {
+                    setSimilarProducts({ data: [] })
+                }
+            } catch (error) {
+                console.error('Error fetching similar products:', error)
+                setSimilarProducts({ data: [] })
+            }
+        }
+
+        fetchSimilarProducts()
+    }, [mounted, items])
 
     if (!mounted) return null
 
@@ -67,15 +100,19 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                         <StyledProducts>
                             {items.map(item => (
                                 <StyledProduct key={item.productSlug}>
-                                    <StyledImageBox>
-                                        {item.image ? (
-                                            <Image src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${item.image}`} alt={item.title} fill style={{objectFit:'cover'}} />
-                                        ) : (
-                                            <StyledImagePlaceholder />
-                                        )}
-                                    </StyledImageBox>
+                                    <AnimLink href={`/products/${item.productSlug}`} style={{ textDecoration: 'none' }}>
+                                        <StyledImageBox>
+                                            {item.image ? (
+                                                <Image src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${item.image}`} alt={item.title} fill style={{objectFit:'cover'}} />
+                                            ) : (
+                                                <StyledImagePlaceholder />
+                                            )}
+                                        </StyledImageBox>
+                                    </AnimLink>
                                     <StyledInfo>
-                                        <StyledProductTitle>{item.title}</StyledProductTitle>
+                                        <AnimLink href={`/products/${item.productSlug}`} style={{ textDecoration: 'none' }}>
+                                            <StyledProductTitle>{item.title}</StyledProductTitle>
+                                        </AnimLink>
                                         <StyledCategory>Открытки и конверты &lt; День Рождения</StyledCategory>
                                         <StyledPriceContainer>
                                             {item.oldPrice && item.oldPrice > item.price ? (
@@ -123,7 +160,7 @@ export const CartView = ({ similarProducts }: CartViewProps) => {
                 </div>
             </StyledCart>
             {items.length > 0 ? <StyledBottom>
-                <CatalogueButton link="/catalog" color="grey" isArrowLeft>
+                <CatalogueButton link="/catalog" color="grey" isArrowLeft={false}>
                     <span>Продолжить покупки</span>
                 </CatalogueButton>
                 <div className="right">
@@ -324,6 +361,12 @@ const StyledImageBox = styled.div`
     position: relative;
     flex-shrink: 0;
     overflow: hidden;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 0.8;
+    }
 
     ${media.xsm`
         width: ${rm(60)};

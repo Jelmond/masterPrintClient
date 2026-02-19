@@ -25,8 +25,8 @@ const StyledLoader = styled(animated.div)`
 `
 
 const StyledLogo = styled.div`
-    width: ${rm(300)};
-    height: ${rm(80)};
+    width: ${rm(600)};
+    height: ${rm(160)};
     cursor: pointer;
     flex-shrink: 0;
 

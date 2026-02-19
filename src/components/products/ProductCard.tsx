@@ -11,8 +11,12 @@ interface ProductCardProps {
 export const ProductCard = ({ product }: ProductCardProps) => {
 
     const addToCart = useCartStore(state => state.addToCart);
+    const items = useCartStore(state => state.items);
 
     const isOutOfStock = product.stock !== undefined && product.stock <= 0;
+    const cartItem = items.find(item => item.productSlug === product.slug);
+    const isInCart = !!cartItem;
+    const cartQuantity = cartItem?.quantity || 0;
 
     // Check if product has discount
     // oldPrice can be either higher (normal case) or lower (if values are swapped)
@@ -86,6 +90,15 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                     <div className="discountPercent">-{discountPercent}%</div>
                 </StyledDiscountBadge>
             )}
+            {isInCart && (
+                <StyledInCartBadge>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>В корзине</span>
+                    {cartQuantity > 1 && <span className="quantity">{cartQuantity}</span>}
+                </StyledInCartBadge>
+            )}
             <StyledImageContainer>
                 {hasPolishes && (
                     <StyledPolishesBadge>
@@ -136,7 +149,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         )}
                     </div>
                     <div 
-                        className={`button ${isOutOfStock ? 'disabled' : ''}`}
+                        className={`button ${isOutOfStock ? 'disabled' : ''} ${isInCart ? 'inCart' : ''}`}
                         onClick={(e) => {
                             e.preventDefault();
                             if (!isOutOfStock) {
@@ -148,10 +161,16 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                             cursor: isOutOfStock ? 'not-allowed' : 'pointer' 
                         }}
                     >
-                        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <line x1="19.1667" y1="6" x2="19.1667" y2="32.3077" stroke="black"/>
-                        <line x1="32.3077" y1="19.166" x2="6" y2="19.166" stroke="black"/>
-                        </svg>
+                        {isInCart ? (
+                            <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 19L17 24L26 15" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        ) : (
+                            <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="19.1667" y1="6" x2="19.1667" y2="32.3077" stroke="black"/>
+                                <line x1="32.3077" y1="19.166" x2="6" y2="19.166" stroke="black"/>
+                            </svg>
+                        )}
                     </div>
                 </div>
             </StyledContent>
@@ -340,7 +359,7 @@ const StyledContent = styled.div`
                 height: ${rm(38)};
                 cursor: pointer;
                 
-                transition: opacity .3s ease-in-out;
+                transition: all .3s ease-in-out;
 
                 ${media.xsm`
                     width: ${rm(32)};
@@ -354,6 +373,23 @@ const StyledContent = styled.div`
                 &.disabled{
                     opacity: 0.5;
                     cursor: not-allowed;
+                }
+
+                &.inCart{
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                    border-radius: ${rm(8)};
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    
+                    svg {
+                        stroke: white;
+                    }
+
+                    &:hover:not(.disabled){
+                        opacity: 0.9;
+                        transform: scale(1.05);
+                    }
                 }
             }
         }
@@ -582,5 +618,82 @@ const StyledBestsellerBadge = styled.div`
         ${media.xsm`
             font-size: ${rm(11)};
         `}
+    }
+`
+
+const StyledInCartBadge = styled.div`
+    position: absolute;
+    top: ${rm(10)};
+    left: ${rm(10)};
+    z-index: 10;
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+    border-radius: ${rm(8)};
+    padding: ${rm(6)} ${rm(10)};
+    display: flex;
+    align-items: center;
+    gap: ${rm(6)};
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(16, 185, 129, 0.4), 
+                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    animation: slideIn 0.3s ease-out;
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    ${media.xsm`
+        top: ${rm(8)};
+        left: ${rm(8)};
+        padding: ${rm(5)} ${rm(8)};
+        gap: ${rm(4)};
+        border-radius: ${rm(6)};
+    `}
+
+    svg {
+        width: ${rm(16)};
+        height: ${rm(16)};
+        flex-shrink: 0;
+        stroke: ${colors.white100};
+        stroke-width: 2.5;
+
+        ${media.xsm`
+            width: ${rm(14)};
+            height: ${rm(14)};
+        `}
+    }
+
+    span {
+        font-size: ${rm(12)};
+        ${fontGeist(600)};
+        color: ${colors.white100};
+        line-height: 1;
+        text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+
+        ${media.xsm`
+            font-size: ${rm(11)};
+        `}
+
+        &.quantity {
+            background: rgba(255, 255, 255, 0.25);
+            padding: ${rm(2)} ${rm(6)};
+            border-radius: ${rm(4)};
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 700;
+            margin-left: ${rm(2)};
+
+            ${media.xsm`
+                padding: ${rm(1)} ${rm(5)};
+                font-size: ${rm(10)};
+            `}
+        }
     }
 `
