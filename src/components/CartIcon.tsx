@@ -41,8 +41,7 @@ const StyledCartIcon = styled(AnimLink)`
     flex-shrink: 0;
 
     ${media.xsm`
-        width: ${rm(28)};
-        height: ${rm(28)};
+        display: none !important;
     `}
 
     svg {

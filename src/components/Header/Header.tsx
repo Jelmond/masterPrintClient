@@ -128,32 +128,6 @@ export const Header = () => {
                 </StyledWorkingHours>
             </StyledRightContainer>
             </StyledTopRow>
-            <StyledMobileSearchRow>
-                <StyledSearchInput 
-                    placeholder="Поиск товара" 
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onFocus={handleSearchFocus}
-                    $mobile
-                />
-                <StyledSearchIcon $mobile>
-                    <svg width="29" height="31" viewBox="0 0 29 31" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clipPath="url(#clip0_809_1530_m)">
-                        <path d="M18.9576 18.1083H18.0346L17.7074 17.7726C18.8524 16.3553 19.5418 14.5153 19.5418 12.5137C19.5418 8.05046 16.1418 4.43262 11.9473 4.43262C7.75278 4.43262 4.35278 8.05046 4.35278 12.5137C4.35278 16.9769 7.75278 20.5948 11.9473 20.5948C13.8284 20.5948 15.5576 19.8613 16.8896 18.6429L17.205 18.991V19.9732L23.0469 26.1769L24.7878 24.3245L18.9576 18.1083ZM11.9473 18.1083C9.03801 18.1083 6.68955 15.6094 6.68955 12.5137C6.68955 9.41802 9.03801 6.9191 11.9473 6.9191C14.8566 6.9191 17.205 9.41802 17.205 12.5137C17.205 15.6094 14.8566 18.1083 11.9473 18.1083Z" fill="#CBCBCB"/>
-                        </g>
-                        <defs>
-                        <clipPath id="clip0_809_1530_m">
-                        <rect width="28.0412" height="29.8378" fill="white" transform="translate(0.847656 0.703125)"/>
-                        </clipPath>
-                        </defs>
-                    </svg>
-                </StyledSearchIcon>
-                <SearchDropdown 
-                    isOpen={isSearchOpen}
-                    onClose={() => setIsSearchOpen(false)}
-                    searchQuery={searchQuery}
-                />
-            </StyledMobileSearchRow>
             </StyledSearchWrapper>
         </StyledHeader>
     )
@@ -240,8 +214,8 @@ const StyledRightContainer = styled.div`
 `
 
 const StyledLogo = styled(AnimLink)`
-    width: ${rm(155)};
-    height: ${rm(40)};
+    width: ${rm(205)};
+    height: ${rm(60)};
     cursor: pointer;
     flex-shrink: 0;
 
@@ -285,16 +259,6 @@ const StyledNavigationContainer = styled.div`
     }
 `
 
-const StyledMobileSearchRow = styled.div`
-    display: none;
-    position: relative;
-    width: 100%;
-    z-index: 1001;
-
-    ${media.xsm`
-        display: block;
-    `}
-`
 
 const StyledSearchContainer = styled.div`
     position: relative;
@@ -306,7 +270,7 @@ const StyledSearchContainer = styled.div`
     `}
 
     ${media.xsm`
-        display: none;
+        display: none !important;
     `}
 `
 

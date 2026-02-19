@@ -449,7 +449,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
     const dropdownRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        if (!searchQuery.trim() || searchQuery.length < 2) {
+        if (!searchQuery.trim()) {
             setSearchData(null)
             return
         }
@@ -525,7 +525,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                     Товары в категории &quot;{category.title}&quot; ({category.products.length})
                                 </StyledSectionTitle>
                                 {category.products.map((product) => (
-                                    <Link key={product.id} href={`/products/${product.slug || product.id}`}>
+                                    <Link key={product.id} href={`/products/${product.slug || product.id}`} onClick={onClose}>
                                         <StyledProductItem>
                                             <StyledProductImage>
                                                 <img
@@ -573,7 +573,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                 Товары ({searchData.totalResults.products})
                             </StyledSectionTitle>
                             {searchData.products.map((product) => (
-                                <Link key={product.id} href={`/products/${product.slug || product.id}`}>
+                                <Link key={product.id} href={`/products/${product.slug || product.id}`} onClick={onClose}>
                                     <StyledProductItem>
                                         <StyledProductImage>
                                             <img

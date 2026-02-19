@@ -20,6 +20,7 @@ import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
 import { Toast } from "@/components/Toast/Toast";
 import { Snowfall } from "@/components/Snowfall/Snowfall";
+import { MobileBottomNav } from "@/components/MobileBottomNav/MobileBottomNav";
 
 const onest = Onest({
   variable: "--font-onest",
@@ -208,6 +209,7 @@ export default function RootLayout({
                     <Header/>
                     {children}
                     <Footer/>
+                    <MobileBottomNav />
                 </AnimatedRouterLayout>
               </Suspense>
             </AssetsLoaderLayout>
