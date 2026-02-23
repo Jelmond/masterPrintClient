@@ -200,9 +200,9 @@ export default function RootLayout({
             <SmartCSSGrid />
             <Lvh />
             <GlobalStyles />
-            <Snowfall />
+            {/* <Snowfall /> */}
             <AssetsLoaderLayout>
-              <Cookie />
+              {/* <Cookie /> */}
               <Toast />
               <Suspense fallback={<div>Loading...</div>}>
                 <AnimatedRouterLayout>

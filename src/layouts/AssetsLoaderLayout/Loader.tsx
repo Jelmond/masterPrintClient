@@ -9,6 +9,7 @@ import { useLoadingStore } from "@/store/loadingStore"
 import { animated, config, useSpring } from "@react-spring/web"
 import { lerp } from "three/src/math/MathUtils.js"
 import { useLoop } from "@/hooks/useLoop"
+import Image from "next/image"
 
 interface LoaderProps {
     setFullyLoaded: (value: boolean) => void
@@ -126,40 +127,47 @@ export const Loader = ({ setFullyLoaded, progress }: LoaderProps) => {
         config: config.gentle
     })
 
-    // Progress animation loop
-    useLoop(() => {
-        if (isLoadedRef.current) return
-        if (!progressTextRef.current || !leftBarRef.current || !rightBarRef.current) return
+    // // Progress animation loop
+    // useLoop(() => {
+    //     if (isLoadedRef.current) return
+    //     if (!progressTextRef.current || !leftBarRef.current || !rightBarRef.current) return
         
-        interpolatedProgress.current = lerp(interpolatedProgress.current, currentProgress.current, 0.1)
-        const progressValue = interpolatedProgress.current
+    //     interpolatedProgress.current = lerp(interpolatedProgress.current, currentProgress.current, 0.1)
+    //     const progressValue = interpolatedProgress.current
 
-        leftBarRef.current.style.transform = `translate(${-100 + progressValue}%, 0%)`
-        rightBarRef.current.style.transform = `translate(${100 - progressValue}%, 0%)`
-        if (progressTextRef.current) {
-            progressTextRef.current.innerHTML = `${Math.round(progressValue)}%`
-        }
+    //     leftBarRef.current.style.transform = `translate(${-100 + progressValue}%, 0%)`
+    //     rightBarRef.current.style.transform = `translate(${100 - progressValue}%, 0%)`
+    //     if (progressTextRef.current) {
+    //         progressTextRef.current.innerHTML = `${Math.round(progressValue)}%`
+    //     }
 
-        if (progressValue >= 99.99 && !isLoadedRef.current) {
-            setIsLoaded(true)
-            setTimeout(() => {
-                setFullyLoaded(true)
-                setIsLoading(false)
-            }, 500)
-        }
-    }, { framerate: 30 })
+    //     if (progressValue >= 99.99 && !isLoadedRef.current) {
+    //         setIsLoaded(true)
+    //         setTimeout(() => {
+    //             setFullyLoaded(true)
+    //             setIsLoading(false)
+    //         }, 500)
+    //     }
+    // }, { framerate: 30 })
+
+    useEffect(() => {
+        setFullyLoaded(true)
+        setIsLoading(false)
+    }, [])
 
     return (
         <StyledLoader style={containerValues}>
-            <animated.div style={textValues}>
+            {/* <animated.div style={textValues}>
                 <StyledProgressText ref={progressTextRef}>0%</StyledProgressText>
             </animated.div>
             <StyledProgressBar style={barValues} ref={barRef}>
                 <div ref={leftBarRef} className="left"></div>
                 <div ref={rightBarRef} className="right"></div>
-            </StyledProgressBar>
+            </StyledProgressBar> */}
             <animated.div style={textValues}>
-                <StyledProgressText>Рисуем дизайны</StyledProgressText>
+                {/* <StyledProgressText>Рисуем дизайны</StyledProgressText> */}
+                {/* <StyledProgressText>MPPShop</StyledProgressText> */}
+                <Image src="/assets/logoSpring.svg" alt="MPPShop" width={600} height={160} />
             </animated.div>
         </StyledLoader>
     )
