@@ -44,7 +44,7 @@ const StyledModalOverlay = styled.div<{ isOpen: boolean }>`
     animation: ${props => props.isOpen ? 'fadeIn' : 'fadeOut'} 0.3s ease-in-out;
 
     ${media.xsm`
-        padding: ${rm(15)};
+        padding: ${rm(15)} ${rm(15)} ${rm(40)} ${rm(15)};
         align-items: flex-end;
         justify-content: center;
     `}
@@ -111,7 +111,7 @@ const StyledFilterCard = styled.div<{ isOpen: boolean }>`
         max-width: 100%;
         max-height: 85vh;
         border-radius: ${rm(20)} ${rm(20)} 0 0;
-        padding: ${rm(24)} ${rm(20)};
+        padding: ${rm(24)} ${rm(20)} ${rm(36)} ${rm(20)};
     `}
 
     @keyframes slideIn {
@@ -227,6 +227,75 @@ const StyledModalHeader = styled.div`
         color: #718096;
         margin: 0;
     }
+`
+
+const StyledMobileFiltersTop = styled.div`
+    display: none;
+
+    ${media.xsm`
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: ${rm(12)};
+        margin-bottom: ${rm(20)};
+        padding-bottom: ${rm(14)};
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    `}
+`
+
+const StyledMobileFiltersCount = styled.div`
+    font-size: ${rm(15)};
+    ${fontGeist(600)};
+    color: ${colors.black100};
+    display: flex;
+    align-items: center;
+    gap: ${rm(6)};
+
+    .count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: ${rm(24)};
+        height: ${rm(24)};
+        padding: 0 ${rm(8)};
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: ${rm(12)};
+        font-size: ${rm(13)};
+    }
+`
+
+const StyledMobileClearButton = styled.button`
+    display: none;
+
+    ${media.xsm`
+        display: inline-flex;
+        align-items: center;
+        gap: ${rm(6)};
+        padding: ${rm(8)} ${rm(14)};
+        font-size: ${rm(13)};
+        ${fontGeist(500)};
+        color: #ee5a6f;
+        background: rgba(255, 107, 107, 0.12);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: ${rm(8)};
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: rgba(255, 107, 107, 0.2);
+            color: #dc3545;
+        }
+
+        &:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+    `}
 `
 
 const StyledSection = styled.div`
@@ -689,6 +758,18 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                     <h2>Фильтры и сортировка</h2>
                     <p>Настройте параметры поиска товаров</p>
                 </StyledModalHeader>
+
+                <StyledMobileFiltersTop>
+                    <StyledMobileFiltersCount>
+                        Выбрано: <span className="count">{activeFiltersCount}</span>
+                    </StyledMobileFiltersCount>
+                    <StyledMobileClearButton
+                        onClick={handleClearAllFilters}
+                        disabled={activeFiltersCount === 0}
+                    >
+                        Очистить фильтры
+                    </StyledMobileClearButton>
+                </StyledMobileFiltersTop>
                 
                 {showCategories && (
                     <>

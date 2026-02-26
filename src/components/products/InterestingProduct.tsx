@@ -514,7 +514,7 @@ const StyledPolishesBadge = styled.div`
         padding: ${rm(5)} ${rm(8)};
         gap: ${rm(4)};
         border-radius: ${rm(6)};
-        max-width: ${rm(150)};
+        max-width: ${rm(140)};
     `}
 
     .polishName {
@@ -524,6 +524,10 @@ const StyledPolishesBadge = styled.div`
         line-height: 1;
         text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        max-width: 100%;
 
         ${media.xsm`
             font-size: ${rm(10)};
@@ -538,7 +542,7 @@ const StyledBestsellerBadge = styled.div`
     z-index: 10;
     background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
     border-radius: ${rm(8)};
-    padding: ${rm(6)} ${rm(12)};
+    padding: ${rm(3)} ${rm(12)} ${rm(6)} ${rm(12)};
     box-shadow: 0 ${rm(4)} ${rm(12)} rgba(217, 119, 6, 0.35), 
                 0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -547,7 +551,7 @@ const StyledBestsellerBadge = styled.div`
     ${media.xsm`
         bottom: ${rm(8)};
         right: ${rm(8)};
-        padding: ${rm(5)} ${rm(10)};
+        padding: ${rm(2)} ${rm(10)} ${rm(5)} ${rm(10)};
         border-radius: ${rm(6)};
     `}
 

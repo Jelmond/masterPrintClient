@@ -342,10 +342,11 @@ const StyledProduct = styled.div`
     `}
 
     ${media.xsm`
-        padding: ${rm(12)};
-        gap: ${rm(12)};
+        padding: ${rm(12)} ${rm(12)} ${rm(12)} ${rm(44)};
+        gap: ${rm(10)};
         flex-wrap: wrap;
         align-items: flex-start;
+        position: relative;
     `}
     
     &:last-child {
@@ -402,9 +403,11 @@ const StyledInfo = styled.div`
     overflow: hidden;
 
     ${media.xsm`
-        width: 100%;
-        order: 3;
-        max-height: ${rm(80)};
+        flex: 1 1 auto;
+        min-width: 0;
+        order: 2;
+        max-height: none;
+        padding-right: 0;
     `}
 `
 
@@ -426,8 +429,9 @@ const StyledProductTitle = styled.div`
 
     ${media.xsm`
         font-size: ${rm(14)};
-        max-height: ${rm(50)};
-        -webkit-line-clamp: 2;
+        max-height: none;
+        -webkit-line-clamp: 3;
+        line-height: 1.35;
     `}
     
     &:hover {
@@ -446,7 +450,13 @@ const StyledCategory = styled.div`
 
     ${media.xsm`
         font-size: ${rm(12)};
-        max-height: ${rm(18)};
+        max-height: none;
+        white-space: normal;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     `}
 `
 
@@ -489,8 +499,12 @@ const StyledQuantityBox = styled.div`
     ${media.xsm`
         min-width: ${rm(80)};
         gap: ${rm(8)};
-        order: 2;
-        margin-left: auto;
+        order: 3;
+        flex-basis: 100%;
+        justify-content: flex-start;
+        padding-top: ${rm(8)};
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        margin-top: ${rm(4)};
     `}
 `
 
@@ -579,11 +593,13 @@ const StyledRemoveButton = styled.button`
     flex-shrink: 0;
 
     ${media.xsm`
+        position: absolute;
+        top: ${rm(12)};
+        right: ${rm(12)};
         width: ${rm(32)};
         height: ${rm(32)};
         padding: ${rm(6)};
-        order: 4;
-        align-self: flex-start;
+        order: 0;
     `}
 
     svg {
@@ -638,6 +654,7 @@ const StyledBottom = styled.div`
 
         ${media.xsm`
             gap: ${rm(16)};
+            align-items: flex-start;
         `}
 
         .total{

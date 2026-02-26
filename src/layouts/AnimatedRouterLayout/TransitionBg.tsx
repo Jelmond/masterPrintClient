@@ -36,8 +36,8 @@ const StyledLogo = styled.div`
     `}
 
     ${media.xsm`
-        width: ${rm(200)};
-        height: ${rm(40)};
+        width: ${rm(340)};
+        height: ${rm(70)};
     `}
 
     img{

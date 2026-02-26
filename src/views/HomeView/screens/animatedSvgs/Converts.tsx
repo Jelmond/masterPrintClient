@@ -37,7 +37,7 @@ export const ConvertsSvg = () => {
             xmlns="http://www.w3.org/2000/svg"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', marginTop: '60px' }}
         >
             {/* first one start */}
             <animated.g

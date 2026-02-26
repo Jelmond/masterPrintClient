@@ -594,7 +594,7 @@ const StyledBestsellerBadge = styled.div`
     z-index: 10;
     background: linear-gradient(135deg, #f39c12 0%, #e67e22 50%, #d35400 100%);
     border-radius: ${rm(8)};
-    padding: ${rm(6)} ${rm(12)};
+    padding: ${rm(3)} ${rm(12)} ${rm(6)} ${rm(12)};
     box-shadow: 0 ${rm(4)} ${rm(12)} rgba(243, 156, 18, 0.4), 
                 0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
     border: 1.5px solid rgba(255, 255, 255, 0.3);
@@ -603,7 +603,7 @@ const StyledBestsellerBadge = styled.div`
     ${media.xsm`
         bottom: ${rm(8)};
         right: ${rm(8)};
-        padding: ${rm(5)} ${rm(10)};
+        padding: ${rm(2)} ${rm(10)} ${rm(5)} ${rm(10)};
         border-radius: ${rm(6)};
     `}
 

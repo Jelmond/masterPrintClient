@@ -7,6 +7,7 @@ import { colors, media, rm } from '@/styles'
 import { fontGeist } from '@/styles/fonts'
 import Link from 'next/link'
 import Image from 'next/image'
+import { AnimLink } from '@/layouts/AnimatedRouterLayout/AnimatedRouterLayout'
 
 interface SearchResult {
     id: number
@@ -20,6 +21,7 @@ interface SearchResult {
         formats?: {
             thumbnail?: { url: string }
             small?: { url: string }
+            medium?: { url: string }
         }
     }>
     categories: Array<{
@@ -68,6 +70,10 @@ export default function SearchPage() {
             performSearch(query)
         }
     }, [query])
+
+    useEffect(() => {
+        console.log(searchData)
+    }, [searchData])
 
     const performSearch = async (searchTerm: string) => {
         if (!searchTerm.trim()) {
@@ -148,13 +154,13 @@ export default function SearchPage() {
                                     </StyledSectionTitle>
                                     <StyledProductsGrid>
                                         {category.products.map((product) => (
-                                            <Link key={product.id} href={`/products/${product.slug || product.id}`}>
+                                            <AnimLink key={product.id} href={`/products/${product.slug || product.id}`}>
                                                 <StyledProductCard>
                                                     <StyledProductImage>
                                                         <Image
                                                             src={
-                                                                product.images[0]?.formats?.thumbnail?.url
-                                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].formats.thumbnail.url}`
+                                                                product.images[0]?.formats?.medium?.url
+                                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].formats.medium.url}`
                                                                     : product.images[0]?.url
                                                                     ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`
                                                                     : '/placeholder.jpg'
@@ -178,7 +184,7 @@ export default function SearchPage() {
                                                         </StyledProductPrice>
                                                     </StyledProductInfo>
                                                 </StyledProductCard>
-                                            </Link>
+                                            </AnimLink>
                                         ))}
                                     </StyledProductsGrid>
                                 </StyledSection>
@@ -193,13 +199,13 @@ export default function SearchPage() {
                                 </StyledSectionTitle>
                                 <StyledProductsGrid>
                                     {searchData.products.map((product) => (
-                                        <Link key={product.id} href={`/products/${product.slug || product.id}`}>
+                                        <AnimLink key={product.id} href={`/products/${product.slug || product.id}`}>
                                             <StyledProductCard>
                                                 <StyledProductImage>
                                                     <Image
                                                         src={
-                                                            product.images[0]?.formats?.thumbnail?.url
-                                                                ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].formats.thumbnail.url}`
+                                                            product.images[0]?.formats?.medium?.url
+                                                                ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].formats.medium.url}`
                                                                 : product.images[0]?.url
                                                                 ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`
                                                                 : '/placeholder.jpg'
@@ -223,7 +229,7 @@ export default function SearchPage() {
                                                     </StyledProductPrice>
                                                 </StyledProductInfo>
                                             </StyledProductCard>
-                                        </Link>
+                                        </AnimLink>
                                     ))}
                                 </StyledProductsGrid>
                             </StyledSection>
@@ -241,11 +247,11 @@ export default function SearchPage() {
                                         const categoryId = firstProduct?.categories?.[0]?.id
                                         const href = categoryId ? `/catalog/${categoryId}` : '/catalog'
                                         return (
-                                            <Link key={tag.id} href={href}>
+                                            <AnimLink key={tag.id} href={href}>
                                                 <StyledTagItem>
                                                     <StyledTagTitle>{tag.title}</StyledTagTitle>
                                                 </StyledTagItem>
-                                            </Link>
+                                            </AnimLink>
                                         )
                                     })}
                                 </StyledTagsList>
