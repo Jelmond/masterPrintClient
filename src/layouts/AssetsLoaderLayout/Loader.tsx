@@ -32,6 +32,29 @@ const StyledLoader = styled(animated.div)`
     gap: ${rm(25)};
 `
 
+const StyledLogo = styled.div`
+    width: ${rm(600)};
+    height: ${rm(160)};
+    cursor: pointer;
+    flex-shrink: 0;
+
+    ${media.md`
+        width: ${rm(250)};
+        height: ${rm(60)};
+    `}
+
+    ${media.xsm`
+        width: ${rm(340)};
+        height: ${rm(70)};
+    `}
+
+    img{
+        width: 100%;
+        height: 100%;
+    }
+`
+
+
 const StyledProgressText = styled(animated.p)`
     font-size: ${rm(30)};
     ${fontGeist(400)};
@@ -167,7 +190,9 @@ export const Loader = ({ setFullyLoaded, progress }: LoaderProps) => {
             <animated.div style={textValues}>
                 {/* <StyledProgressText>Рисуем дизайны</StyledProgressText> */}
                 {/* <StyledProgressText>MPPShop</StyledProgressText> */}
-                <Image src="/assets/logoSpring.svg" alt="MPPShop" width={600} height={160} />
+                <StyledLogo>
+                    <Image src="/assets/logoSpring.svg" alt="MPPShop" width={600} height={160} />
+                </StyledLogo>
             </animated.div>
         </StyledLoader>
     )

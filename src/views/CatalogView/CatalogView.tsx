@@ -514,6 +514,18 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, uniquePro
                 title={data.title} 
                 tagsProductsData={groupedFilteredProducts}
                 hasActiveFilters={!!(filters.sales || filters.selectedTags.length > 0 || filters.searchQuery)}
+                activeFiltersCount={[
+                    filters.sortBy ? 1 : 0,
+                    filters.cardSizes.length,
+                    filters.tagSizes.length,
+                    filters.quantities.length,
+                    filters.hasDiscount ? 1 : 0,
+                    filters.selectedPolishes.length,
+                    filters.isBestseller ? 1 : 0,
+                    filters.sales ? 1 : 0,
+                    filters.selectedTags?.length || 0
+                ].reduce((sum, c) => sum + c, 0)}
+                onClearFilters={clearFilters}
                 onOpenFilterModal={handleOpenFilterModal}
             />
             <FilterModal
