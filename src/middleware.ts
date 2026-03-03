@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // Включить режим техработ: в .env.local задать MAINTENANCE_MODE=true
-const MAINTENANCE_MODE = true//process.env.MAINTENANCE_MODE === 'true'
+const MAINTENANCE_MODE = false//process.env.MAINTENANCE_MODE === 'true'
 
 const MAINTENANCE_HTML = `
 <!DOCTYPE html>

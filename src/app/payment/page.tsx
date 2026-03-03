@@ -14,127 +14,152 @@ export default function PaymentPage() {
                     <StyledSection>
                         <StyledSectionTitle>Для физических лиц:</StyledSectionTitle>
                         <StyledList>
-                            <StyledListItem>
-                                наличный расчет при получении товара на пункте выдаче;
-                            </StyledListItem>
-                            <StyledListItem>
-                                банковской картой при получении через терминал (все виды карт и способов прикладывания карты);
-                            </StyledListItem>
-                            <StyledListItem>
-                                банковской картой онлайн (предоплата);
-                            </StyledListItem>
-                            <StyledListItem>
-                                через платежную систему ЕРИП (предоплата).
-                            </StyledListItem>
+                            <StyledListItem>наличный расчёт;</StyledListItem>
+                            <StyledListItem>банковской картой при получении через терминал (все виды карт и способов прикладывания карты);</StyledListItem>
+                            <StyledListItem>банковской картой онлайн (предоплата);</StyledListItem>
+                            <StyledListItem>через платёжную систему ЕРИП (предоплата).</StyledListItem>
                         </StyledList>
                     </StyledSection>
 
                     <StyledSection>
-                        <StyledSectionTitle>Для юридических лиц, индивидуальных предпринимателей и лиц, осуществляющих самостоятельную профессиональную деятельность:</StyledSectionTitle>
-                        <StyledList>
-                            <StyledListItem>
-                                оплата по расчетному счёту (предоплата);
-                            </StyledListItem>
-                            <StyledListItem>
-                                через платежную систему ЕРИП (предоплата).
-                            </StyledListItem>
-                        </StyledList>
-                    </StyledSection>
-
-                    <StyledWarningBox>
-                        <StyledWarningIcon>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                        </StyledWarningIcon>
-                        <StyledWarningText>
-                            <strong>Внимание!</strong> Перед оплатой через ЕРИП <strong>ОБЯЗАТЕЛЬНО</strong> уточните наличие товара на складе по телефону!
-                        </StyledWarningText>
-                    </StyledWarningBox>
-
-                    <StyledSection>
-                        <StyledSectionTitle>Покупка за наличный расчет или банковской картой через терминал на пункте выдачи</StyledSectionTitle>
+                        <StyledSectionTitle>Покупка за наличный расчёт или банковской картой через терминал</StyledSectionTitle>
                         <StyledText>
-                            При оплате за наличный расчет или банковской картой через терминал на пункте выдачи мы связываемся с вами по средствам э/почты или телефона, чтобы подтвердить заказ и уточнить срок получения товара. После этого вы можете самостоятельно забрать заказ, произведя оплату при получении товара на пункте выдаче.
+                            При оплате за наличный расчёт или банковской картой через терминал мы связываемся с вами по э/почте или телефону, чтобы подтвердить заказ и уточнить срок доставки/получения товара. После этого производится оплата при получении товара.
                         </StyledText>
+                        <StyledNoteBox>
+                            <StyledNoteTitle>Для информации Покупателей:</StyledNoteTitle>
+                            <StyledText>
+                                Оплата при расчёте наличными средствами или банковской картой при получении товара производится в момент получения товара. Получить товар в пункте выдачи необходимо в течение 2 (двух) банковских дней с даты готовности заказа к получению, указанной в письме, подтверждающем принятие заказа к исполнению. В противном случае заказ аннулируется.
+                            </StyledText>
+                        </StyledNoteBox>
                     </StyledSection>
 
                     <StyledSection>
-                        <StyledSectionTitle>Оплата банковской картой онлайн</StyledSectionTitle>
+                        <StyledSectionTitle>Оплата онлайн</StyledSectionTitle>
                         <StyledText>
-                            При оплате банковской картой мы связываемся с вами по средствам э/почты или телефона, чтобы подтвердить заказ и уточнить срок доставки/ получения товара. После этого вы оплачиваете товар и забирайте его на пункте выдачи или вам осуществляется доставка, в зависимости от выбранного вами способа доставки.
+                            При оплате онлайн мы связываемся с вами по э/почте или телефону, чтобы подтвердить заказ и уточнить срок доставки/получения товара. После этого вы производите оплату за товар. После оплаты вы можете забрать товар выбранным вами способом.
                         </StyledText>
-                        
-                        <StyledInfoBox>
-                            <StyledInfoTitle>Внимание!</StyledInfoTitle>
-                            <StyledInfoContent>
-                                <StyledInfoSection>
-                                    <StyledInfoSubtitle>К оплате принимаются следующие карты:</StyledInfoSubtitle>
-                                    <StyledList>
-                                        <StyledListItem>Visa (любых банков);</StyledListItem>
-                                        <StyledListItem>MasterCard (любых банков);</StyledListItem>
-                                        <StyledListItem>БЕЛКАРТ (эмитированные &quot;Приорбанк&quot; ОАО).</StyledListItem>
-                                    </StyledList>
-                                </StyledInfoSection>
-                                
-                                <StyledInfoSection>
-                                    <StyledInfoSubtitle>К оплате не принимаются карты:</StyledInfoSubtitle>
-                                    <StyledList>
-                                        <StyledListItem>Maestro;</StyledListItem>
-                                        <StyledListItem>БЕЛКАРТ (эмитированные иными банками)</StyledListItem>
-                                    </StyledList>
-                                </StyledInfoSection>
-                            </StyledInfoContent>
-                        </StyledInfoBox>
+                        <StyledNoteBox>
+                            <StyledNoteTitle>Для информации Покупателей:</StyledNoteTitle>
+                            <StyledText>
+                                Оплату через ЕРИП и банковской картой (онлайн) необходимо произвести в течение 2 (двух) банковских дней с момента получения на электронную почту письма, подтверждающего принятие заказа к исполнению. В противном случае заказ аннулируется. При оплате через ЕРИП или банковской картой (онлайн) в платёжном документе указывается номер и дата заказа.
+                            </StyledText>
+                        </StyledNoteBox>
+                        <StyledWarningBox>
+                            <StyledWarningIcon>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </StyledWarningIcon>
+                            <StyledWarningText>
+                                <strong>Внимание!</strong> К оплате принимаются следующие карты: Visa (любых банков); MasterCard (любых банков); БЕЛКАРТ (эмитированные «Приорбанк» ОАО). К оплате не принимаются карты: Maestro; БЕЛКАРТ (эмитированные иными банками).
+                            </StyledWarningText>
+                        </StyledWarningBox>
                     </StyledSection>
 
                     <StyledSection>
                         <StyledSectionTitle>Оплата через платёжную систему ЕРИП</StyledSectionTitle>
                         <StyledText>
-                            Оплатить товары интернет-магазина <strong>mppshop.by</strong> Вы можете через систему «Расчет» (ЕРИП), в любом удобном для Вас месте и время, или в пункте банковского обслуживания – интернет-банке, с помощью мобильного банкинга, инфокиоске, кассе банков, банкомате и т.д.
+                            Оплатить товары интернет-магазина <strong>mppshop.by</strong> Вы можете через систему «Расчёт» (ЕРИП).
                         </StyledText>
+                        <StyledInstructionsBox>
+                            <StyledInstructionsTitle>Для проведения платежа через платёжную систему ЕРИП необходимо:</StyledInstructionsTitle>
+                            <StyledInstructionsList>
+                                <StyledInstructionItem>
+                                    <StyledInstructionNumber>1</StyledInstructionNumber>
+                                    <StyledInstructionText>
+                                        Выбрать: Пункт «Система «Расчёт» (ЕРИП) → Сервис E-POS → E-POS – оплата товаров и услуг.
+                                    </StyledInstructionText>
+                                </StyledInstructionItem>
+                                <StyledInstructionItem>
+                                    <StyledInstructionNumber>2</StyledInstructionNumber>
+                                    <StyledInstructionText>
+                                        Ввести код услуги в E-POS и номер заказа (указанный в письме, подтверждающем принятие заказа к исполнению).
+                                    </StyledInstructionText>
+                                </StyledInstructionItem>
+                                <StyledInstructionItem>
+                                    <StyledInstructionNumber>3</StyledInstructionNumber>
+                                    <StyledInstructionText>
+                                        Ввести сумму платежа, указанную в письме, подтверждающем принятие заказа к исполнению (если не указана).
+                                    </StyledInstructionText>
+                                </StyledInstructionItem>
+                                <StyledInstructionItem>
+                                    <StyledInstructionNumber>4</StyledInstructionNumber>
+                                    <StyledInstructionText>
+                                        Проверить корректность информации.
+                                    </StyledInstructionText>
+                                </StyledInstructionItem>
+                                <StyledInstructionItem>
+                                    <StyledInstructionNumber>5</StyledInstructionNumber>
+                                    <StyledInstructionText>
+                                        Совершить платёж.
+                                    </StyledInstructionText>
+                                </StyledInstructionItem>
+                            </StyledInstructionsList>
+                        </StyledInstructionsBox>
+                    </StyledSection>
+
+                    <StyledSection>
+                        <StyledSectionTitle>Для юридических лиц, индивидуальных предпринимателей, лиц, осуществляющих самостоятельную профессиональную деятельность:</StyledSectionTitle>
+                        <StyledList>
+                            <StyledListItem>оплата по расчётному счёту (путём внесения 100% предоплаты);</StyledListItem>
+                            <StyledListItem>через платёжную систему ЕРИП (путём внесения 100% предоплаты).</StyledListItem>
+                        </StyledList>
+                    </StyledSection>
+
+                    <StyledSection>
+                        <StyledSectionTitle>Оплата по расчётному счёту</StyledSectionTitle>
                         <StyledText>
-                            Совершить оплату можно с использованием наличных денежных средств, электронных денег и платежных карточек в банках, которые оказывают услуги по приему платежей, а также посредством инструментов дистанционного обслуживания.
+                            При оплате по расчётному счёту мы направляем на э/почту счёт, чтобы подтвердить заказ и уточнить срок доставки/получения товара. После этого вы производите оплату товара (при оплате в платёжном документе указывается номер и дата счёта). После оплаты вы можете забрать товар в пункте выдачи или вам осуществляется доставка, в зависимости от выбранного вами способа доставки.
                         </StyledText>
-                        
+                    </StyledSection>
+
+                    <StyledSection>
+                        <StyledSectionTitle>Оплата через платёжную систему ЕРИП</StyledSectionTitle>
+                        <StyledText>
+                            Оплатить товары интернет-магазина <strong>mppshop.by</strong> Вы можете через систему «Расчёт» (ЕРИП).
+                        </StyledText>
                         <StyledInstructionsBox>
                             <StyledInstructionsTitle>ДЛЯ ПРОВЕДЕНИЯ ПЛАТЕЖА ЧЕРЕЗ ПЛАТЕЖНУЮ СИСТЕМУ ЕРИП НЕОБХОДИМО:</StyledInstructionsTitle>
                             <StyledInstructionsList>
                                 <StyledInstructionItem>
                                     <StyledInstructionNumber>1</StyledInstructionNumber>
                                     <StyledInstructionText>
-                                        Выбрать:<br />
-                                        Пункт «Система «Расчет» (ЕРИП)<br />
-                                        Интернет-магазины/сервисы<br />
-                                        <strong>[+]</strong> ………
+                                        Выбрать: Пункт «Система «Расчёт» (ЕРИП) → Сервис E-POS → E-POS – оплата товаров и услуг.
                                     </StyledInstructionText>
                                 </StyledInstructionItem>
                                 <StyledInstructionItem>
                                     <StyledInstructionNumber>2</StyledInstructionNumber>
                                     <StyledInstructionText>
-                                        Для оплаты «Товара» ввести Номер заказа, затем Фамилию Имя Отчество.
+                                        Ввести код услуги в E-POS и номер счёта (указанный в письме, подтверждающем принятие заказа к исполнению).
                                     </StyledInstructionText>
                                 </StyledInstructionItem>
                                 <StyledInstructionItem>
                                     <StyledInstructionNumber>3</StyledInstructionNumber>
                                     <StyledInstructionText>
-                                        Ввести сумму платежа (если не указана)
+                                        Ввести сумму платежа, указанную в счёте (если не указана).
                                     </StyledInstructionText>
                                 </StyledInstructionItem>
                                 <StyledInstructionItem>
                                     <StyledInstructionNumber>4</StyledInstructionNumber>
                                     <StyledInstructionText>
-                                        Проверить корректность информации
+                                        Проверить корректность информации.
                                     </StyledInstructionText>
                                 </StyledInstructionItem>
                                 <StyledInstructionItem>
                                     <StyledInstructionNumber>5</StyledInstructionNumber>
                                     <StyledInstructionText>
-                                        Совершить платеж.
+                                        Совершить платёж.
                                     </StyledInstructionText>
                                 </StyledInstructionItem>
                             </StyledInstructionsList>
                         </StyledInstructionsBox>
+                    </StyledSection>
+
+                    <StyledSection>
+                        <StyledText>
+                            Возврат денежных средств Покупателю при его осуществлении производится в том же порядке, в котором производилась оплата.
+                        </StyledText>
                     </StyledSection>
                 </StyledContent>
             </StyledContainer>
@@ -213,6 +238,30 @@ const StyledSection = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${rm(24)};
+`
+
+const StyledNoteBox = styled.div`
+    padding: ${rm(20)} ${rm(24)};
+    background-color: #F8F9FA;
+    border-left: 4px solid #6c757d;
+    border-radius: ${rm(8)};
+    margin-top: ${rm(8)};
+
+    ${media.xsm`
+        padding: ${rm(16)} ${rm(20)};
+    `}
+`
+
+const StyledNoteTitle = styled.span`
+    ${fontGeist(600)};
+    font-size: ${rm(16)};
+    color: #111111;
+    display: block;
+    margin-bottom: ${rm(8)};
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
 `
 
 const StyledSectionTitle = styled.h2`

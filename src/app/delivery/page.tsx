@@ -11,43 +11,23 @@ export default function DeliveryPage() {
                 <StyledTitle>Доставка</StyledTitle>
                 
                 <StyledContent>
-                    <StyledIntroText>
-                        В нашем интернет-магазине (<strong>mppshop.by</strong>) доступны два надёжных способа доставки, чтобы каждый мог выбрать удобный вариант.
-                    </StyledIntroText>
+                    <StyledBlockTitle>Для физических лиц:</StyledBlockTitle>
 
                     <StyledSection>
                         <StyledSectionHeader>
                             <StyledSectionNumber>1</StyledSectionNumber>
-                            <StyledSectionTitle>Самовывоз (г. Гродно, ул. Титова, 24)</StyledSectionTitle>
+                            <StyledSectionTitle>Самовывоз в пункте выдачи</StyledSectionTitle>
                         </StyledSectionHeader>
-                        
                         <StyledSectionContent>
                             <StyledText>
-                                Забрать заказ можно в пункте выдачи по адресу: <strong>г. Гродно, ул. Титова, 24</strong>.
+                                По адресу: <strong>г. Гродно, ул. Титова, 24</strong>.
                             </StyledText>
-                            
                             <StyledInfoBox>
                                 <StyledInfoRow>
-                                    <StyledInfoLabel>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="currentColor"/>
-                                        </svg>
-                                        Адрес:
-                                    </StyledInfoLabel>
-                                    <StyledInfoValue>г. Гродно, ул. Титова, 24</StyledInfoValue>
-                                </StyledInfoRow>
-                                
-                                <StyledInfoRow>
-                                    <StyledInfoLabel>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 13H11V7H13V13ZM13 17H11V15H13V17Z" fill="currentColor"/>
-                                        </svg>
-                                        График работы:
-                                    </StyledInfoLabel>
-                                    <StyledInfoValue>понедельник–пятница, с 09:00 до 17:00, без обеда</StyledInfoValue>
+                                    <StyledInfoLabel>График работы:</StyledInfoLabel>
+                                    <StyledInfoValue>понедельник–пятница, с 09:00 до 17:00, без обеда.</StyledInfoValue>
                                 </StyledInfoRow>
                             </StyledInfoBox>
-
                             <StyledBonusBox>
                                 <StyledBonusIcon>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -55,7 +35,7 @@ export default function DeliveryPage() {
                                     </svg>
                                 </StyledBonusIcon>
                                 <StyledBonusText>
-                                    При самовывозе действует <strong>скидка 3%</strong> на весь заказ — это наш бонус за оперативность и экономию на доставке.
+                                    При самовывозе действует скидка 3% на весь заказ — это наш бонус за оперативность и экономию на доставке.
                                 </StyledBonusText>
                             </StyledBonusBox>
                         </StyledSectionContent>
@@ -64,76 +44,94 @@ export default function DeliveryPage() {
                     <StyledSection>
                         <StyledSectionHeader>
                             <StyledSectionNumber>2</StyledSectionNumber>
-                            <StyledSectionTitle>Доставка Door-to-Door от DPD</StyledSectionTitle>
+                            <StyledSectionTitle>РУП «Белпочта» (по Республике Беларусь)</StyledSectionTitle>
                         </StyledSectionHeader>
-                        
                         <StyledSectionContent>
                             <StyledText>
-                                Мы работаем с курьерской службой <strong>DPD</strong>, которая доставляет заказы по всей Республики Беларуси.
+                                Доставка производится в соответствии с тарифами и в сроки, приведёнными РУП «Белпочта», за счёт покупателя. Оплата товара производится выбранным вами способом онлайн или при его получении на почте.
                             </StyledText>
-                            
+                            <StyledNoteBox>
+                                <StyledNoteTitle>Примечание:</StyledNoteTitle>
+                                <StyledText>
+                                    В случае если принять заказ никто не может, доставка заказа считается выполненной; или если оказалось, что адрес указан некорректно, то доставка также считается выполненной полностью, и сумма оплаты за заказ возврату не подлежит.
+                                    Продавец не возмещает Покупателю стоимость товаров, недоставленных в результате указания Покупателем ошибочного (неверного, некорректного) адреса или в случае, если Покупатель по своей вине не забрал товар, доставленный РУП «Белпочта». В данных случаях Покупатель забирает товар в пункте выдачи (г. Гродно, ул. Титова, 24).
+                                </StyledText>
+                            </StyledNoteBox>
+                        </StyledSectionContent>
+                    </StyledSection>
+
+                    <StyledBlockTitle>Для информации Покупателей:</StyledBlockTitle>
+
+                    <StyledSection>
+                        <StyledSectionContent>
+                            <StyledNumberedItem><strong>4.</strong> Покупатель вправе в течение 14 (четырнадцати) дней с момента передачи ему товара возвратить товар надлежащего качества или обменять его на аналогичный товар, произведя в случае разницы в цене необходимый перерасчёт (ст. 472 ГК, п. 1 ст. 28 Закона Республики Беларусь от 09.01.2002 № 90-З «О защите прав потребителей»). При отсутствии на складе необходимого для обмена товара Покупатель вправе возвратить приобретённый товар и получить уплаченную за него денежную сумму. Требование покупателя об обмене либо возврате товара подлежит удовлетворению, если товар не был в употреблении, сохранены его потребительские свойства и имеются доказательства приобретения его у данного Продавца.</StyledNumberedItem>
+                            <StyledNumberedItem><strong>5.</strong> Покупатель не имеет права возвратить товар надлежащего качества, согласно Перечню непродовольственных товаров надлежащего качества, не подлежащих обмену и возврату, утверждённому постановлением Совета Министров Республики Беларусь от 14.06.2002 № 778 «О мерах по реализации Закона Республики Беларусь «О защите прав потребителей»» (печатные издания – открытки без герметичной (вакуумной) упаковки).</StyledNumberedItem>
+                            <StyledNumberedItem><strong>6.</strong> Покупатель, которому продан товар ненадлежащего качества, если это не было оговорено Продавцом, вправе по своему выбору потребовать в течение гарантийного срока (срока годности): замены недоброкачественного товара товаром надлежащего качества (при наличии на складе); соразмерного уменьшения покупной цены товара; незамедлительного безвозмездного устранения недостатков товара; расторгнуть публичный договор и потребовать возврата уплаченной за товар денежной суммы.</StyledNumberedItem>
+                            <StyledNumberedItem><strong>7.</strong> В случае отказа Покупателя от договора согласно условиям пунктов 4 и 6 настоящего приложения (для физических лиц) и одновременного предъявления требования о возврате уплаченной за товар денежной суммы стоимость товара подлежит возврату Покупателю в течение 5 (пять) рабочих дней с момента получения Продавцом письменного заявления Покупателя в месте нахождения Продавца. Возврат денежных средств осуществляется тем способом, которым была произведена оплата товара.</StyledNumberedItem>
+                            <StyledNumberedItem><strong>8.</strong> Возврат товара на условиях пунктов 4 и 6 настоящего приложения (для физических лиц) осуществляется силами и за счёт Покупателя.</StyledNumberedItem>
+                        </StyledSectionContent>
+                    </StyledSection>
+
+                    <StyledBlockTitle>Для юридических лиц, индивидуальных предпринимателей и лиц, осуществляющих самостоятельную профессиональную деятельность:</StyledBlockTitle>
+
+                    <StyledSection>
+                        <StyledSectionHeader>
+                            <StyledSectionNumber>1</StyledSectionNumber>
+                            <StyledSectionTitle>Самовывоз в пункте выдачи</StyledSectionTitle>
+                        </StyledSectionHeader>
+                        <StyledSectionContent>
+                            <StyledText>По адресу: <strong>г. Гродно, ул. Титова, 24</strong>.</StyledText>
+                            <StyledInfoBox>
+                                <StyledInfoRow>
+                                    <StyledInfoLabel>График работы:</StyledInfoLabel>
+                                    <StyledInfoValue>понедельник–пятница, с 09:00 до 17:00, без обеда.</StyledInfoValue>
+                                </StyledInfoRow>
+                            </StyledInfoBox>
+                            <StyledBonusBox>
+                                <StyledBonusIcon>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </StyledBonusIcon>
+                                <StyledBonusText>
+                                    При самовывозе действует скидка 3% на весь заказ — это наш бонус за оперативность и экономию на доставке.
+                                </StyledBonusText>
+                            </StyledBonusBox>
+                        </StyledSectionContent>
+                    </StyledSection>
+
+                    <StyledSection>
+                        <StyledSectionHeader>
+                            <StyledSectionNumber>2</StyledSectionNumber>
+                            <StyledSectionTitle>Доставка Door-to-Door от DPD (ИООО «ДПД Бел»)</StyledSectionTitle>
+                        </StyledSectionHeader>
+                        <StyledSectionContent>
                             <StyledFeaturesList>
                                 <StyledFeatureItem>
-                                    <StyledFeatureIcon>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    </StyledFeatureIcon>
-                                    <StyledFeatureContent>
-                                        <StyledFeatureTitle>Стоимость доставки:</StyledFeatureTitle>
-                                        <StyledFeatureValue>20,00 белорусских рублей</StyledFeatureValue>
-                                    </StyledFeatureContent>
-                                </StyledFeatureItem>
-
-                                <StyledFeatureItem>
-                                    <StyledFeatureIcon>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    </StyledFeatureIcon>
                                     <StyledFeatureContent>
                                         <StyledFeatureTitle>Бесплатная доставка:</StyledFeatureTitle>
-                                        <StyledFeatureValue>при заказе от 400,00 белорусских рублей</StyledFeatureValue>
+                                        <StyledFeatureValue>при заказе от 200,00 (двести рублей, 00 копеек) белорусских рублей.</StyledFeatureValue>
                                     </StyledFeatureContent>
                                 </StyledFeatureItem>
-
                                 <StyledFeatureItem>
-                                    <StyledFeatureIcon>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M21 16V8C20.9996 7.64928 20.9071 7.30481 20.7315 7.00116C20.556 6.69751 20.3037 6.44536 20 6.27L13 2.27C12.696 2.09446 12.3511 2.00205 12 2.00205C11.6489 2.00205 11.304 2.09446 11 2.27L4 6.27C3.69626 6.44536 3.44398 6.69751 3.26846 7.00116C3.09294 7.30481 3.00036 7.64928 3 8V16C3.00036 16.3507 3.09294 16.6952 3.26846 16.9988C3.44398 17.3025 3.69626 17.5546 4 17.73L11 21.73C11.304 21.9055 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9055 13 21.73L20 17.73C20.3037 17.5546 20.556 17.3025 20.7315 16.9988C20.9071 16.6952 20.9996 16.3507 21 16Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    </StyledFeatureIcon>
-                                    <StyledFeatureContent>
-                                        <StyledFeatureTitle>Цена фиксированная:</StyledFeatureTitle>
-                                        <StyledFeatureValue>для всех регионов</StyledFeatureValue>
-                                    </StyledFeatureContent>
-                                </StyledFeatureItem>
-
-                                <StyledFeatureItem>
-                                    <StyledFeatureIcon>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    </StyledFeatureIcon>
                                     <StyledFeatureContent>
                                         <StyledFeatureTitle>Доставка осуществляется:</StyledFeatureTitle>
-                                        <StyledFeatureValue>по всей Республике Беларусь</StyledFeatureValue>
+                                        <StyledFeatureValue>по всей Республике Беларусь.</StyledFeatureValue>
+                                    </StyledFeatureContent>
+                                </StyledFeatureItem>
+                                <StyledFeatureItem>
+                                    <StyledFeatureContent>
+                                        <StyledFeatureTitle>Сроки:</StyledFeatureTitle>
+                                        <StyledFeatureValue>DPD доставляет быстро и стабильно — в среднем 2–3 рабочих дня в зависимости от города.</StyledFeatureValue>
                                     </StyledFeatureContent>
                                 </StyledFeatureItem>
                             </StyledFeaturesList>
-
-                            <StyledDeliveryInfo>
-                                <StyledDeliveryIcon>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </StyledDeliveryIcon>
-                                <StyledDeliveryText>
-                                    <strong>DPD</strong> доставляет быстро и стабильно — в среднем <strong>2–3 рабочих дня</strong> в зависимости от города.
-                                </StyledDeliveryText>
-                            </StyledDeliveryInfo>
+                            <StyledNoteBox>
+                                <StyledNoteTitle>Примечание:</StyledNoteTitle>
+                                <StyledText>
+                                    В случае если адрес доставки указан некорректно, доставка считается выполненной полностью, и сумма оплаты за заказ возврату не подлежит. В данном случае Покупатель забирает товар в пункте выдачи (г. Гродно, ул. Титова, 24).
+                                </StyledText>
+                            </StyledNoteBox>
                         </StyledSectionContent>
                     </StyledSection>
                 </StyledContent>
@@ -209,27 +207,23 @@ const StyledContent = styled.div`
     `}
 `
 
-const StyledIntroText = styled.p`
-    ${fontGeist(400)};
-    font-size: ${rm(20)};
-    color: #1C1C1C;
-    line-height: 1.6;
-    margin: 0;
-    text-align: center;
-    max-width: ${rm(900)};
-    margin: 0 auto;
+const StyledBlockTitle = styled.h2`
+    ${fontGeist(700)};
+    font-size: ${rm(26)};
+    color: #111111;
+    margin: 0 0 ${rm(20)} 0;
+    padding-bottom: ${rm(12)};
+    border-bottom: 2px solid #E6E8E6;
 
     ${media.md`
-        font-size: ${rm(18)};
+        font-size: ${rm(22)};
+        margin-bottom: ${rm(16)};
     `}
 
     ${media.xsm`
-        font-size: ${rm(16)};
+        font-size: ${rm(20)};
+        margin-bottom: ${rm(14)};
     `}
-
-    strong {
-        ${fontGeist(600)};
-    }
 `
 
 const StyledSection = styled.div`
@@ -377,6 +371,51 @@ const StyledInfoLabel = styled.div`
             width: ${rm(18)};
             height: ${rm(18)};
         `}
+    }
+`
+
+const StyledNoteBox = styled.div`
+    padding: ${rm(20)} ${rm(24)};
+    background-color: #FFF8E6;
+    border-left: 4px solid #E6A800;
+    border-radius: ${rm(8)};
+    margin-top: ${rm(16)};
+
+    ${media.xsm`
+        padding: ${rm(16)} ${rm(20)};
+    `}
+`
+
+const StyledNoteTitle = styled.span`
+    ${fontGeist(600)};
+    font-size: ${rm(16)};
+    color: #1C1C1C;
+    display: block;
+    margin-bottom: ${rm(8)};
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
+`
+
+const StyledNumberedItem = styled.p`
+    ${fontGeist(400)};
+    font-size: ${rm(16)};
+    color: #1C1C1C;
+    line-height: 1.6;
+    margin: 0 0 ${rm(16)} 0;
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+        margin-bottom: ${rm(12)};
+    `}
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    strong {
+        ${fontGeist(600)};
     }
 `
 
