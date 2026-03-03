@@ -94,6 +94,10 @@ const info = {
         {
             label: 'Возврат',
             url: '/return'
+        },
+        {
+            label: 'Публичные договора',
+            url: '/public-contracts'
         }
     ]
 }
