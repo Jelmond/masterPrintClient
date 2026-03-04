@@ -9,8 +9,9 @@ interface PaymentRequest {
     }>
     promocode?: string
     isIndividual: boolean
+    isSelfEmployed?: boolean
     paymentMethod: string
-    type?: 'shipping' | 'selfShipping'
+    type?: 'shipping' | 'selfShipping' | 'belpochta'
     comment?: string
     // Individual fields
     fullName?: string
@@ -76,13 +77,13 @@ export async function POST(request: NextRequest) {
                 )
             }
 
-            if (body.paymentMethod !== 'card' && body.paymentMethod !== 'ERIP' && body.paymentMethod !== 'pickupPayment') {
+            if (body.paymentMethod !== 'card' && body.paymentMethod !== 'ERIP' && body.paymentMethod !== 'pickupPayment' && body.paymentMethod !== 'cash') {
                 return NextResponse.json(
                     {
                         error: {
                             status: 400,
                             name: 'BadRequestError',
-                            message: 'For individuals, paymentMethod must be ERIP, card, or pickupPayment'
+                            message: 'For individuals, paymentMethod must be cash, card, ERIP, or pickupPayment'
                         }
                     },
                     { status: 400 }
@@ -106,14 +107,14 @@ export async function POST(request: NextRequest) {
             }
         } else {
             // Validate organization fields
-            if (!body.organization || !body.fullName || !body.UNP || !body.paymentAccount || 
+            if (!body.fullName || !body.UNP || !body.paymentAccount || 
                 !body.bankAdress || !body.email || !body.phone || !body.city || !body.legalAddress || !body.deliveryAddress) {
                 return NextResponse.json(
                     {
                         error: {
                             status: 400,
                             name: 'BadRequestError',
-                            message: 'For organizations, organization, fullName, UNP, paymentAccount, bankAdress, email, phone, city, legalAddress, and deliveryAddress are required'
+                            message: 'For organizations, fullName, UNP, paymentAccount, bankAdress, email, phone, city, legalAddress, and deliveryAddress are required'
                         }
                     },
                     { status: 400 }
@@ -134,17 +135,16 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Prepare request for Strapi API
         const strapiRequest: any = {
             products: body.products,
             isIndividual: body.isIndividual,
             paymentMethod: body.paymentMethod,
-            type: body.type || 'shipping',
+            type: body.type ?? 'shipping',
+            ...(body.isSelfEmployed && { isSelfEmployed: true }),
             ...(body.comment && { comment: body.comment }),
             ...(body.promocode && { promocode: body.promocode })
         }
 
-        // Add customer-specific fields
         if (body.isIndividual) {
             strapiRequest.fullName = body.fullName
             strapiRequest.email = body.email
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
             strapiRequest.deliveryAddress = deliveryAddress
             strapiRequest.address = deliveryAddress
         } else {
-            strapiRequest.organization = body.organization
+            if (body.organization) strapiRequest.organization = body.organization
             strapiRequest.fullName = body.fullName
             strapiRequest.UNP = body.UNP
             strapiRequest.paymentAccount = body.paymentAccount

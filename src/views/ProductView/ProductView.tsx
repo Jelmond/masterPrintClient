@@ -169,6 +169,9 @@ export const ProductView = ({ data }: { data: any }) => {
                             Количество в наборе: <span>{data.quantityInPack} {getWordForCount(data.quantityInPack)}</span>
                         </p>
                     )}
+                    <StyledDisclaimer>
+                        Гарантийный срок, сведения о подтверждении соответствия и иную информацию о товаре можно запросить у продавца.
+                    </StyledDisclaimer>
                     <StyledActions>
                         <div className="quantityContainer">
                             <button className="quantity-button" onClick={() => {
@@ -246,6 +249,26 @@ const Left = styled.div`
 
     ${media.md`
         width: 100%;
+    `}
+`
+
+const StyledDisclaimer = styled.p`
+    margin-top: ${rm(24)};
+    margin-bottom: 0;
+    font-size: ${rm(14)};
+    ${fontGeist(400)};
+    color: #666;
+    line-height: 1.5;
+    max-width: ${rm(520)};
+
+    ${media.md`
+        font-size: ${rm(13)};
+        margin-top: ${rm(20)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(12)};
+        margin-top: ${rm(16)};
     `}
 `
 

@@ -21,8 +21,8 @@ export const OrderView = () => {
 
     // To avoid hydration issues
     const [mounted, setMounted] = useState(false)
-    const [buyerType, setBuyerType] = useState<'individual' | 'legal' | ''>('')
-    const [deliveryMethod, setDeliveryMethod] = useState<'dpd' | 'self-pickup' | 'alternative'>('dpd')
+    const [buyerType, setBuyerType] = useState<'individual' | 'legal' | 'selfEmployed' | ''>('')
+    const [deliveryMethod, setDeliveryMethod] = useState<'dpd' | 'self-pickup' | 'belpochta' | 'alternative'>('dpd')
     const [paymentMethod, setPaymentMethod] = useState<string>('')
     const [showSuccessModal, setShowSuccessModal] = useState(false)
     const [showAlternativeDelivery, setShowAlternativeDelivery] = useState(false) // Hidden by default
@@ -102,8 +102,8 @@ export const OrderView = () => {
                             productSlug: item.productSlug,
                             quantity: item.quantity
                         })),
-                        type: deliveryMethod === 'self-pickup' ? 'selfShipping' : 'shipping',
-                        // Apply promocode only if it's validated and valid
+                        type: deliveryMethod === 'self-pickup' ? 'selfShipping' : deliveryMethod === 'belpochta' ? 'belpochta' : 'shipping',
+                        ...(buyerType === 'selfEmployed' && { isSelfEmployed: true }),
                         ...(promocodeValid?.valid && promocode.trim() ? { promocode: promocode.trim() } : {})
                     }),
                 })
@@ -123,7 +123,7 @@ export const OrderView = () => {
 
         calculatePrice()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [items, deliveryMethod, promocodeValid]) // Removed promocode from dependencies to prevent recalculation on every keystroke
+        }, [items, deliveryMethod, promocodeValid, buyerType])
 
     // Validate promocode
     const handleValidatePromocode = async () => {
@@ -165,6 +165,13 @@ export const OrderView = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [promocode])
 
+    // Для юрлиц и самозанятых: при сумме заказа ≤200 руб. сбрасываем DPD на самовывоз
+    useEffect(() => {
+        if ((buyerType !== 'legal' && buyerType !== 'selfEmployed') || deliveryMethod !== 'dpd') return
+        const tot = priceData?.totalAmount ?? items.reduce((acc, i) => acc + i.price * i.quantity, 0)
+        if (tot <= 200) setDeliveryMethod('self-pickup')
+    }, [buyerType, deliveryMethod, priceData?.totalAmount, items])
+
     if (!mounted) return null
 
     // Calculate totals
@@ -186,15 +193,15 @@ export const OrderView = () => {
     const selfPickupDiscountAmount = productsTotalAfterBaseDiscount * (selfPickupDiscountPercent / 100)
     const productsTotalAfterAllDiscounts = productsTotalAfterBaseDiscount - selfPickupDiscountAmount
 
-    // Step 3: Calculate delivery cost based on final product total after all discounts
+    // Step 3: Calculate delivery cost (для юрлиц DPD = 0 руб., доступен только при заказе от 200 руб.)
     const calculateDeliveryCost = (): number => {
         switch (deliveryMethod) {
             case 'dpd':
-                if (productsTotalAfterAllDiscounts < 200) return 20
-                if (productsTotalAfterAllDiscounts < 400) return 0
                 return 0
             case 'self-pickup':
                 return 0
+            case 'belpochta':
+                return 0 // Оплата при получении на почте, не входит в сумму заказа
             case 'alternative':
                 if (productsTotalAfterAllDiscounts > 400) return 0
                 return 6
@@ -212,6 +219,10 @@ export const OrderView = () => {
     const minimumOrderAmount = 50
     const finalTotalFromAPI = priceData?.totalAmount || finalTotal
     const isBelowMinimum = finalTotalFromAPI < minimumOrderAmount
+
+    // Для юрлиц и самозанятых DPD доступен только при сумме заказа больше 200 руб.
+    const orderTotalForDpd = finalTotalFromAPI
+    const canSelectDpdLegal = (buyerType === 'legal' || buyerType === 'selfEmployed') ? orderTotalForDpd > 200 : true
 
     // Validation functions
     const validateFullName = (name: string) => {
@@ -333,20 +344,17 @@ export const OrderView = () => {
                 city: validateCity(individualFormData.city),
                 address: validateAddress(individualFormData.address)
             }
-        } else if (buyerType === 'legal') {
+        } else if (buyerType === 'legal' || buyerType === 'selfEmployed') {
             newErrors = {
                 ...newErrors,
                 fullName: validateFullName(legalFormData.fullName),
                 email: validateEmail(legalFormData.email),
                 phone: validatePhone(legalFormData.phone),
-                organizationName: validateOrganizationName(legalFormData.organizationName),
                 unp: validateUNP(legalFormData.unp),
                 bankAccount: validateBankAccount(legalFormData.bankAccount),
                 bankAddress: validateBankAddress(legalFormData.bankAddress),
-                // Юридический адрес
                 legalCity: validateCity(legalFormData.legalCity),
                 legalAddress: validateAddress(legalFormData.legalAddress),
-                // Адрес доставки
                 city: validateCity(legalFormData.city),
                 address: validateAddress(legalFormData.address)
             }
@@ -368,6 +376,12 @@ export const OrderView = () => {
         // Check minimum order amount first - prevent any action if below minimum
         if (isBelowMinimum) {
             return // Don't proceed if below minimum
+        }
+
+        // Для юрлиц: DPD доступен только при заказе от 200 руб.
+        if ((buyerType === 'legal' || buyerType === 'selfEmployed') && deliveryMethod === 'dpd' && !canSelectDpdLegal) {
+            alert('Доставку DPD можно выбрать только при сумме заказа больше 200 руб.')
+            return
         }
         
         // Prevent double submission
@@ -393,43 +407,46 @@ export const OrderView = () => {
         // Map payment method to API format
         let apiPaymentMethod: string
         if (buyerType === 'individual') {
-            if (paymentMethod === 'alphabank') {
+            if (paymentMethod === 'cash') {
+                apiPaymentMethod = 'cash'
+            } else if (paymentMethod === 'alphabank') {
                 apiPaymentMethod = 'card'
             } else if (paymentMethod === 'erip') {
                 apiPaymentMethod = 'ERIP'
-            } else if (paymentMethod === 'cash-card-pickup') {
+            } else if (paymentMethod === 'pickupPayment') {
                 apiPaymentMethod = 'pickupPayment'
             } else {
                 alert('Неверный способ оплаты для физического лица')
                 return
             }
-        } else {
+        } else if (buyerType === 'legal' || buyerType === 'selfEmployed') {
             if (paymentMethod === 'bank-account') {
                 apiPaymentMethod = 'paymentAccount'
             } else if (paymentMethod === 'erip') {
                 apiPaymentMethod = 'ERIP'
             } else {
-                alert('Неверный способ оплаты для юридического лица')
+                alert('Неверный способ оплаты')
                 return
             }
+        } else {
+            alert('Выберите тип покупателя')
+            return
         }
 
-        // Validate pickupPayment requirements
         if (apiPaymentMethod === 'pickupPayment') {
             if (buyerType !== 'individual') {
-                alert('Оплата наличными или картой при самовывозе доступна только для физических лиц')
+                alert('Оплата картой при получении доступна только для физических лиц')
                 setIsSubmitting(false)
                 return
             }
             if (deliveryMethod !== 'self-pickup') {
-                alert('Оплата наличными или картой при самовывозе доступна только при самовывозе')
+                alert('Оплата картой при получении (терминал) доступна только при самовывозе')
                 setIsSubmitting(false)
                 return
             }
         }
 
-        // Map delivery method to type
-        const deliveryType = deliveryMethod === 'self-pickup' ? 'selfShipping' : 'shipping'
+        const deliveryType = deliveryMethod === 'self-pickup' ? 'selfShipping' : deliveryMethod === 'belpochta' ? 'belpochta' : 'shipping'
 
         // Prepare payment request data
         const paymentRequest: any = {
@@ -449,28 +466,25 @@ export const OrderView = () => {
             paymentRequest.email = individualFormData.email
             paymentRequest.phone = individualFormData.phone
             paymentRequest.city = individualFormData.city
-            // Для совместимости отправляем и address, и deliveryAddress
             paymentRequest.address = individualFormData.address
             paymentRequest.deliveryAddress = individualFormData.address
-            if (individualFormData.comment) {
-                paymentRequest.comment = individualFormData.comment
-            }
+            const belpochtaNote = deliveryMethod === 'belpochta' ? ' Доставка: РУП «Белпочта» (оплата при получении, ориентировочно 5–10 руб.).' : ''
+            paymentRequest.comment = (individualFormData.comment || '').trim() + belpochtaNote
+            if (!paymentRequest.comment.trim()) delete paymentRequest.comment
         } else {
-            paymentRequest.organization = legalFormData.organizationName
+            if (legalFormData.organizationName) paymentRequest.organization = legalFormData.organizationName
             paymentRequest.fullName = legalFormData.fullName
             paymentRequest.UNP = legalFormData.unp
             paymentRequest.paymentAccount = legalFormData.bankAccount
             paymentRequest.bankAdress = legalFormData.bankAddress
             paymentRequest.email = legalFormData.email
             paymentRequest.phone = legalFormData.phone
-            // Город компании
             paymentRequest.city = legalFormData.city
-            // Юридический адрес (город + улица и т.п.)
             paymentRequest.legalAddress = `${legalFormData.legalCity}, ${legalFormData.legalAddress}`.trim()
-            // Адрес доставки (город + адрес)
             paymentRequest.deliveryAddress = `${legalFormData.city}, ${legalFormData.address}`.trim()
-            if (legalFormData.comment) {
-                paymentRequest.comment = legalFormData.comment
+            if (legalFormData.comment) paymentRequest.comment = legalFormData.comment
+            if (buyerType === 'selfEmployed') {
+                paymentRequest.isSelfEmployed = true
             }
         }
 
@@ -505,9 +519,10 @@ export const OrderView = () => {
                 // Keep isSubmitting true and don't clear form data - redirect will happen
                 window.location.href = data.paymentLink
             } else {
-                // ERIP, paymentAccount, or pickupPayment - show success page
                 let paymentType: string
-                if (apiPaymentMethod === 'pickupPayment') {
+                if (apiPaymentMethod === 'cash') {
+                    paymentType = 'cash'
+                } else if (apiPaymentMethod === 'pickupPayment') {
                     paymentType = 'cash-card'
                 } else if (apiPaymentMethod === 'ERIP') {
                     paymentType = 'erip-bank'
@@ -526,20 +541,19 @@ export const OrderView = () => {
 
     // Get available payment methods based on buyer type and delivery method
     const getAvailablePaymentMethods = () => {
-        if (buyerType === 'legal') {
-            // Legal entities can only pay via bank account or ERIP
+        if (buyerType === 'legal' || buyerType === 'selfEmployed') {
             return [
                 { value: 'bank-account', label: 'Расчетный счет' },
                 { value: 'erip', label: 'ЕРИП' }
             ]
         } else if (buyerType === 'individual') {
             const methods = [
-                { value: 'alphabank', label: 'Банковская карта (онлайн)' },
-                { value: 'erip', label: 'ЕРИП' }
+                { value: 'cash', label: 'Наличный' },
+                { value: 'alphabank', label: 'Банковской картой онлайн (предоплата)' },
+                { value: 'erip', label: 'ЕРИП (предоплата)' }
             ]
-            // Add cash/card option only if self-pickup is selected (only for individuals)
             if (deliveryMethod === 'self-pickup') {
-                methods.push({ value: 'cash-card-pickup', label: 'Наличными или картой при самовывозе' })
+                methods.push({ value: 'pickupPayment', label: 'Банковской картой при получении (терминал)' })
             }
             return methods
         }
@@ -587,6 +601,7 @@ export const OrderView = () => {
                                 checked={buyerType === 'individual'}
                                 onChange={(e) => {
                                     setBuyerType('individual')
+                                    setDeliveryMethod(prev => (prev === 'dpd' ? 'self-pickup' : prev))
                                     setPaymentMethod('')
                                     setErrors(prev => ({ ...prev, buyerType: '' }))
                                 }}
@@ -606,6 +621,7 @@ export const OrderView = () => {
                                 checked={buyerType === 'legal'}
                                 onChange={(e) => {
                                     setBuyerType('legal')
+                                    setDeliveryMethod(prev => (prev === 'belpochta' ? 'dpd' : prev))
                                     setPaymentMethod('')
                                     setErrors(prev => ({ ...prev, buyerType: '' }))
                                 }}
@@ -616,41 +632,50 @@ export const OrderView = () => {
                                 </StyledOptionText>
                             </StyledRadioLabel>
                         </StyledBuyerTypeOption>
+                        <StyledBuyerTypeOption>
+                            <StyledRadioInput 
+                                type="radio" 
+                                id="selfEmployed" 
+                                name="buyerType" 
+                                value="selfEmployed" 
+                                checked={buyerType === 'selfEmployed'}
+                                onChange={(e) => {
+                                    setBuyerType('selfEmployed')
+                                    setDeliveryMethod(prev => (prev === 'belpochta' ? 'dpd' : prev))
+                                    setPaymentMethod('')
+                                    setErrors(prev => ({ ...prev, buyerType: '' }))
+                                }}
+                            />
+                            <StyledRadioLabel htmlFor="selfEmployed">
+                                <StyledOptionText>
+                                    <StyledOptionTitle>Самозанятый</StyledOptionTitle>
+                                </StyledOptionText>
+                            </StyledRadioLabel>
+                        </StyledBuyerTypeOption>
                     </StyledBuyerTypeSelector>
                     {errors.buyerType && <StyledErrorMessage>{errors.buyerType}</StyledErrorMessage>}
 
                     {buyerType && (
                         <>
                             <StyledSubtitle>
-                                Данные {buyerType === 'legal' ? 'покупателя' : 'получателя'}
+                                Данные {(buyerType === 'legal' || buyerType === 'selfEmployed') ? 'покупателя' : 'получателя'}
                             </StyledSubtitle>
                             <StyledPersonalInfo>
                                 <div>
                                     <SimpleInput 
-                                        label={buyerType === 'legal' ? 'Полное наименование Покупателя' : 'ФИО'} 
-                                        placeholder={buyerType === 'legal' ? 'Введите полное наименование' : 'Введите ФИО'} 
-                                        value={buyerType === 'legal' ? legalFormData.fullName : individualFormData.fullName}
-                                        onChange={(e) => handleInputChange('fullName', e.target.value, buyerType === 'legal')}
+                                        label={(buyerType === 'legal' || buyerType === 'selfEmployed') ? 'Полное наименование Покупателя' : 'ФИО'} 
+                                        placeholder={(buyerType === 'legal' || buyerType === 'selfEmployed') ? 'Введите полное наименование' : 'Введите ФИО'} 
+                                        value={(buyerType === 'legal' || buyerType === 'selfEmployed') ? legalFormData.fullName : individualFormData.fullName}
+                                        onChange={(e) => handleInputChange('fullName', e.target.value, buyerType === 'legal' || buyerType === 'selfEmployed')}
                                     />
                                     {errors.fullName && <StyledErrorMessage>{errors.fullName}</StyledErrorMessage>}
                                 </div>
-                                {buyerType === 'legal' && (
-                                    <div>
-                                        <SimpleInput 
-                                            label="Название Организации" 
-                                            placeholder="Введите название организации" 
-                                            value={legalFormData.organizationName}
-                                            onChange={(e) => handleInputChange('organizationName', e.target.value, true)}
-                                        />
-                                        {errors.organizationName && <StyledErrorMessage>{errors.organizationName}</StyledErrorMessage>}
-                                    </div>
-                                )}
-                                {buyerType === 'legal' && (
+                                {(buyerType === 'legal' || buyerType === 'selfEmployed') && (
                                     <>
                                         <div>
                                             <SimpleInput 
-                                                label="УНП" 
-                                                placeholder="Введите УНП (9 цифр)" 
+                                                label={buyerType === 'selfEmployed' ? 'Номер плательщика профессионального дохода' : 'УНП'} 
+                                                placeholder={buyerType === 'selfEmployed' ? 'Введите номер (9 цифр)' : 'Введите УНП (9 цифр)'} 
                                                 value={legalFormData.unp}
                                                 onChange={(e) => handleInputChange('unp', e.target.value, true)}
                                             />
@@ -680,8 +705,8 @@ export const OrderView = () => {
                                     <SimpleInput 
                                         label="Email" 
                                         placeholder="Введите email" 
-                                        value={buyerType === 'legal' ? legalFormData.email : individualFormData.email}
-                                        onChange={(e) => handleInputChange('email', e.target.value, buyerType === 'legal')}
+                                        value={(buyerType === 'legal' || buyerType === 'selfEmployed') ? legalFormData.email : individualFormData.email}
+                                        onChange={(e) => handleInputChange('email', e.target.value, buyerType === 'legal' || buyerType === 'selfEmployed')}
                                     />
                                     {errors.email && <StyledErrorMessage>{errors.email}</StyledErrorMessage>}
                                 </div>
@@ -689,13 +714,13 @@ export const OrderView = () => {
                                     <PhoneInput 
                                         label="Контактный телефон" 
                                         placeholder="Номер телефона" 
-                                        value={buyerType === 'legal' ? legalFormData.phone : individualFormData.phone}
-                                        onChange={(value) => handleInputChange('phone', value, buyerType === 'legal')}
+                                        value={(buyerType === 'legal' || buyerType === 'selfEmployed') ? legalFormData.phone : individualFormData.phone}
+                                        onChange={(value) => handleInputChange('phone', value, buyerType === 'legal' || buyerType === 'selfEmployed')}
                                     />
                                     {errors.phone && <StyledErrorMessage>{errors.phone}</StyledErrorMessage>}
                                 </div>
                             </StyledPersonalInfo>
-                            {buyerType === 'legal' ? (
+                            {(buyerType === 'legal' || buyerType === 'selfEmployed') ? (
                                 <>
                                     <StyledSubtitle>
                                         Юридический адрес
@@ -747,9 +772,7 @@ export const OrderView = () => {
                                 </>
                             ) : (
                                 <>
-                                    <StyledSubtitle>
-                                        Адрес получателя
-                                    </StyledSubtitle>
+                                    <StyledSubtitle>Адрес получателя</StyledSubtitle>
                                     <StyledAdressContainer>
                                         <div>
                                             <SimpleInput 
@@ -780,37 +803,44 @@ export const OrderView = () => {
                                 Способ доставки
                             </StyledSubtitle>
                             <StyledDeliveryOptions>
-                                <StyledDeliveryOption>
-                                    <StyledRadioInput 
-                                        type="radio" 
-                                        id="dpd" 
-                                        name="delivery" 
-                                        value="dpd" 
-                                        checked={deliveryMethod === 'dpd'}
-                                        onChange={(e) => {
-                                            setDeliveryMethod('dpd')
-                                            // Reset payment method if it was cash/card at pickup
-                                            if (paymentMethod === 'cash-card-pickup') {
-                                                setPaymentMethod('')
-                                            }
-                                        }}
-                                    />
-                                    <StyledRadioLabel htmlFor="dpd">
-                                        <StyledOptionText>
-                                            <div>
-                                                <StyledOptionTitle>Курьер DPD (дверь-в-дверь)</StyledOptionTitle>
-                                                <StyledOptionDescription>
-                                                    {priceData && priceData.shippingType === 'shipping' 
-                                                        ? (priceData.shippingCost === 0 && priceData.freeShipping 
-                                                            ? 'Бесплатно (от 400 руб.)' 
-                                                            : `${priceData.shippingCost.toFixed(0)} руб.`)
-                                                        : (productsTotal < 400 ? '20 руб.' : 'Бесплатно (от 400 руб.)')
-                                                    }
-                                                </StyledOptionDescription>
-                                            </div>
-                                        </StyledOptionText>
-                                    </StyledRadioLabel>
-                                </StyledDeliveryOption>
+                                {(buyerType === 'legal' || buyerType === 'selfEmployed') && (
+                                    <StyledDeliveryOption className={!canSelectDpdLegal ? 'disabled' : ''}>
+                                        <StyledRadioInput 
+                                            type="radio" 
+                                            id="dpd" 
+                                            name="delivery" 
+                                            value="dpd" 
+                                            checked={deliveryMethod === 'dpd'}
+                                            disabled={!canSelectDpdLegal}
+                                            onChange={(e) => {
+                                                if (!canSelectDpdLegal) {
+                                                    alert('Доставку DPD можно выбрать только при сумме заказа больше 200 руб.')
+                                                    return
+                                                }
+                                                setDeliveryMethod('dpd')
+                                                if (paymentMethod === 'pickupPayment') setPaymentMethod('')
+                                            }}
+                                        />
+                                        <StyledRadioLabel
+                                            htmlFor={canSelectDpdLegal ? 'dpd' : undefined}
+                                            onClick={(e) => {
+                                                if (!canSelectDpdLegal) {
+                                                    e.preventDefault()
+                                                    alert('Доставку DPD можно выбрать только при сумме заказа больше 200 руб.')
+                                                }
+                                            }}
+                                        >
+                                            <StyledOptionText>
+                                                <div>
+                                                    <StyledOptionTitle>Курьер DPD (дверь-в-дверь)</StyledOptionTitle>
+                                                    <StyledOptionDescription>
+                                                        Бесплатно (при заказе от 200 руб.)
+                                                    </StyledOptionDescription>
+                                                </div>
+                                            </StyledOptionText>
+                                        </StyledRadioLabel>
+                                    </StyledDeliveryOption>
+                                )}
                                 <StyledDeliveryOption>
                                     <StyledRadioInput 
                                         type="radio" 
@@ -829,6 +859,31 @@ export const OrderView = () => {
                                         </StyledOptionText>
                                     </StyledRadioLabel>
                                 </StyledDeliveryOption>
+                                {buyerType === 'individual' && (
+                                    <StyledDeliveryOption>
+                                        <StyledRadioInput 
+                                            type="radio" 
+                                            id="belpochta" 
+                                            name="delivery" 
+                                            value="belpochta" 
+                                            checked={deliveryMethod === 'belpochta'}
+                                            onChange={(e) => {
+                                                setDeliveryMethod('belpochta')
+                                                if (paymentMethod === 'pickupPayment') setPaymentMethod('')
+                                            }}
+                                        />
+                                        <StyledRadioLabel htmlFor="belpochta">
+                                            <StyledOptionText>
+                                                <div>
+                                                    <StyledOptionTitle>РУП «Белпочта»</StyledOptionTitle>
+                                                    <StyledOptionDescription>
+                                                        Ориентировочно 5–10 руб. (уточняет менеджер). Оплата при получении на почте — не входит в сумму заказа.
+                                                    </StyledOptionDescription>
+                                                </div>
+                                            </StyledOptionText>
+                                        </StyledRadioLabel>
+                                    </StyledDeliveryOption>
+                                )}
                             </StyledDeliveryOptions>
 
                             <StyledSubtitle>
@@ -898,6 +953,7 @@ export const OrderView = () => {
                     )}
                     {buyerType && (
                         <StyledCommentSection>
+                            {/* Промокод — отображение временно отключено
                             <StyledSubtitle>
                                 Промокод (опционально)
                             </StyledSubtitle>
@@ -929,11 +985,12 @@ export const OrderView = () => {
                                     }
                                 </StyledPromocodeMessage>
                             )}
+                            */}
                             <StyledCommentTextarea 
                                 placeholder="Добавьте свой комментарий..."
                                 rows={4}
-                                value={buyerType === 'legal' ? legalFormData.comment : individualFormData.comment}
-                                onChange={(e) => handleInputChange('comment', e.target.value, buyerType === 'legal')}
+                                value={(buyerType === 'legal' || buyerType === 'selfEmployed') ? legalFormData.comment : individualFormData.comment}
+                                onChange={(e) => handleInputChange('comment', e.target.value, buyerType === 'legal' || buyerType === 'selfEmployed')}
                             />
                         <StyledButtonContainer>
                             <StyledBackButton onClick={() => router.push('/cart')}>
@@ -988,7 +1045,9 @@ export const OrderView = () => {
                             <StyledSummaryRow>
                                 <StyledSummaryLabel>Доставка:</StyledSummaryLabel>
                                 <StyledSummaryValue>
-                                    {priceData.shippingCost === 0 ? (
+                                    {deliveryMethod === 'belpochta' ? (
+                                        <span title="Оплата при получении на почте">Оплата при получении (~5–10 руб.)</span>
+                                    ) : priceData.shippingCost === 0 ? (
                                         priceData.freeShipping ? (
                                             <span style={{ color: '#28a745' }}>Бесплатно (от 400 руб.)</span>
                                         ) : (
@@ -1025,7 +1084,9 @@ export const OrderView = () => {
                             <StyledSummaryRow>
                                 <StyledSummaryLabel>Доставка:</StyledSummaryLabel>
                                 <StyledSummaryValue>
-                                    {deliveryCost === 0 ? 'Бесплатно' : `${deliveryCost.toFixed(2)} руб.`}
+                                    {deliveryMethod === 'belpochta' ? (
+                                        'Оплата при получении (~5–10 руб.)'
+                                    ) : deliveryCost === 0 ? 'Бесплатно' : `${deliveryCost.toFixed(2)} руб.`}
                                 </StyledSummaryValue>
                             </StyledSummaryRow>
                             <StyledSummaryRow>
@@ -1056,7 +1117,7 @@ export const OrderView = () => {
                             </StyledCheckmark>
                         </StyledCheckmarkContainer>
                         <StyledThankYou>
-                            Спасибо Вам, {buyerType === 'legal' ? legalFormData.fullName : individualFormData.fullName || 'пользователь'}
+                            Спасибо Вам, {(buyerType === 'legal' || buyerType === 'selfEmployed') ? legalFormData.fullName : individualFormData.fullName || 'пользователь'}
                         </StyledThankYou>
                         <StyledDownloadSection>
                             <StyledDownloadIcon>
@@ -1073,7 +1134,7 @@ export const OrderView = () => {
                             </StyledDownloadText>
                         </StyledDownloadSection>
                         <StyledEmailConfirmation>
-                            Чек был отправлен на почту {buyerType === 'legal' ? legalFormData.email : individualFormData.email || 'указанный email'}
+                            Чек был отправлен на почту {(buyerType === 'legal' || buyerType === 'selfEmployed') ? legalFormData.email : individualFormData.email || 'указанный email'}
                         </StyledEmailConfirmation>
                         <StyledTrackingButton onClick={() => router.push('/track')}>
                             На страницу отслеживания
@@ -1517,6 +1578,11 @@ const StyledDeliveryOptions = styled.div`
 
 const StyledDeliveryOption = styled.div`
     position: relative;
+
+    &.disabled label {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
 `
 
 const StyledRadioInput = styled.input`

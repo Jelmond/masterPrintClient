@@ -166,7 +166,7 @@ export default function ContactsPage() {
                                     </svg>
                                 </StyledContactIcon>
                                 <div>
-                                    <StyledContactLabel>Заведующий пунктом выдачи</StyledContactLabel>
+                                    <StyledContactLabel>Специалист по продажам (менеджер)</StyledContactLabel>
                                     <StyledContactValue href="tel:+375447495465">+375 44 749 54 65</StyledContactValue>
                                 </div>
                             </StyledContactItem>
@@ -178,7 +178,7 @@ export default function ContactsPage() {
                                     </svg>
                                 </StyledContactIcon>
                                 <div>
-                                    <StyledContactLabel>Менеджер</StyledContactLabel>
+                                    <StyledContactLabel>Агент коммерческий (менеджер)</StyledContactLabel>
                                     <StyledContactValue href="tel:+375445842911">+375 44 584 29 11</StyledContactValue>
                                 </div>
                             </StyledContactItem>
