@@ -41,9 +41,11 @@ export default function OrderSuccessPage() {
         )
     }
 
+    const isCash = paymentType === 'cash'
     const isCashCard = paymentType === 'cash-card'
     const isEripBank = paymentType === 'erip-bank'
     const isAlphabank = paymentType === 'alphabank'
+    const isPickupPayment = isCash || isCashCard
 
     return (
         <StyledPage>
@@ -69,13 +71,24 @@ export default function OrderSuccessPage() {
                     </>
                 )}
 
+                {isCash && (
+                    <>
+                        <StyledMessage>
+                            Ваш заказ успешно принят и ожидает оплаты при получении.
+                        </StyledMessage>
+                        <StyledMessage>
+                            Оплата производится <strong>наличными</strong> в пункте выдачи при получении товара.
+                        </StyledMessage>
+                    </>
+                )}
+
                 {isCashCard && (
                     <>
                         <StyledMessage>
                             Ваш заказ успешно принят и ожидает оплаты при получении.
                         </StyledMessage>
                         <StyledMessage>
-                            Оплата производится <strong>наличными</strong> или <strong>банковской картой</strong> непосредственно в пункте выдачи при получении товара.
+                            Оплата производится <strong>банковской картой</strong> (терминал) непосредственно в пункте выдачи при получении товара.
                         </StyledMessage>
                     </>
                 )}
@@ -100,7 +113,7 @@ export default function OrderSuccessPage() {
 
                 <StyledContactSection>
                     <StyledContactTitle>
-                        {isCashCard ? 'Адрес и контактная информация пункта выдачи' : 'Контактная информация'}
+                        {isPickupPayment ? 'Адрес и контактная информация пункта выдачи' : 'Контактная информация'}
                     </StyledContactTitle>
                     
                     <StyledContactItem>

@@ -30,7 +30,7 @@ const contacts = {
             value: '+375447495465'
         },
         {
-            label: 'Менеджер',
+            label: 'Агент коммерческий (менеджер)',
             value: '+375445842911'
         }
     ]
@@ -96,7 +96,7 @@ const info = {
             url: '/return'
         },
         {
-            label: 'Публичные договора',
+            label: 'Публичные договоры',
             url: '/public-contracts'
         }
     ]

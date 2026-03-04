@@ -7,7 +7,8 @@ interface CalculatePriceRequest {
         productSlug: string
         quantity: number
     }>
-    type?: 'shipping' | 'selfShipping'
+    type?: 'shipping' | 'selfShipping' | 'belpochta'
+    isSelfEmployed?: boolean
     promocode?: string
 }
 
@@ -63,7 +64,8 @@ export async function POST(request: NextRequest) {
             },
             body: JSON.stringify({
                 products: body.products,
-                type: body.type || 'shipping',
+                type: body.type ?? 'shipping',
+                ...(body.isSelfEmployed && { isSelfEmployed: true }),
                 ...(body.promocode && { promocode: body.promocode })
             }),
         })
