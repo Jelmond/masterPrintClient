@@ -3,6 +3,7 @@ import { colors, media, rm } from "@/styles";
 import { fontGeist } from "@/styles/fonts";
 import Link from "next/link";
 import styled from "styled-components";
+import { useEffect, useMemo, useState } from "react";
 
 interface ProductCardProps {
     product: any;
@@ -11,12 +12,67 @@ interface ProductCardProps {
 export const ProductCard = ({ product }: ProductCardProps) => {
 
     const addToCart = useCartStore(state => state.addToCart);
+    const removeFromCart = useCartStore(state => state.removeFromCart);
     const items = useCartStore(state => state.items);
 
     const isOutOfStock = product.stock !== undefined && product.stock <= 0;
     const cartItem = items.find(item => item.productSlug === product.slug);
     const isInCart = !!cartItem;
     const cartQuantity = cartItem?.quantity || 0;
+
+    const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || '';
+
+    const toStrapiPath = (maybePath: any) => {
+        const value = typeof maybePath === 'string' ? maybePath : maybePath?.url;
+        if (!value || typeof value !== 'string') return undefined;
+        if (STRAPI_URL && value.startsWith(STRAPI_URL)) return value.slice(STRAPI_URL.length);
+        return value;
+    };
+
+    const toDisplayUrl = (maybePath: any) => {
+        const value = typeof maybePath === 'string' ? maybePath : maybePath?.url;
+        if (!value || typeof value !== 'string') return '';
+        if (value.startsWith('http://') || value.startsWith('https://')) return value;
+        if (!STRAPI_URL) return maybePath;
+        return `${STRAPI_URL}${value}`;
+    };
+
+    // Gallery: preview (if exists) -> all images
+    const galleryPaths = useMemo(() => {
+        const paths: string[] = [];
+
+        const previewPath = toStrapiPath(product?.preview);
+        if (previewPath) paths.push(previewPath);
+
+        const images: any[] = Array.isArray(product?.images) ? product.images : [];
+        images.forEach((img) => {
+            const p = toStrapiPath(img?.url);
+            if (p) paths.push(p);
+        });
+
+        // Dedupe preserving order
+        const seen = new Set<string>();
+        const uniq: string[] = [];
+        for (const p of paths) {
+            if (!p || seen.has(p)) continue;
+            seen.add(p);
+            uniq.push(p);
+        }
+
+        if (uniq.length === 0 && product?.images?.[0]?.url) {
+            const p = toStrapiPath(product.images[0].url);
+            if (p) uniq.push(p);
+        }
+
+        return uniq;
+    }, [product?.preview, product?.images]);
+
+    const galleryKey = galleryPaths.join('||');
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+    useEffect(() => {
+        setActiveImageIndex(0);
+    }, [galleryKey]);
 
     // Check if product has discount
     // oldPrice can be either higher (normal case) or lower (if values are swapped)
@@ -58,7 +114,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             title: product.title,
             price: currentPrice, // Use discounted price
             oldPrice: hasDiscount ? oldPrice : null, // Save old price if discount exists
-            image: product.images[0]?.url,
+            image: toStrapiPath(product?.preview) ?? toStrapiPath(product?.images?.[0]?.url) ?? '',
             stock: product.stock
         });
     };
@@ -83,21 +139,29 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
     return (
         <StyledProductCard>
-            {hasDiscount && (
-                <StyledDiscountBadge>
-                    <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
-                    <div className="newPrice">{currentPrice.toLocaleString('ru-RU')} руб.</div>
-                    <div className="discountPercent">-{discountPercent}%</div>
-                </StyledDiscountBadge>
-            )}
-            {isInCart && (
-                <StyledInCartBadge>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <span>В корзине</span>
-                    {cartQuantity > 1 && <span className="quantity">{cartQuantity}</span>}
-                </StyledInCartBadge>
+            {(hasDiscount || isInCart) && (
+                <StyledTopBadges>
+                    <div className="left">
+                        {isInCart && (
+                            <StyledInCartBadge>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                <span>В корзине</span>
+                                {cartQuantity > 1 && <span className="quantity">{cartQuantity}</span>}
+                            </StyledInCartBadge>
+                        )}
+                    </div>
+                    <div className="right">
+                        {hasDiscount && (
+                            <StyledDiscountBadge>
+                                <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
+                                <div className="newPrice">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                                <div className="discountPercent">-{discountPercent}%</div>
+                            </StyledDiscountBadge>
+                        )}
+                    </div>
+                </StyledTopBadges>
             )}
             <StyledImageContainer>
                 {hasPolishes && (
@@ -109,7 +173,50 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         ))}
                     </StyledPolishesBadge>
                 )}
-                <img src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`} alt={product.title} />
+
+                {galleryPaths.length > 0 && (
+                    <>
+                        <img
+                            src={toDisplayUrl(galleryPaths[activeImageIndex] || galleryPaths[0])}
+                            alt={product.title}
+                        />
+
+                        {galleryPaths.length > 1 && (
+                            <>
+                                <StyledSliderArrow
+                                    $side="left"
+                                    type="button"
+                                    aria-label="Предыдущее изображение"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setActiveImageIndex((prev) => (prev - 1 + galleryPaths.length) % galleryPaths.length);
+                                    }}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                        <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </StyledSliderArrow>
+
+                                <StyledSliderArrow
+                                    $side="right"
+                                    type="button"
+                                    aria-label="Следующее изображение"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setActiveImageIndex((prev) => (prev + 1) % galleryPaths.length);
+                                    }}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                        <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </StyledSliderArrow>
+                            </>
+                        )}
+                    </>
+                )}
+
                 {isBestseller && (
                     <StyledBestsellerBadge>
                         <span>Бестселлер</span>
@@ -148,28 +255,50 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                             </div>
                         )}
                     </div>
-                    <div 
-                        className={`button ${isOutOfStock ? 'disabled' : ''} ${isInCart ? 'inCart' : ''}`}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            if (!isOutOfStock) {
-                                handleAddToCart(product);
-                            }
-                        }}
-                        style={{ 
-                            opacity: isOutOfStock ? 0.5 : 1, 
-                            cursor: isOutOfStock ? 'not-allowed' : 'pointer' 
-                        }}
-                    >
-                        {isInCart ? (
-                            <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 19L17 24L26 15" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                        ) : (
-                            <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <line x1="19.1667" y1="6" x2="19.1667" y2="32.3077" stroke="black"/>
-                                <line x1="32.3077" y1="19.166" x2="6" y2="19.166" stroke="black"/>
-                            </svg>
+                    <div className="actions">
+                        <button
+                            type="button"
+                            className={`button ${isOutOfStock ? 'disabled' : ''} ${isInCart ? 'inCart' : ''}`}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (!isOutOfStock) handleAddToCart(product);
+                            }}
+                            aria-label={isInCart ? 'Добавить ещё' : 'Добавить в корзину'}
+                            title={isInCart ? 'Добавить ещё' : 'Добавить в корзину'}
+                        >
+                            {isInCart ? (
+                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                    <path d="M12 19L17 24L26 15" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            ) : (
+                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                    <line x1="19.1667" y1="6" x2="19.1667" y2="32.3077" stroke="black"/>
+                                    <line x1="32.3077" y1="19.166" x2="6" y2="19.166" stroke="black"/>
+                                </svg>
+                            )}
+                        </button>
+
+                        {isInCart && (
+                            <button
+                                type="button"
+                                className="removeButton"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    removeFromCart(product.slug);
+                                }}
+                                aria-label="Убрать из корзины"
+                                title="Убрать из корзины"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                    <path d="M3 6H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M8 6V4C8 3.44772 8.44772 3 9 3H15C15.5523 3 16 3.44772 16 4V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M19 6L18 20C17.9487 20.5523 17.4863 21 16.9318 21H7.06822C6.51373 21 6.05129 20.5523 6 20L5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M10 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M14 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
                         )}
                     </div>
                 </div>
@@ -185,6 +314,12 @@ const StyledProductCard = styled.div`
     height: 100%;
     overflow: visible;
     position: relative;
+
+    @media (hover: hover) and (pointer: fine) {
+        &:hover img{
+            transform: scale(1.07);
+        }
+    }
 
     ${media.lg`
         width: ${rm(280)};
@@ -209,12 +344,15 @@ const StyledProductCard = styled.div`
 const StyledImageContainer = styled.div`
     position: relative;
     width: 100%;
+    overflow: hidden;
+    border-radius: ${rm(5)};
 
     img{
-        border-radius: ${rm(5)};
         width: 100%;
         height: ${rm(470)};
         object-fit: cover;
+        transition: transform 0.35s ease;
+        transform: scale(1);
 
         ${media.lg`
             height: ${rm(400)};
@@ -228,6 +366,48 @@ const StyledImageContainer = styled.div`
             height: ${rm(300)};
         `}
     }
+`
+
+const StyledSliderArrow = styled.button<{ $side: 'left' | 'right' }>`
+    position: absolute;
+    top: 50%;
+    ${({ $side }) => ($side === 'left' ? `left: ${rm(10)};` : `right: ${rm(10)};`)}
+    transform: translateY(-50%);
+    z-index: 20;
+    width: ${rm(38)};
+    height: ${rm(38)};
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: ${colors.black100};
+    transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(calc(-50% - ${rm(2)})) scale(1.05);
+    }
+
+    &:active {
+        transform: translateY(-50%) scale(0.98);
+    }
+
+    svg {
+        width: ${rm(18)};
+        height: ${rm(18)};
+    }
+
+    ${media.xsm`
+        width: ${rm(32)};
+        height: ${rm(32)};
+        svg {
+            width: ${rm(16)};
+            height: ${rm(16)};
+        }
+    `}
 `
 
 const StyledContent = styled.div`
@@ -291,6 +471,13 @@ const StyledContent = styled.div`
             width: 100%;
             justify-content: space-between;
             margin-top: auto;
+
+            .actions{
+                display: flex;
+                align-items: center;
+                gap: ${rm(10)};
+                z-index: 3;
+            }
 
             .priceWrapper{
                 display: flex;
@@ -360,6 +547,9 @@ const StyledContent = styled.div`
                 cursor: pointer;
                 
                 transition: all .3s ease-in-out;
+                background: transparent;
+                border: none;
+                padding: 0;
 
                 ${media.xsm`
                     width: ${rm(32)};
@@ -392,9 +582,66 @@ const StyledContent = styled.div`
                     }
                 }
             }
+
+            .removeButton{
+                width: ${rm(38)};
+                height: ${rm(38)};
+                border-radius: ${rm(8)};
+                border: 1px solid rgba(0,0,0,0.12);
+                background: rgba(0,0,0,0.04);
+                color: ${colors.black100};
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: opacity 0.2s, background 0.2s;
+
+                ${media.xsm`
+                    width: ${rm(32)};
+                    height: ${rm(32)};
+                `}
+
+                &:hover{
+                    background: rgba(0,0,0,0.07);
+                }
+            }
         }
     }
 `;
+
+const StyledTopBadges = styled.div`
+    position: absolute;
+    top: ${rm(10)};
+    left: ${rm(10)};
+    right: ${rm(10)};
+    z-index: 12;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: ${rm(8)};
+    pointer-events: none;
+
+    ${media.xsm`
+        top: ${rm(8)};
+        left: ${rm(8)};
+        right: ${rm(8)};
+    `}
+
+    .left, .right {
+        display: flex;
+        min-width: 0;
+    }
+
+    .right {
+        justify-content: flex-end;
+    }
+
+    & > * {
+        pointer-events: none;
+    }
+
+    /* badges themselves should still render as overlay, not interactive */
+`
 
 const StyledProductInfoBadge = styled.div`
     position: absolute;
@@ -456,10 +703,7 @@ const StyledHiddenLink = styled.a`
 `
 
 const StyledDiscountBadge = styled.div`
-    position: absolute;
-    top: ${rm(10)};
-    right: ${rm(10)};
-    z-index: 10;
+    position: static;
     background: linear-gradient(135deg, #ff4757 0%, #ff6348 50%, #ff7675 100%);
     border-radius: ${rm(8)};
     padding: ${rm(6)} ${rm(10)};
@@ -487,8 +731,6 @@ const StyledDiscountBadge = styled.div`
     }
 
     ${media.xsm`
-        top: ${rm(8)};
-        right: ${rm(8)};
         padding: ${rm(5)} ${rm(8)};
         gap: ${rm(6)};
         border-radius: ${rm(6)};
@@ -622,10 +864,7 @@ const StyledBestsellerBadge = styled.div`
 `
 
 const StyledInCartBadge = styled.div`
-    position: absolute;
-    top: ${rm(10)};
-    left: ${rm(10)};
-    z-index: 10;
+    position: static;
     background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
     border-radius: ${rm(8)};
     padding: ${rm(6)} ${rm(10)};
@@ -650,8 +889,6 @@ const StyledInCartBadge = styled.div`
     }
 
     ${media.xsm`
-        top: ${rm(8)};
-        left: ${rm(8)};
         padding: ${rm(5)} ${rm(8)};
         gap: ${rm(4)};
         border-radius: ${rm(6)};

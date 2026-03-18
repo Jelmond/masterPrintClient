@@ -548,7 +548,7 @@ export const OrderView = () => {
             ]
         } else if (buyerType === 'individual') {
             const methods = [
-                { value: 'cash', label: 'Наличный' },
+                { value: 'cash', label: 'Наличный расчет' },
                 { value: 'alphabank', label: 'Банковской картой онлайн (предоплата)' },
                 { value: 'erip', label: 'ЕРИП (предоплата)' }
             ]
@@ -628,7 +628,7 @@ export const OrderView = () => {
                             />
                             <StyledRadioLabel htmlFor="legal">
                                 <StyledOptionText>
-                                    <StyledOptionTitle>Юридическое лицо</StyledOptionTitle>
+                                    <StyledOptionTitle>Юридическое лицо, ИП</StyledOptionTitle>
                                 </StyledOptionText>
                             </StyledRadioLabel>
                         </StyledBuyerTypeOption>
@@ -1049,7 +1049,7 @@ export const OrderView = () => {
                                         <span title="Оплата при получении на почте">Оплата при получении (~5–10 руб.)</span>
                                     ) : priceData.shippingCost === 0 ? (
                                         priceData.freeShipping ? (
-                                            <span style={{ color: '#28a745' }}>Бесплатно (от 400 руб.)</span>
+                                            <span style={{ color: '#28a745' }}></span>
                                         ) : (
                                             'Бесплатно'
                                         )
