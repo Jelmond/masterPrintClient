@@ -47,12 +47,12 @@ export const ProductView = ({ data }: { data: any }) => {
     const [quantity, setQuantity] = useState(1);
 
     const getWordForCount = (count: number) => {
-        if (count === 1) return 'штука';
-        if (count >= 2 && count <= 4) return 'штуки';
-        if (count >= 5 && count <= 20) return 'штук';
-        if (count % 10 === 1) return 'штука';
-        if (count % 10 >= 2 && count % 10 <= 4) return 'штуки';
-        return 'штук';
+        if (count === 1) return 'набор';
+        if (count >= 2 && count <= 4) return 'набора';
+        if (count >= 5 && count <= 20) return 'наборов';
+        if (count % 10 === 1) return 'набор';
+        if (count % 10 >= 2 && count % 10 <= 4) return 'набора';
+        return 'наборов';
     }
     
     return (
