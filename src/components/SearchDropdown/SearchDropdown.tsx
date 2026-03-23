@@ -545,12 +545,12 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                                             <span style={{ 
                                                                 textDecoration: 'line-through', 
                                                                 color: '#a0aec0',
-                                                                fontSize: rm(11),
+                                                                fontSize: rm(13),
                                                                 fontWeight: 400
                                                             }}>
                                                                 {product.oldPrice} ₽
                                                             </span>
-                                                            <span style={{ color: '#667eea' }}>
+                                                            <span style={{ color: '#667eea', fontSize: rm(13) }}>
                                                                 {product.price} ₽
                                                             </span>
                                                         </>
@@ -593,12 +593,12 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                                         <span style={{ 
                                                             textDecoration: 'line-through', 
                                                             color: '#a0aec0',
-                                                            fontSize: rm(11),
+                                                            fontSize: rm(13),
                                                             fontWeight: 400
                                                         }}>
                                                             {product.oldPrice} ₽
                                                         </span>
-                                                        <span style={{ color: '#667eea' }}>
+                                                        <span style={{ color: '#667eea', fontSize: rm(13) }}>
                                                             {product.price} ₽
                                                         </span>
                                                     </>

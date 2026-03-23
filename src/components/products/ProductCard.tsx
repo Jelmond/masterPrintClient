@@ -141,8 +141,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <StyledProductCard>
             {(hasDiscount || isInCart) && (
                 <StyledTopBadges>
-                    <div className="left">
-                        {isInCart && (
+                    {isInCart ? (
+                        <div className="left">
                             <StyledInCartBadge>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -150,17 +150,17 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                                 <span>В корзине</span>
                                 {cartQuantity > 1 && <span className="quantity">{cartQuantity}</span>}
                             </StyledInCartBadge>
-                        )}
-                    </div>
-                    <div className="right">
-                        {hasDiscount && (
+                        </div>
+                    ) : null}
+                    {hasDiscount ? (
+                        <div className="right">
                             <StyledDiscountBadge>
                                 <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
                                 <div className="newPrice">{currentPrice.toLocaleString('ru-RU')} руб.</div>
                                 <div className="discountPercent">-{discountPercent}%</div>
                             </StyledDiscountBadge>
-                        )}
-                    </div>
+                        </div>
+                    ) : null}
                 </StyledTopBadges>
             )}
             <StyledImageContainer>
@@ -484,8 +484,9 @@ const StyledContent = styled.div`
                 flex-direction: column;
                 gap: ${rm(4)};
 
+                /* Цена до скидки — не меньше размера цены со скидкой (требование к вёрстке) */
                 .oldPrice{
-                    font-size: ${rm(16)};
+                    font-size: ${rm(24)};
                     ${fontGeist(400)};
                     color: #999;
                     text-decoration: line-through !important;
@@ -493,11 +494,11 @@ const StyledContent = styled.div`
                     line-height: 1;
 
                     ${media.md`
-                        font-size: ${rm(14)};
+                        font-size: ${rm(20)};
                     `}
 
                     ${media.xsm`
-                        font-size: ${rm(13)};
+                        font-size: ${rm(18)};
                     `}
                 }
 
@@ -620,20 +621,45 @@ const StyledTopBadges = styled.div`
     align-items: flex-start;
     gap: ${rm(8)};
     pointer-events: none;
+    isolation: isolate;
 
     ${media.xsm`
-        top: ${rm(8)};
-        left: ${rm(8)};
-        right: ${rm(8)};
+        top: ${rm(6)};
+        left: ${rm(6)};
+        right: ${rm(6)};
+        flex-direction: column;
+        align-items: stretch;
+        gap: ${rm(6)};
     `}
 
     .left, .right {
         display: flex;
         min-width: 0;
+        position: relative;
+    }
+
+    /* «В корзине» поверх баннера скидки при узкой сетке в 2 колонки */
+    .left {
+        z-index: 20;
+        ${media.xsm`
+            align-self: flex-start;
+            max-width: 100%;
+        `}
     }
 
     .right {
         justify-content: flex-end;
+        z-index: 10;
+        ${media.xsm`
+            align-self: flex-end;
+            max-width: 100%;
+            justify-content: flex-end;
+        `}
+    }
+
+    /* Один баннер скидки без «В корзине» — прижать вправо как раньше */
+    .right:only-child {
+        margin-left: auto;
     }
 
     & > * {
@@ -715,9 +741,9 @@ const StyledDiscountBadge = styled.div`
                 0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
     border: 1.5px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
-    animation: pulse 2s ease-in-out infinite;
+    animation: discountPulse 2s ease-in-out infinite;
 
-    @keyframes pulse {
+    @keyframes discountPulse {
         0%, 100% {
             transform: scale(1);
             box-shadow: 0 ${rm(4)} ${rm(12)} rgba(255, 71, 87, 0.4), 
@@ -731,13 +757,21 @@ const StyledDiscountBadge = styled.div`
     }
 
     ${media.xsm`
-        padding: ${rm(5)} ${rm(8)};
-        gap: ${rm(6)};
-        border-radius: ${rm(6)};
+        padding: ${rm(3)} ${rm(6)};
+        gap: ${rm(4)};
+        border-radius: ${rm(5)};
+        border-width: 1px;
+        animation: none;
+        transform: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        backdrop-filter: none;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 100%;
     `}
 
     .oldPrice {
-        font-size: ${rm(11)};
+        font-size: ${rm(14)};
         ${fontGeist(400)};
         color: rgba(255, 255, 255, 0.85);
         text-decoration: line-through;
@@ -746,7 +780,7 @@ const StyledDiscountBadge = styled.div`
         white-space: nowrap;
 
         ${media.xsm`
-            font-size: ${rm(10)};
+            font-size: ${rm(11)};
         `}
     }
 
@@ -759,7 +793,7 @@ const StyledDiscountBadge = styled.div`
         white-space: nowrap;
 
         ${media.xsm`
-            font-size: ${rm(13)};
+            font-size: ${rm(11)};
         `}
     }
 
@@ -777,7 +811,7 @@ const StyledDiscountBadge = styled.div`
 
         ${media.xsm`
             font-size: ${rm(10)};
-            padding: ${rm(2)} ${rm(5)};
+            padding: ${rm(1)} ${rm(4)};
             border-radius: ${rm(3)};
         `}
     }

@@ -490,7 +490,7 @@ const StyledProductPrice = styled.div`
     .oldPrice {
         text-decoration: line-through;
         color: #a0aec0;
-        font-size: ${rm(13)};
+        font-size: ${rm(16)};
         ${fontGeist(400)};
     }
 `

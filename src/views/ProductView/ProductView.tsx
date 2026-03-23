@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { colors, media, rm } from "@/styles"
 import styled from "styled-components"
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -14,13 +14,151 @@ import { RichText } from '@graphcms/rich-text-react-renderer';
 import { useCartStore } from "@/store/cartStore";
 import { CanBeInteresting } from "@/components/CanBeInteresting/CanBeInteresting";
 
+const IMAGE_ZOOM = 2;
+const LENS_SIZE_PX = 140;
+
+/** Главное фото с круглой линзой ×2 при наведении (только fine pointer + hover) */
+function ProductMainImageWithLens({ src, alt }: { src: string; alt: string }) {
+    const wrapRef = useRef<HTMLDivElement>(null);
+    const [natural, setNatural] = useState({ w: 0, h: 0 });
+    const [lens, setLens] = useState<{
+        left: number;
+        top: number;
+        bgX: number;
+        bgY: number;
+        bgW: number;
+        bgH: number;
+    } | null>(null);
+    const [enableLens, setEnableLens] = useState(false);
+
+    useEffect(() => {
+        const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+        const apply = () => setEnableLens(mq.matches);
+        apply();
+        mq.addEventListener("change", apply);
+        return () => mq.removeEventListener("change", apply);
+    }, []);
+
+    const updateLens = useCallback(
+        (clientX: number, clientY: number) => {
+            const el = wrapRef.current;
+            if (!el || !natural.w) return;
+            const rect = el.getBoundingClientRect();
+            const W = rect.width;
+            const H = rect.height;
+            const mx = clientX - rect.left;
+            const my = clientY - rect.top;
+
+            const nw = natural.w;
+            const nh = natural.h;
+            const scale = Math.max(W / nw, H / nh);
+            const dispW = nw * scale;
+            const dispH = nh * scale;
+            const offX = (W - dispW) / 2;
+            const offY = (H - dispH) / 2;
+
+            const half = LENS_SIZE_PX / 2;
+            const cx = Math.min(Math.max(half, mx), W - half);
+            const cy = Math.min(Math.max(half, my), H - half);
+
+            const bgW = dispW * IMAGE_ZOOM;
+            const bgH = dispH * IMAGE_ZOOM;
+            const bgX = half - (cx - offX) * IMAGE_ZOOM;
+            const bgY = half - (cy - offY) * IMAGE_ZOOM;
+
+            setLens({ left: cx - half, top: cy - half, bgX, bgY, bgW, bgH });
+        },
+        [natural]
+    );
+
+    const onMouseMove = (e: React.MouseEvent) => {
+        if (!enableLens) return;
+        updateLens(e.clientX, e.clientY);
+    };
+
+    const onMouseEnter = (e: React.MouseEvent) => {
+        if (!enableLens || !natural.w) return;
+        updateLens(e.clientX, e.clientY);
+    };
+
+    const onMouseLeave = () => setLens(null);
+
+    return (
+        <MagnifyWrap
+            ref={wrapRef}
+            onMouseMove={enableLens ? onMouseMove : undefined}
+            onMouseEnter={enableLens ? onMouseEnter : undefined}
+            onMouseLeave={enableLens ? onMouseLeave : undefined}
+            $canLens={enableLens}
+        >
+            <img
+                src={src}
+                alt={alt}
+                onLoad={(e) => {
+                    const t = e.currentTarget;
+                    setNatural({ w: t.naturalWidth, h: t.naturalHeight });
+                }}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+            {enableLens && lens && (
+                <LensCircle
+                    aria-hidden
+                    style={{
+                        left: lens.left,
+                        top: lens.top,
+                        width: LENS_SIZE_PX,
+                        height: LENS_SIZE_PX,
+                        backgroundImage: `url(${JSON.stringify(src)})`,
+                        backgroundSize: `${lens.bgW}px ${lens.bgH}px`,
+                        backgroundPosition: `${lens.bgX}px ${lens.bgY}px`,
+                    }}
+                />
+            )}
+        </MagnifyWrap>
+    );
+}
+
+function buildProductGallery(data: any): { id: string | number; url: string }[] {
+    const base = process.env.NEXT_PUBLIC_STRAPI_URL || "";
+    const items: { id: string | number; url: string }[] = [];
+    const seenPath = new Set<string>();
+
+    const push = (rawUrl: unknown, id: string | number) => {
+        if (rawUrl == null || typeof rawUrl !== "string") return;
+        const pathKey = rawUrl.replace(/^https?:\/\/[^/]+/i, "");
+        if (seenPath.has(pathKey)) return;
+        seenPath.add(pathKey);
+        const full =
+            rawUrl.startsWith("http://") || rawUrl.startsWith("https://")
+                ? rawUrl
+                : `${base}${rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
+        items.push({ id, url: full });
+    };
+
+    if (data?.preview?.url) {
+        push(data.preview.url, data.preview.id ?? "preview");
+    }
+
+    const imgs = Array.isArray(data?.images) ? data.images : [];
+    imgs.forEach((img: any, idx: number) => {
+        if (img?.url) push(img.url, img.id ?? idx);
+    });
+
+    return items;
+}
+
 export const ProductView = ({ data }: { data: any }) => {
-    const images = data.images || [];
+    const galleryItems = useMemo(() => buildProductGallery(data), [data]);
+
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
-    console.log(data)
-
     const addToCart = useCartStore(state => state.addToCart);
+
+    /** Относительный путь для корзины: сначала preview, затем первая картинка галереи */
+    const cartImageRel =
+        [data?.preview?.url, Array.isArray(data?.images) ? data.images[0]?.url : undefined].find(
+            (u): u is string => typeof u === "string" && u.length > 0
+        ) ?? "";
 
     const handleAddToCart = () => {
         // Prevent adding if stock is 0 or undefined
@@ -37,7 +175,7 @@ export const ProductView = ({ data }: { data: any }) => {
             productSlug: data.slug,
             title: data.title,
             price: data.price,
-            image: data.images[0]?.url,
+            image: cartImageRel,
             stock: data.stock
         }, quantity);
     };
@@ -63,72 +201,72 @@ export const ProductView = ({ data }: { data: any }) => {
                         spaceBetween={20}
                         slidesPerView={1}
                         navigation
-                        thumbs={{ swiper: thumbsSwiper }}
+                        thumbs={
+                            galleryItems.length > 1 && thumbsSwiper
+                                ? { swiper: thumbsSwiper }
+                                : undefined
+                        }
                         modules={[Navigation, Thumbs]}
                         style={{ width: '100%', height: '100%' }}
                     >
-                        {images.length > 0 ? images.map((img: any, idx: number) => (
-                            <SwiperSlide key={img.id || idx}>
-                                <ImageBox>
-                                    <img
-                                        src={process.env.NEXT_PUBLIC_STRAPI_URL + img.url}
-                                        alt={data.title}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                </ImageBox>
-                            </SwiperSlide>
-                        )) : (
+                        {galleryItems.length > 0 ? (
+                            galleryItems.map((item, idx) => (
+                                <SwiperSlide key={item.id ?? idx}>
+                                    <ImageBox>
+                                        <ProductMainImageWithLens src={item.url} alt={data.title} />
+                                    </ImageBox>
+                                </SwiperSlide>
+                            ))
+                        ) : (
                             <SwiperSlide>
                                 <ImageBox>
-                                    <img
-                                        src="/placeholder.png"
-                                        alt="placeholder"
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
+                                    <ProductMainImageWithLens src="/placeholder.png" alt="placeholder" />
                                 </ImageBox>
                             </SwiperSlide>
                         )}
                     </Swiper>
                 </StyledSwiper>
-                {/* Миниатюры */}
-                <ThumbsWrapper>
-                    <Swiper
-                        onSwiper={setThumbsSwiper}
-                        spaceBetween={20}
-                        slidesPerView={Math.min(images.length, 5)}
-                        watchSlidesProgress
-                        modules={[Thumbs]}
-                        style={{ width: '100%' }}
-                        breakpoints={{
-                            320: {
-                                slidesPerView: Math.min(images.length, 3),
-                                spaceBetween: 10,
-                            },
-                            576: {
-                                slidesPerView: Math.min(images.length, 4),
-                                spaceBetween: 15,
-                            },
-                            1024: {
-                                slidesPerView: Math.min(images.length, 5),
-                                spaceBetween: 20,
-                            },
-                        }}
-                    >
-                        {images.map((img: any, idx: number) => (
-                            <SwiperSlide key={img.id || idx}>
-                                <Thumb>
-                                    <Image
-                                        src={process.env.NEXT_PUBLIC_STRAPI_URL + img.url}
-                                        alt={data.title}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                        width={150}
-                                        height={150}
-                                    />
-                                </Thumb>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </ThumbsWrapper>
+                {/* Миниатюры — только если больше одного кадра */}
+                {galleryItems.length > 1 && (
+                    <ThumbsWrapper>
+                        <Swiper
+                            onSwiper={setThumbsSwiper}
+                            spaceBetween={20}
+                            slidesPerView={Math.min(galleryItems.length, 5)}
+                            watchSlidesProgress
+                            modules={[Thumbs]}
+                            style={{ width: '100%' }}
+                            breakpoints={{
+                                320: {
+                                    slidesPerView: Math.min(galleryItems.length, 3),
+                                    spaceBetween: 10,
+                                },
+                                576: {
+                                    slidesPerView: Math.min(galleryItems.length, 4),
+                                    spaceBetween: 15,
+                                },
+                                1024: {
+                                    slidesPerView: Math.min(galleryItems.length, 5),
+                                    spaceBetween: 20,
+                                },
+                            }}
+                        >
+                            {galleryItems.map((item, idx) => (
+                                <SwiperSlide key={`thumb-${item.id ?? idx}`}>
+                                    <Thumb>
+                                        <Image
+                                            src={item.url}
+                                            alt={data.title}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            width={150}
+                                            height={150}
+                                        />
+                                    </Thumb>
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </ThumbsWrapper>
+                )}
             </Left>
             <Right>
                 <div className="content">
@@ -555,6 +693,25 @@ const ImageBox = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+`
+
+const MagnifyWrap = styled.div<{ $canLens: boolean }>`
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: ${(p) => (p.$canLens ? "crosshair" : "default")};
+`
+
+const LensCircle = styled.div`
+    position: absolute;
+    pointer-events: none;
+    z-index: 5;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.95);
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+        0 4px 24px rgba(0, 0, 0, 0.35);
+    background-repeat: no-repeat;
 `
 const ThumbsWrapper = styled.div`
     width: 100%;

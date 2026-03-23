@@ -12,6 +12,30 @@ export const InterestingProduct = ({ product }: InterestingProductProps) => {
 
     const addToCart = useCartStore(state => state.addToCart);
 
+    const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || '';
+
+    const toStrapiPath = (maybePath: any) => {
+        const value = typeof maybePath === 'string' ? maybePath : maybePath?.url;
+        if (!value || typeof value !== 'string') return undefined;
+        if (STRAPI_URL && value.startsWith(STRAPI_URL)) return value.slice(STRAPI_URL.length);
+        return value;
+    };
+
+    /** Относительный путь картинки для корзины или полный URL для <img> */
+    const primaryImagePath =
+        toStrapiPath(product?.preview) ?? toStrapiPath(product?.images?.[0]?.url);
+
+    const resolvedImageSrc = (() => {
+        if (primaryImagePath == null || primaryImagePath === '') return '/placeholder.png';
+        if (primaryImagePath.startsWith('http://') || primaryImagePath.startsWith('https://')) {
+            return primaryImagePath;
+        }
+        if (!STRAPI_URL) {
+            return primaryImagePath.startsWith('/') ? primaryImagePath : `/${primaryImagePath}`;
+        }
+        return `${STRAPI_URL}${primaryImagePath.startsWith('/') ? primaryImagePath : `/${primaryImagePath}`}`;
+    })();
+
     const isOutOfStock = product.stock !== undefined && product.stock <= 0;
 
     // Check if product has discount
@@ -54,7 +78,7 @@ export const InterestingProduct = ({ product }: InterestingProductProps) => {
             title: product.title,
             price: currentPrice, // Use discounted price
             oldPrice: hasDiscount ? oldPrice : null, // Save old price if discount exists
-            image: product.images[0]?.url,
+            image: primaryImagePath ?? '',
             stock: product.stock
         });
     };
@@ -92,7 +116,7 @@ export const InterestingProduct = ({ product }: InterestingProductProps) => {
                         ))}
                     </StyledPolishesBadge>
                 )}
-                <img src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`} alt={product.title} />
+                <img src={resolvedImageSrc} alt={product.title || ''} />
                 {isBestseller && (
                     <StyledBestsellerBadge>
                         <span>Бестселлер</span>
@@ -266,18 +290,18 @@ const StyledContent = styled.div`
                 gap: ${rm(4)};
 
                 .oldPrice{
-                    font-size: ${rm(16)};
+                    font-size: ${rm(24)};
                     ${fontGeist(400)};
                     color: #999;
                     text-decoration: line-through;
                     line-height: 1;
 
                     ${media.md`
-                        font-size: ${rm(14)};
+                        font-size: ${rm(20)};
                     `}
 
                     ${media.xsm`
-                        font-size: ${rm(13)};
+                        font-size: ${rm(18)};
                     `}
                 }
 
@@ -419,9 +443,9 @@ const StyledDiscountBadge = styled.div`
                 0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
     border: 1.5px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
-    animation: pulse 2s ease-in-out infinite;
+    animation: interestingDiscountPulse 2s ease-in-out infinite;
 
-    @keyframes pulse {
+    @keyframes interestingDiscountPulse {
         0%, 100% {
             transform: scale(1);
             box-shadow: 0 ${rm(4)} ${rm(12)} rgba(255, 71, 87, 0.4), 
@@ -435,15 +459,23 @@ const StyledDiscountBadge = styled.div`
     }
 
     ${media.xsm`
-        top: ${rm(8)};
-        right: ${rm(8)};
-        padding: ${rm(5)} ${rm(8)};
-        gap: ${rm(6)};
-        border-radius: ${rm(6)};
+        top: ${rm(6)};
+        right: ${rm(6)};
+        padding: ${rm(3)} ${rm(6)};
+        gap: ${rm(4)};
+        border-radius: ${rm(5)};
+        border-width: 1px;
+        animation: none;
+        transform: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        backdrop-filter: none;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: calc(100% - ${rm(12)});
     `}
 
     .oldPrice {
-        font-size: ${rm(11)};
+        font-size: ${rm(14)};
         ${fontGeist(400)};
         color: rgba(255, 255, 255, 0.85);
         text-decoration: line-through;
@@ -452,7 +484,7 @@ const StyledDiscountBadge = styled.div`
         white-space: nowrap;
 
         ${media.xsm`
-            font-size: ${rm(10)};
+            font-size: ${rm(11)};
         `}
     }
 
@@ -465,7 +497,7 @@ const StyledDiscountBadge = styled.div`
         white-space: nowrap;
 
         ${media.xsm`
-            font-size: ${rm(13)};
+            font-size: ${rm(11)};
         `}
     }
 
@@ -483,7 +515,7 @@ const StyledDiscountBadge = styled.div`
 
         ${media.xsm`
             font-size: ${rm(10)};
-            padding: ${rm(2)} ${rm(5)};
+            padding: ${rm(1)} ${rm(4)};
             border-radius: ${rm(3)};
         `}
     }
