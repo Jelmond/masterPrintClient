@@ -88,6 +88,10 @@ const info = {
             url: '/delivery'
         },
         {
+            label: 'Скидки и акции',
+            url: '/promotions'
+        },
+        {
             label: 'Обращения покупателей',
             url: '/requests'
         },

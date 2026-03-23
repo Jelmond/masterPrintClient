@@ -1048,11 +1048,9 @@ export const OrderView = () => {
                                     {deliveryMethod === 'belpochta' ? (
                                         <span title="Оплата при получении на почте">Оплата при получении (~5–10 руб.)</span>
                                     ) : priceData.shippingCost === 0 ? (
-                                        priceData.freeShipping ? (
-                                            <span style={{ color: '#28a745' }}></span>
-                                        ) : (
-                                            'Бесплатно'
-                                        )
+                                        <span style={priceData.freeShipping ? { color: '#28a745' } : undefined}>
+                                            Бесплатно
+                                        </span>
                                     ) : (
                                         `${priceData.shippingCost.toFixed(2)} руб.`
                                     )}

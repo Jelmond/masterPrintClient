@@ -479,13 +479,13 @@ const StyledPrice = styled.div`
 `
 
 const StyledOldPrice = styled.div`
-    font-size: ${rm(14)};
+    font-size: ${rm(16)};
     color: #a0aec0;
     ${fontGeist(400)};
     text-decoration: line-through;
 
     ${media.xsm`
-        font-size: ${rm(12)};
+        font-size: ${rm(14)};
     `}
 `
 
