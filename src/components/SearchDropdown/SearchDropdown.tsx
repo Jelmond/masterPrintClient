@@ -11,13 +11,13 @@ interface SearchResult {
     title: string
     price: number
     oldPrice?: number
-    images: Array<{
+    images?: Array<{
         url: string
         formats: {
             thumbnail: { url: string }
             small: { url: string }
         }
-    }>
+    }> | null
     categories: Array<{
         id: number
         title: string
@@ -529,10 +529,10 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                         <StyledProductItem>
                                             <StyledProductImage>
                                                 <img
-                                                    src={product.images[0]?.formats?.thumbnail?.url 
-                                                        ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].formats.thumbnail.url}`
-                                                        : product.images[0]?.url 
-                                                        ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`
+                                                    src={product.images?.[0]?.formats?.thumbnail?.url 
+                                                        ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.formats?.thumbnail?.url}`
+                                                        : product.images?.[0]?.url 
+                                                        ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.url}`
                                                         : '/placeholder.jpg'}
                                                     alt={product.title}
                                                 />
@@ -577,10 +577,10 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                     <StyledProductItem>
                                         <StyledProductImage>
                                             <img
-                                                src={product.images[0]?.formats?.thumbnail?.url 
-                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].formats.thumbnail.url}`
-                                                    : product.images[0]?.url 
-                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`
+                                                src={product.images?.[0]?.formats?.thumbnail?.url 
+                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.formats?.thumbnail?.url}`
+                                                    : product.images?.[0]?.url 
+                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.url}`
                                                     : '/placeholder.jpg'}
                                                 alt={product.title}
                                             />
