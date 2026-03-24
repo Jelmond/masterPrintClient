@@ -22,6 +22,19 @@ export const Bestsellers = () => {
 
     const addToCart = useCartStore(state => state.addToCart);
     const items = useCartStore(state => state.items);
+    const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || '';
+
+    const getProductImagePath = (product: any) => {
+        const previewUrl = typeof product?.preview?.url === 'string' ? product.preview.url : null;
+        const firstImageUrl = Array.isArray(product?.images) ? product.images?.[0]?.url : null;
+        return previewUrl || firstImageUrl || '';
+    };
+
+    const toAbsoluteImageUrl = (pathOrUrl: string) => {
+        if (!pathOrUrl) return '/placeholder.jpg';
+        if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) return pathOrUrl;
+        return `${STRAPI_URL}${pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`}`;
+    };
 
     useEffect(() => {
         const fetchBestsellers = async () => {
@@ -67,7 +80,7 @@ export const Bestsellers = () => {
             productSlug: product.slug,
             title: product.title,
             price: product.price,
-            image: product.images[0]?.url
+            image: getProductImagePath(product)
         });
         console.log('Current cart items:', items);
         console.log('LocalStorage cart data:', localStorage.getItem('cart-storage'));
@@ -102,7 +115,7 @@ export const Bestsellers = () => {
                             <StyledSlide href={`/products/${product?.slug || product?.id}`} isUp={index % 2 === 1}>
                                 <StyledSlideImage>
                                     <Image 
-                                        src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${product?.images[0]?.url}`}
+                                        src={toAbsoluteImageUrl(getProductImagePath(product))}
                                         alt={product?.title}
                                         fill 
                                         style={{ objectFit: 'cover' }} 

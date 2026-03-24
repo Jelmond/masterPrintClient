@@ -16,14 +16,14 @@ interface SearchResult {
     title: string
     price: number
     oldPrice?: number
-    images: Array<{
+    images?: Array<{
         url: string
         formats?: {
             thumbnail?: { url: string }
             small?: { url: string }
             medium?: { url: string }
         }
-    }>
+    }> | null
     categories: Array<{
         id: number
         title: string
@@ -159,10 +159,10 @@ export default function SearchPage() {
                                                     <StyledProductImage>
                                                         <Image
                                                             src={
-                                                                product.images[0]?.formats?.medium?.url
-                                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].formats.medium.url}`
-                                                                    : product.images[0]?.url
-                                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`
+                                                                product.images?.[0]?.formats?.medium?.url
+                                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.formats?.medium?.url}`
+                                                                    : product.images?.[0]?.url
+                                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.url}`
                                                                     : '/placeholder.jpg'
                                                             }
                                                             alt={product.title}
@@ -204,10 +204,10 @@ export default function SearchPage() {
                                                 <StyledProductImage>
                                                     <Image
                                                         src={
-                                                            product.images[0]?.formats?.medium?.url
-                                                                ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].formats.medium.url}`
-                                                                : product.images[0]?.url
-                                                                ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`
+                                                            product.images?.[0]?.formats?.medium?.url
+                                                                ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.formats?.medium?.url}`
+                                                                : product.images?.[0]?.url
+                                                                ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.url}`
                                                                 : '/placeholder.jpg'
                                                         }
                                                         alt={product.title}
