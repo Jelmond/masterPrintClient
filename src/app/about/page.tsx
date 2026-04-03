@@ -1,10 +1,27 @@
 'use client'
 
-import { colors, media, rm } from "@/styles"
+import { media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
+import { useEffect } from "react"
+import { FaqAccordionItem } from "@/components/FaqAccordion/FaqAccordion"
 
 export default function AboutPage() {
+    useEffect(() => {
+        const scrollToHash = () => {
+            const id = window.location.hash.replace(/^#/, "")
+            if (!id) return
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                })
+            })
+        }
+        scrollToHash()
+        window.addEventListener("hashchange", scrollToHash)
+        return () => window.removeEventListener("hashchange", scrollToHash)
+    }, [])
+
     return (
         <StyledAboutPage>
             <StyledContainer>
@@ -99,6 +116,108 @@ export default function AboutPage() {
                             </StyledInfoItem>
                         </StyledInfoList>
                     </StyledSection>
+
+                    <StyledFaqSection id="faq" aria-labelledby="faq-heading">
+                        <StyledFaqPageTitle id="faq-heading">FAQ — MPP Shop</StyledFaqPageTitle>
+                        <StyledFaqList>
+                            <FaqAccordionItem itemId="faq-1" question="1. Как работает MPP Shop?">
+                                <StyledText>
+                                    Вы выбираете готовый товар, оформляете заказ — мы отправляем со склада.
+                                </StyledText>
+                                <StyledText>
+                                    Все позиции уже произведены, поэтому нет ожидания производства.
+                                </StyledText>
+                            </FaqAccordionItem>
+                            <FaqAccordionItem itemId="faq-2" question="2. Когда отправят мой заказ?">
+                                <StyledText>
+                                    Отправка осуществляется в течение 1–2 рабочих дней после подтверждения заказа.
+                                </StyledText>
+                            </FaqAccordionItem>
+                            <FaqAccordionItem itemId="faq-3" question="3. Какие есть способы доставки?">
+                                <StyledText>
+                                    <strong>Самовывоз:</strong>
+                                    <br />
+                                    г. Гродно, ул. Титова, 24
+                                    <br />
+                                    Пн–Пт: 09:00–17:00
+                                    <br />
+                                    Скидка 3% при самовывозе.
+                                </StyledText>
+                                <StyledText>
+                                    <strong>Доставка по Беларуси:</strong>
+                                </StyledText>
+                                <StyledBulletList>
+                                    <li>Белпочта (для физ. лиц)</li>
+                                    <li>
+                                        DPD (для юр. лиц и ИП, бесплатно от 200 BYN, срок 2–3 дня)
+                                    </li>
+                                </StyledBulletList>
+                            </FaqAccordionItem>
+                            <FaqAccordionItem itemId="faq-4" question="4. Какие есть способы оплаты?">
+                                <StyledText>
+                                    <strong>Физические лица:</strong>
+                                </StyledText>
+                                <StyledBulletList>
+                                    <li>наличные при получении</li>
+                                    <li>карта при получении</li>
+                                    <li>онлайн-оплата</li>
+                                    <li>ЕРИП</li>
+                                </StyledBulletList>
+                                <StyledText>
+                                    <strong>Юридические лица и ИП:</strong>
+                                </StyledText>
+                                <StyledBulletList>
+                                    <li>оплата по счёту (100% предоплата)</li>
+                                    <li>ЕРИП</li>
+                                </StyledBulletList>
+                            </FaqAccordionItem>
+                            <FaqAccordionItem itemId="faq-5" question="5. Как проходит оплата?">
+                                <StyledText>
+                                    После оформления заказа мы связываемся с вами для подтверждения. Оплату или
+                                    получение необходимо выполнить в течение 2 банковских дней, иначе заказ
+                                    аннулируется.
+                                </StyledText>
+                            </FaqAccordionItem>
+                            <FaqAccordionItem itemId="faq-6" question="6. Какие скидки доступны?">
+                                <StyledBulletList>
+                                    <li>3% при самовывозе</li>
+                                    <li>5% при заказе от 700 BYN</li>
+                                    <li>20% при заказе от 1500 BYN</li>
+                                </StyledBulletList>
+                                <StyledText>
+                                    Скидки могут суммироваться. Также доступны промокоды и акции.
+                                </StyledText>
+                            </FaqAccordionItem>
+                            <FaqAccordionItem itemId="faq-7" question="7. Что важно учитывать при доставке?">
+                                <StyledText>Необходимо указывать корректный адрес.</StyledText>
+                                <StyledText>
+                                    Если заказ не был получен по вине покупателя, он считается доставленным. В этом
+                                    случае заказ можно забрать в пункте самовывоза.
+                                </StyledText>
+                            </FaqAccordionItem>
+                            <FaqAccordionItem itemId="faq-8" question="8. Нужен индивидуальный заказ?">
+                                <StyledText>Если вам требуется:</StyledText>
+                                <StyledBulletList>
+                                    <li>добавить логотип</li>
+                                    <li>изменить дизайн</li>
+                                    <li>сделать уникальный продукт под бренд</li>
+                                    <li>нестандартные размеры или конструкция</li>
+                                </StyledBulletList>
+                                <StyledText>
+                                    Мы передадим ваш запрос в основную типографию. Менеджеры рассчитают стоимость и
+                                    предложат решение.
+                                </StyledText>
+                            </FaqAccordionItem>
+                            <FaqAccordionItem itemId="faq-9" question="9. Чем MPP Shop отличается от типографии?">
+                                <StyledText>
+                                    <strong>MPP Shop</strong> — готовые товары, наличие на складе, быстрая отправка.
+                                </StyledText>
+                                <StyledText>
+                                    <strong>Типография</strong> — индивидуальные решения, производство под заказ.
+                                </StyledText>
+                            </FaqAccordionItem>
+                        </StyledFaqList>
+                    </StyledFaqSection>
                 </StyledContent>
             </StyledContainer>
         </StyledAboutPage>
@@ -319,6 +438,69 @@ const StyledInfoValue = styled.span`
 
     ${media.xsm`
         font-size: ${rm(14)};
+    `}
+`
+
+const StyledFaqSection = styled.section`
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(28)};
+    scroll-margin-top: ${rm(100)};
+
+    ${media.xsm`
+        scroll-margin-top: ${rm(72)};
+        gap: ${rm(22)};
+    `}
+`
+
+const StyledFaqPageTitle = styled.h2`
+    ${fontGeist(700)};
+    font-size: ${rm(34)};
+    color: #111111;
+    margin: 0;
+
+    ${media.md`
+        font-size: ${rm(28)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(24)};
+    `}
+`
+
+const StyledFaqList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(14)};
+
+    ${media.xsm`
+        gap: ${rm(12)};
+    `}
+`
+
+const StyledBulletList = styled.ul`
+    margin: 0;
+    padding-left: ${rm(22)};
+    ${fontGeist(400)};
+    font-size: ${rm(18)};
+    color: #1c1c1c;
+    line-height: 1.55;
+
+    li {
+        margin-bottom: ${rm(6)};
+    }
+
+    li:last-child {
+        margin-bottom: 0;
+    }
+
+    ${media.md`
+        font-size: ${rm(16)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+        padding-left: ${rm(18)};
     `}
 `
 

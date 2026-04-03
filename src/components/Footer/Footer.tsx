@@ -76,6 +76,10 @@ const info = {
             url: '/about'
         },
         {
+            label: 'FAQ',
+            url: '/about#faq'
+        },
+        {
             label: 'Оформление заказа',
             url: '/order-instructions'
         },

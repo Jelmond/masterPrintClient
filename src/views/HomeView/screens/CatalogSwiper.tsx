@@ -17,7 +17,13 @@ import { CardsSvg } from "./animatedSvgs/Cards"
 import { BoxSvg } from "./animatedSvgs/Box"
 import { ConvertsSvg } from "./animatedSvgs/Converts"
 import { CardsPostcardsSvg } from "./animatedSvgs/CardsPostcards"
+import { WrappingPaperSvg } from "./animatedSvgs/WrappingPaper"
 
+function isWrappingPaperCategory(category: { icon?: string | null; title?: string }) {
+    if (category.icon === "wrapping") return true
+    if (category.icon) return false
+    return /оберточ/i.test(category.title || "")
+}
 
 export const CatalogSwiper = () => {
     const { data, error, loading } = useStrapi<{ data: any[] }>({
@@ -44,6 +50,7 @@ export const CatalogSwiper = () => {
                                 {category.icon === 'box' && <BoxSvg />}
                                 {category.icon === 'convert' && <ConvertsSvg />}
                                 {category.icon === 'cards' && <CardsPostcardsSvg />}
+                                {isWrappingPaperCategory(category) && <WrappingPaperSvg />}
                             </StyledSlideImage>
                             <StyledSlideText>{category?.title}</StyledSlideText>
                         </StyledSlide>

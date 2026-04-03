@@ -140,7 +140,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     return (
         <StyledProductCard>
             {(hasDiscount || isInCart) && (
-                <StyledTopBadges>
+                <StyledTopBadges $stackTopBadges={hasDiscount && isInCart}>
                     {isInCart ? (
                         <div className="left">
                             <StyledInCartBadge>
@@ -610,7 +610,7 @@ const StyledContent = styled.div`
     }
 `;
 
-const StyledTopBadges = styled.div`
+const StyledTopBadges = styled.div<{ $stackTopBadges?: boolean }>`
     position: absolute;
     top: ${rm(10)};
     left: ${rm(10)};
@@ -622,6 +622,15 @@ const StyledTopBadges = styled.div`
     gap: ${rm(8)};
     pointer-events: none;
     isolation: isolate;
+
+    ${({ $stackTopBadges }) =>
+        $stackTopBadges
+            ? `
+        flex-direction: column;
+        align-items: stretch;
+        gap: ${rm(6)};
+    `
+            : ''}
 
     ${media.xsm`
         top: ${rm(6)};
@@ -638,9 +647,16 @@ const StyledTopBadges = styled.div`
         position: relative;
     }
 
-    /* «В корзине» поверх баннера скидки при узкой сетке в 2 колонки */
     .left {
-        z-index: 20;
+        z-index: 12;
+        ${({ $stackTopBadges }) =>
+            $stackTopBadges
+                ? `
+            align-self: flex-start;
+            width: fit-content;
+            max-width: 100%;
+        `
+                : ''}
         ${media.xsm`
             align-self: flex-start;
             max-width: 100%;
@@ -649,7 +665,15 @@ const StyledTopBadges = styled.div`
 
     .right {
         justify-content: flex-end;
-        z-index: 10;
+        z-index: 12;
+        ${({ $stackTopBadges }) =>
+            $stackTopBadges
+                ? `
+            align-self: flex-end;
+            width: fit-content;
+            max-width: 100%;
+        `
+                : ''}
         ${media.xsm`
             align-self: flex-end;
             max-width: 100%;
@@ -657,7 +681,6 @@ const StyledTopBadges = styled.div`
         `}
     }
 
-    /* Один баннер скидки без «В корзине» — прижать вправо как раньше */
     .right:only-child {
         margin-left: auto;
     }
@@ -665,8 +688,6 @@ const StyledTopBadges = styled.div`
     & > * {
         pointer-events: none;
     }
-
-    /* badges themselves should still render as overlay, not interactive */
 `
 
 const StyledProductInfoBadge = styled.div`
