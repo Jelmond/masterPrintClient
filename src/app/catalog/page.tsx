@@ -8,17 +8,22 @@ import { BoxSvg } from "@/views/HomeView/screens/animatedSvgs/Box";
 import { CardsSvg } from "@/views/HomeView/screens/animatedSvgs/Cards";
 import { CardsPostcardsSvg } from "@/views/HomeView/screens/animatedSvgs/CardsPostcards";
 import { ConvertsSvg } from "@/views/HomeView/screens/animatedSvgs/Converts";
+import { WrappingPaperSvg } from "@/views/HomeView/screens/animatedSvgs/WrappingPaper";
 import { StyledSlideImage } from "@/views/HomeView/screens/CatalogSwiper";
 import Link from "next/link";
 import styled from "styled-components";
+
+function isWrappingPaperCategory(category: { icon?: string | null; title?: string }) {
+    if (category.icon === "wrapping") return true
+    if (category.icon) return false
+    return /оберточ/i.test(category.title || "")
+}
 
 export default function CatalogPage() {
 
     const { data, error, loading } = useStrapi<{ data: any[] }>({
         path: '/api/categories',
     });
-
-    console.log(data?.data)
 
     return (
         <StyledCatalogPage>
@@ -29,6 +34,7 @@ export default function CatalogPage() {
                         {category.icon === 'box' && <BoxSvg />}
                         {category.icon === 'convert' && <ConvertsSvg />}
                         {category.icon === 'cards' && <CardsPostcardsSvg />}
+                        {isWrappingPaperCategory(category) && <WrappingPaperSvg />}
                     </StyledSlideImage>
                     <span>{category.title}</span>
                 </StyledCategory>

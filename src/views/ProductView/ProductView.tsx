@@ -14,16 +14,20 @@ import { RichText } from '@graphcms/rich-text-react-renderer';
 import { useCartStore } from "@/store/cartStore";
 import { CanBeInteresting } from "@/components/CanBeInteresting/CanBeInteresting";
 
-const IMAGE_ZOOM = 2;
-const LENS_SIZE_PX = 140;
+const IMAGE_ZOOM = 1.45;
+/** Размер «лупы» на экране (не зум): прямоугольник */
+const LENS_WIDTH_PX = 400;
+const LENS_HEIGHT_PX = 290;
 
-/** Главное фото с круглой линзой ×2 при наведении (только fine pointer + hover) */
+/** Главное фото с прямоугольной линзой при наведении (только fine pointer + hover) */
 function ProductMainImageWithLens({ src, alt }: { src: string; alt: string }) {
     const wrapRef = useRef<HTMLDivElement>(null);
     const [natural, setNatural] = useState({ w: 0, h: 0 });
     const [lens, setLens] = useState<{
         left: number;
         top: number;
+        width: number;
+        height: number;
         bgX: number;
         bgY: number;
         bgW: number;
@@ -57,16 +61,33 @@ function ProductMainImageWithLens({ src, alt }: { src: string; alt: string }) {
             const offX = (W - dispW) / 2;
             const offY = (H - dispH) / 2;
 
-            const half = LENS_SIZE_PX / 2;
-            const cx = Math.min(Math.max(half, mx), W - half);
-            const cy = Math.min(Math.max(half, my), H - half);
+            let lensW = LENS_WIDTH_PX;
+            let lensH = LENS_HEIGHT_PX;
+            if (W < lensW + 8) lensW = Math.max(80, W - 8);
+            if (H < lensH + 8) lensH = Math.max(80, H - 8);
+
+            const halfW = lensW / 2;
+            const halfH = lensH / 2;
+            /* Центр линзы строго под курсором — иначе у краёв контейнера «лупа» сдвигается
+               и обрезает увеличенные участки у реальных краёв фото (object-fit: cover). */
+            const cx = mx;
+            const cy = my;
 
             const bgW = dispW * IMAGE_ZOOM;
             const bgH = dispH * IMAGE_ZOOM;
-            const bgX = half - (cx - offX) * IMAGE_ZOOM;
-            const bgY = half - (cy - offY) * IMAGE_ZOOM;
+            const bgX = halfW - (cx - offX) * IMAGE_ZOOM;
+            const bgY = halfH - (cy - offY) * IMAGE_ZOOM;
 
-            setLens({ left: cx - half, top: cy - half, bgX, bgY, bgW, bgH });
+            setLens({
+                left: cx - halfW,
+                top: cy - halfH,
+                width: lensW,
+                height: lensH,
+                bgX,
+                bgY,
+                bgW,
+                bgH,
+            });
         },
         [natural]
     );
@@ -101,13 +122,13 @@ function ProductMainImageWithLens({ src, alt }: { src: string; alt: string }) {
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
             {enableLens && lens && (
-                <LensCircle
+                <LensRect
                     aria-hidden
                     style={{
                         left: lens.left,
                         top: lens.top,
-                        width: LENS_SIZE_PX,
-                        height: LENS_SIZE_PX,
+                        width: lens.width,
+                        height: lens.height,
                         backgroundImage: `url(${JSON.stringify(src)})`,
                         backgroundSize: `${lens.bgW}px ${lens.bgH}px`,
                         backgroundPosition: `${lens.bgX}px ${lens.bgY}px`,
@@ -198,6 +219,7 @@ export const ProductView = ({ data }: { data: any }) => {
             <Left>
                 <StyledSwiper>
                     <Swiper
+                        className="product-main-swiper"
                         spaceBetween={20}
                         slidesPerView={1}
                         navigation
@@ -645,8 +667,21 @@ const StyledSwiper = styled.div`
     border-radius: ${rm(5)};
     background: #e0e0e0;
     margin-bottom: ${rm(30)};
-    overflow: hidden;
+    /* visible — чтобы прямоугольная лупа могла выходить за край и не обрезалась */
+    overflow: visible;
     position: relative;
+
+    .product-main-swiper.swiper {
+        overflow: visible !important;
+    }
+
+    .product-main-swiper .swiper-wrapper {
+        overflow: visible;
+    }
+
+    .product-main-swiper .swiper-slide {
+        overflow: visible !important;
+    }
 
     ${media.lg`
         max-width: ${rm(600)};
@@ -660,7 +695,7 @@ const StyledSwiper = styled.div`
     `}
 
     ${media.xsm`
-        height: ${rm(300)};
+        height: ${rm(450)};
         margin-bottom: ${rm(15)};
     `}
 
@@ -693,25 +728,28 @@ const ImageBox = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: visible;
 `
 
 const MagnifyWrap = styled.div<{ $canLens: boolean }>`
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: visible;
     cursor: ${(p) => (p.$canLens ? "crosshair" : "default")};
 `
 
-const LensCircle = styled.div`
+const LensRect = styled.div`
     position: absolute;
     pointer-events: none;
-    z-index: 5;
-    border-radius: 50%;
+    z-index: 20;
+    border-radius: ${rm(6)};
     border: 2px solid rgba(255, 255, 255, 0.95);
     box-shadow:
         inset 0 0 0 1px rgba(0, 0, 0, 0.12),
         0 4px 24px rgba(0, 0, 0, 0.35);
     background-repeat: no-repeat;
+    overflow: hidden;
 `
 const ThumbsWrapper = styled.div`
     width: 100%;

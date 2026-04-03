@@ -6,14 +6,23 @@ import { CatalogueButton } from "@/components/UI/Buttons/CatalogueButton"
 import { heightLvh } from "@/styles/utils"
 import { useWindowWidth } from "@react-hook/window-size"
 
-export const Welcome = () => {
+export type WelcomeProps = {
+    heroImageDesktopUrl?: string;
+    heroImageMobileUrl?: string;
+};
+
+export const Welcome = ({
+    heroImageDesktopUrl = "/hero.webp",
+    heroImageMobileUrl = "/heroMobile.webp",
+}: WelcomeProps) => {
 
     const width = useWindowWidth()
+    const src = width > 768 ? heroImageDesktopUrl : heroImageMobileUrl
 
     return (
         <StyledWelcome>
             <StyledContent>
-                <StyledBackgroundImage src={width > 768 ? "/hero.webp" : "/heroMobile.webp"} alt="welcomeBackground" fill />
+                <StyledBackgroundImage src={src} alt="welcomeBackground" fill sizes="100vw" priority />
                 <StyledLeft>
                     <StyledHeadline>
                         ВАШ ПАРТНЁР В ОБЛАСТИ ПОДАРОЧНЫХ ПЕЧАТНЫХ ИЗДЕЛИЙ

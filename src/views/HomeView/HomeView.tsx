@@ -23,14 +23,25 @@ const StyledHomeView = styled.div`
 
 // ${minHeightLvh(150)}
 
-export const HomeView = () => {
+export type HomeViewProps = {
+  heroImageDesktopUrl?: string;
+  heroImageMobileUrl?: string;
+};
+
+export const HomeView = ({
+  heroImageDesktopUrl = "/hero.webp",
+  heroImageMobileUrl = "/heroMobile.webp",
+}: HomeViewProps) => {
 
   const mainRef = useRef<HTMLDivElement>(null)
 
 
   return (
     <StyledHomeView ref={mainRef}>
-      <Welcome />
+      <Welcome
+        heroImageDesktopUrl={heroImageDesktopUrl}
+        heroImageMobileUrl={heroImageMobileUrl}
+      />
       {/* <Comfort /> */}
       <CatalogSwiper />
       <InfoCard />
