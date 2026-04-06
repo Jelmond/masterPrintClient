@@ -103,7 +103,8 @@ export const OrderView = () => {
                             quantity: item.quantity
                         })),
                         type: deliveryMethod === 'self-pickup' ? 'selfShipping' : deliveryMethod === 'belpochta' ? 'belpochta' : 'shipping',
-                        ...(buyerType === 'selfEmployed' && { isSelfEmployed: true }),
+                        /* Юрлица и самозанятые — одна логика доставки в расчёте (как у самозанятых) */
+                        ...((buyerType === 'selfEmployed' || buyerType === 'legal') && { isSelfEmployed: true }),
                         ...(promocodeValid?.valid && promocode.trim() ? { promocode: promocode.trim() } : {})
                     }),
                 })
@@ -483,7 +484,7 @@ export const OrderView = () => {
             paymentRequest.legalAddress = `${legalFormData.legalCity}, ${legalFormData.legalAddress}`.trim()
             paymentRequest.deliveryAddress = `${legalFormData.city}, ${legalFormData.address}`.trim()
             if (legalFormData.comment) paymentRequest.comment = legalFormData.comment
-            if (buyerType === 'selfEmployed') {
+            if (buyerType === 'selfEmployed' || buyerType === 'legal') {
                 paymentRequest.isSelfEmployed = true
             }
         }

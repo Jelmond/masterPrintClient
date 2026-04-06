@@ -8,6 +8,7 @@ import { fontGeist } from '@/styles/fonts'
 import Link from 'next/link'
 import Image from 'next/image'
 import { AnimLink } from '@/layouts/AnimatedRouterLayout/AnimatedRouterLayout'
+import { getSearchProductImageUrl } from '@/utils/productSearchImage'
 
 interface SearchResult {
     id: number
@@ -24,6 +25,7 @@ interface SearchResult {
             medium?: { url: string }
         }
     }> | null
+    preview?: unknown
     categories: Array<{
         id: number
         title: string
@@ -71,9 +73,7 @@ export default function SearchPage() {
         }
     }, [query])
 
-    useEffect(() => {
-        console.log(searchData)
-    }, [searchData])
+    const strapiBase = process.env.NEXT_PUBLIC_STRAPI_URL || ''
 
     const performSearch = async (searchTerm: string) => {
         if (!searchTerm.trim()) {
@@ -158,13 +158,7 @@ export default function SearchPage() {
                                                 <StyledProductCard>
                                                     <StyledProductImage>
                                                         <Image
-                                                            src={
-                                                                product.images?.[0]?.formats?.medium?.url
-                                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.formats?.medium?.url}`
-                                                                    : product.images?.[0]?.url
-                                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.url}`
-                                                                    : '/placeholder.jpg'
-                                                            }
+                                                            src={getSearchProductImageUrl(product, strapiBase, 'medium')}
                                                             alt={product.title}
                                                             fill
                                                             style={{ objectFit: 'cover' }}
@@ -203,13 +197,7 @@ export default function SearchPage() {
                                             <StyledProductCard>
                                                 <StyledProductImage>
                                                     <Image
-                                                        src={
-                                                            product.images?.[0]?.formats?.medium?.url
-                                                                ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.formats?.medium?.url}`
-                                                                : product.images?.[0]?.url
-                                                                ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.url}`
-                                                                : '/placeholder.jpg'
-                                                        }
+                                                        src={getSearchProductImageUrl(product, strapiBase, 'medium')}
                                                         alt={product.title}
                                                         fill
                                                         style={{ objectFit: 'cover' }}

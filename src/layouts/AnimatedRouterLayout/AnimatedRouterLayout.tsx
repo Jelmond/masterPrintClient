@@ -16,7 +16,14 @@ import {
   useState,
 } from "react";
 import { TransitionBg } from "./TransitionBg";
-import { scrollTo } from "@/utils/scrollTo";
+
+/** Не сбрасывать скролл наверх при переходе с якорем (#section) — страница сама прокрутит к блоку */
+function scrollToTopIfNoHash() {
+  if (typeof window === "undefined") return;
+  const h = window.location.hash;
+  if (h && h.length > 1) return;
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
 
 const AnimatedRouterContext = createContext({});
 export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
@@ -51,9 +58,8 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     if (typeof window === "undefined") return;
     if (!isMounted) return;
 
-    // Scroll to top on route change
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    
+    scrollToTopIfNoHash();
+
     routeChangeComplete();
     changing.current = false;
     document.body.style.cursor = "default";
@@ -63,8 +69,7 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
       pathnameRef.current = window.location.pathname;
       searchParamsRef.current = new URLSearchParams(window.location.search);
 
-      // Scroll to top on route change
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      scrollToTopIfNoHash();
 
       routeChangeComplete();
       changing.current = false;
@@ -97,12 +102,11 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     };
   }, [isMounted]);
 
-  // Always scroll to top on route change
+  // Сброс скролла при смене страницы (без якоря в URL)
   useLayoutEffect(() => {
     if (!isMounted) return;
     if (typeof window === "undefined") return;
-    // Scroll to top immediately when route changes
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    scrollToTopIfNoHash();
   }, [pathname, isMounted]);
 
   const routeChangeStart = (href: string, backMode?: boolean) => {
@@ -145,10 +149,7 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
   };
   const routeChangeComplete = () => {
     if (!isMounted) return;
-    // Scroll to top when route change completes
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }
+    scrollToTopIfNoHash();
     transitionRef.current?.hide();
   };
 

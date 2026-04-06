@@ -103,7 +103,7 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
                         <>
                             <StyledSectionTitle>Теги</StyledSectionTitle>
                             <StyledSalesFilter>
-                                <StyledFilterButton 
+                                {/* <StyledFilterButton 
                                     className={filters.sales === 'new' ? 'active' : ''}
                                     onClick={() => onFilterChange('sales', filters.sales === 'new' ? '' : 'new')}
                                 >
@@ -113,7 +113,7 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
                                             <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
                                     )}
-                                </StyledFilterButton>
+                                </StyledFilterButton> */}
                                 <StyledFilterButton 
                                     className={filters.sales === 'sale' ? 'active' : ''}
                                     onClick={() => onFilterChange('sales', filters.sales === 'sale' ? '' : 'sale')}

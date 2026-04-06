@@ -3,21 +3,25 @@
 import { media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
-import { useEffect } from "react"
+import { useEffect, useLayoutEffect } from "react"
 import { FaqAccordionItem } from "@/components/FaqAccordion/FaqAccordion"
 
 export default function AboutPage() {
+    useLayoutEffect(() => {
+        const id = window.location.hash.replace(/^#/, "")
+        if (!id) return
+        const el = document.getElementById(id)
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+    }, [])
+
     useEffect(() => {
         const scrollToHash = () => {
             const id = window.location.hash.replace(/^#/, "")
             if (!id) return
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
-                })
-            })
+            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
         }
-        scrollToHash()
         window.addEventListener("hashchange", scrollToHash)
         return () => window.removeEventListener("hashchange", scrollToHash)
     }, [])

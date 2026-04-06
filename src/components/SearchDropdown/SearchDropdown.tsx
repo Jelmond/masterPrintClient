@@ -3,6 +3,7 @@ import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { getSearchProductImageUrl } from "@/utils/productSearchImage"
 
 interface SearchResult {
     id: number
@@ -18,6 +19,8 @@ interface SearchResult {
             small: { url: string }
         }
     }> | null
+    /** Превью в каталоге — если `images` пустой, показываем его */
+    preview?: unknown
     categories: Array<{
         id: number
         title: string
@@ -509,6 +512,8 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
 
     if (!isOpen) return null
 
+    const strapiBase = process.env.NEXT_PUBLIC_STRAPI_URL || ""
+
     return (
         <StyledDropdown ref={dropdownRef} isOpen={isOpen}>
             {loading ? (
@@ -529,11 +534,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                         <StyledProductItem>
                                             <StyledProductImage>
                                                 <img
-                                                    src={product.images?.[0]?.formats?.thumbnail?.url 
-                                                        ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.formats?.thumbnail?.url}`
-                                                        : product.images?.[0]?.url 
-                                                        ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.url}`
-                                                        : '/placeholder.jpg'}
+                                                    src={getSearchProductImageUrl(product, strapiBase, "thumbnail")}
                                                     alt={product.title}
                                                 />
                                             </StyledProductImage>
@@ -577,11 +578,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                     <StyledProductItem>
                                         <StyledProductImage>
                                             <img
-                                                src={product.images?.[0]?.formats?.thumbnail?.url 
-                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.formats?.thumbnail?.url}`
-                                                    : product.images?.[0]?.url 
-                                                    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images?.[0]?.url}`
-                                                    : '/placeholder.jpg'}
+                                                src={getSearchProductImageUrl(product, strapiBase, "thumbnail")}
                                                 alt={product.title}
                                             />
                                         </StyledProductImage>

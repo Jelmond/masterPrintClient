@@ -16,8 +16,8 @@ import { CanBeInteresting } from "@/components/CanBeInteresting/CanBeInteresting
 
 const IMAGE_ZOOM = 1.45;
 /** Размер «лупы» на экране (не зум): прямоугольник */
-const LENS_WIDTH_PX = 400;
-const LENS_HEIGHT_PX = 290;
+const LENS_WIDTH_PX = 320;
+const LENS_HEIGHT_PX = 230;
 
 /** Главное фото с прямоугольной линзой при наведении (только fine pointer + hover) */
 function ProductMainImageWithLens({ src, alt }: { src: string; alt: string }) {
@@ -171,6 +171,7 @@ function buildProductGallery(data: any): { id: string | number; url: string }[] 
 export const ProductView = ({ data }: { data: any }) => {
     const galleryItems = useMemo(() => buildProductGallery(data), [data]);
 
+    const [mainSwiper, setMainSwiper] = useState<any>(null);
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
     const addToCart = useCartStore(state => state.addToCart);
@@ -219,6 +220,7 @@ export const ProductView = ({ data }: { data: any }) => {
             <Left>
                 <StyledSwiper>
                     <Swiper
+                        onSwiper={setMainSwiper}
                         className="product-main-swiper"
                         spaceBetween={20}
                         slidesPerView={1}
@@ -255,6 +257,7 @@ export const ProductView = ({ data }: { data: any }) => {
                             onSwiper={setThumbsSwiper}
                             spaceBetween={20}
                             slidesPerView={Math.min(galleryItems.length, 5)}
+                            slideToClickedSlide
                             watchSlidesProgress
                             modules={[Thumbs]}
                             style={{ width: '100%' }}
@@ -274,7 +277,10 @@ export const ProductView = ({ data }: { data: any }) => {
                             }}
                         >
                             {galleryItems.map((item, idx) => (
-                                <SwiperSlide key={`thumb-${item.id ?? idx}`}>
+                                <SwiperSlide
+                                    key={`thumb-${item.id ?? idx}`}
+                                    onClick={() => mainSwiper?.slideTo?.(idx)}
+                                >
                                     <Thumb>
                                         <Image
                                             src={item.url}
@@ -667,20 +673,21 @@ const StyledSwiper = styled.div`
     border-radius: ${rm(5)};
     background: #e0e0e0;
     margin-bottom: ${rm(30)};
-    /* visible — чтобы прямоугольная лупа могла выходить за край и не обрезалась */
-    overflow: visible;
+    /* hidden — viewport Swiper: только один слайд, иначе wrapper со transform показывает все кадры */
+    overflow: hidden;
     position: relative;
+    isolation: isolate;
 
     .product-main-swiper.swiper {
-        overflow: visible !important;
-    }
-
-    .product-main-swiper .swiper-wrapper {
-        overflow: visible;
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        overflow: hidden;
     }
 
     .product-main-swiper .swiper-slide {
-        overflow: visible !important;
+        height: 100%;
+        box-sizing: border-box;
     }
 
     ${media.lg`
