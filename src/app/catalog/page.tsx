@@ -50,8 +50,13 @@ const StyledCatalogPage = styled.div`
     flex-wrap: wrap;
     min-height: 100vh;
     gap: ${rm(60)};
-    padding: ${rm(200)};
+    /* Уменьшили боковые отступы, чтобы 5 категорий влезали в один ряд на десктопе */
+    padding: ${rm(140)} ${rm(70)};
     position: relative;
+
+    ${media.lg`
+        padding: ${rm(120)} ${rm(40)};
+    `}
 
     ${media.md`
         padding: ${rm(100)} ${rm(25)} ${rm(100)} ${rm(25)};

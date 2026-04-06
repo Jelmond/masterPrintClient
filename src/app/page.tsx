@@ -2,6 +2,7 @@ import { HomeView } from "@/views/HomeView/HomeView";
 import { Suspense } from "react";
 import { generateMetadata } from "@/utils/generateMetadata";
 import { Metadata } from "next";
+import { getStrapiSingleEntryPayload, pickStrapiMediaUrl } from "@/utils/strapiMedia";
 
 export const metadata: Metadata = generateMetadata({
   title: "MPPSHOP - Полиграфическая продукция в Беларуси | Открытки, конверты, упаковка",
@@ -18,29 +19,38 @@ function toAbsoluteMediaUrl(pathOrUrl: string | undefined | null, base: string):
 }
 
 export default async function Home() {
-  const strapiBase = process.env.NEXT_PUBLIC_STRAPI_URL || "";
+  const strapiBase = (process.env.NEXT_PUBLIC_STRAPI_URL || "").replace(/\/$/, "");
   let heroImageDesktopUrl = "/hero.webp";
   let heroImageMobileUrl = "/heroMobile.webp";
 
-  try {
-    const homeRes = await fetch(`${strapiBase}/api/home?populate=*`, {
-      headers: { "Content-Type": "application/json" },
-      next: { revalidate: 60 },
-    });
+  /* Без базового URL относительный fetch на проде уходит не в Strapi — остаётся fallback */
+  if (strapiBase) {
+    try {
+      const homeRes = await fetch(`${strapiBase}/api/home?populate=*`, {
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        next: { revalidate: 60 },
+      });
 
-    if (homeRes.ok) {
-      const homeDataJson = await homeRes.json();
-      const row = homeDataJson?.data;
+      if (homeRes.ok) {
+        const homeDataJson = await homeRes.json();
+        const row = getStrapiSingleEntryPayload(homeDataJson);
 
-      const desktop = toAbsoluteMediaUrl(row?.heroImage?.url, strapiBase);
-      const mobile = toAbsoluteMediaUrl(row?.heroImageMobile?.url, strapiBase);
+        const desktop = toAbsoluteMediaUrl(
+          row ? pickStrapiMediaUrl(row.heroImage) : null,
+          strapiBase
+        );
+        const mobile = toAbsoluteMediaUrl(
+          row ? pickStrapiMediaUrl(row.heroImageMobile) : null,
+          strapiBase
+        );
 
-      if (desktop) heroImageDesktopUrl = desktop;
-      if (mobile) heroImageMobileUrl = mobile;
-      else if (desktop) heroImageMobileUrl = desktop;
+        if (desktop) heroImageDesktopUrl = desktop;
+        if (mobile) heroImageMobileUrl = mobile;
+        else if (desktop) heroImageMobileUrl = desktop;
+      }
+    } catch {
+      /* остаются локальные fallback */
     }
-  } catch {
-    /* остаются локальные fallback */
   }
 
   return (

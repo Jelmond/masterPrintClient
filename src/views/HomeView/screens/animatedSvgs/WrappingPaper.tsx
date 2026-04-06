@@ -4,99 +4,157 @@ import { useSpring, animated, to } from '@react-spring/web'
 import { useState } from 'react'
 
 /**
- * Оберточная бумага: один лист с типичным диагональным узором.
- * Hover — лист чуть приподнимается (как будто берёшь со стола).
- * В Strapi: icon = `wrapping`
+ * Wrapping paper: a single sheet with diagonal repeating "MPP Shop" brand pattern,
+ * wavy top/bottom edges giving a natural paper curl feel.
+ * Hover — sheet gently lifts and straightens.
+ * In Strapi: icon = `wrapping`
  */
 export const WrappingPaperSvg = () => {
     const [isHovered, setIsHovered] = useState(false)
 
-    const sheet = useSpring({
-        y: isHovered ? -18 : 0,
-        rotate: isHovered ? -5 : 0,
-        scale: isHovered ? 1.05 : 1,
-        config: { tension: 260, friction: 22 },
+    const spring = useSpring({
+        y: isHovered ? -14 : 0,
+        rotate: isHovered ? 1 : -4,
+        scale: isHovered ? 1.03 : 1,
+        config: { tension: 240, friction: 24 },
     })
 
     return (
         <svg
-            width="200"
-            height="280"
-            viewBox="0 0 200 280"
+            width="400"
+            height="520"
+            viewBox="0 0 400 520"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            style={{ cursor: 'pointer', transform: 'translateY(-10px)' }}
+            style={{ cursor: 'pointer', overflow: 'visible' }}
         >
             <defs>
-                <linearGradient id="wpSheetFill" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#FAF6F1" />
-                    <stop offset="100%" stopColor="#E8DFD4" />
+                {/* Warm kraft-paper gradient */}
+                <linearGradient id="wpSheet" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#F4EAD8" />
+                    <stop offset="55%" stopColor="#EDE0CB" />
+                    <stop offset="100%" stopColor="#E2D0B5" />
                 </linearGradient>
-                <linearGradient id="wpStripe" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#D4B896" />
-                    <stop offset="100%" stopColor="#B8956E" />
-                </linearGradient>
-                <filter id="wpDrop" x="-25%" y="-25%" width="150%" height="150%">
-                    <feDropShadow dx="0" dy="6" stdDeviation="8" floodOpacity="0.14" />
-                </filter>
-                <clipPath id="wpSheetClip">
-                    <rect x="32" y="72" width="136" height="188" rx="14" />
+
+                {/* Tiling diagonal "MPP Shop" brand text */}
+                <pattern
+                    id="mppText"
+                    x="0"
+                    y="0"
+                    width="130"
+                    height="65"
+                    patternUnits="userSpaceOnUse"
+                    patternTransform="rotate(-38 200 260)"
+                >
+                    <text
+                        x="8"
+                        y="44"
+                        fill="#A8865A"
+                        fillOpacity="0.45"
+                        fontSize="13.5"
+                        fontFamily="Georgia, 'Times New Roman', serif"
+                        fontWeight="bold"
+                        letterSpacing="3.5"
+                    >
+                        MPP Shop
+                    </text>
+                </pattern>
+
+                {/* Clip to keep pattern inside the sheet shape */}
+                <clipPath id="wpClip">
+                    <path d="
+                        M 62 58
+                        C 130 44, 220 72, 305 50
+                        C 335 43, 348 54, 346 62
+                        L 338 458
+                        C 300 468, 240 450, 180 462
+                        C 130 472, 82 458, 62 450
+                        Z
+                    " />
                 </clipPath>
+
+                <filter id="wpShadow" x="-15%" y="-10%" width="130%" height="130%">
+                    <feDropShadow dx="2" dy="8" stdDeviation="12" floodOpacity="0.11" />
+                </filter>
             </defs>
 
-            {/* Тень под листом (статичная, «стол») */}
-            <rect
-                x="40"
-                y="248"
-                width="120"
-                height="14"
-                rx="7"
-                fill="#000"
-                opacity="0.06"
-            />
+            {/* Soft ground shadow */}
+            <ellipse cx="200" cy="500" rx="130" ry="11" fill="#000" opacity="0.05" />
 
             <animated.g
                 transform={to(
-                    [sheet.y, sheet.rotate, sheet.scale],
+                    [spring.y, spring.rotate, spring.scale],
                     (y, rotate, scale) =>
-                        `translate(100, 166) translate(0, ${y}) rotate(${rotate}) scale(${scale}) translate(-100, -166)`
+                        `translate(200,260) translate(0,${y}) rotate(${rotate}) scale(${scale}) translate(-200,-260)`
                 )}
             >
-                {/* Основа листа */}
-                <rect
-                    x="32"
-                    y="72"
-                    width="136"
-                    height="188"
-                    rx="14"
-                    fill="url(#wpSheetFill)"
-                    filter="url(#wpDrop)"
-                />
-                {/* Диагональные полосы — только внутри листа */}
-                <g clipPath="url(#wpSheetClip)">
-                    {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                        <line
-                            key={i}
-                            x1={-30 + i * 26}
-                            y1="55"
-                            x2={90 + i * 26}
-                            y2="285"
-                            stroke="url(#wpStripe)"
-                            strokeWidth="9"
-                            strokeLinecap="round"
-                            opacity={0.28}
-                        />
-                    ))}
-                </g>
-                {/* Лёгкая блик-полоска сверху */}
+                {/* Paper base */}
                 <path
-                    d="M44 88 H156"
-                    stroke="#FFFFFF"
-                    strokeWidth="3"
+                    d="
+                        M 62 58
+                        C 130 44, 220 72, 305 50
+                        C 335 43, 348 54, 346 62
+                        L 338 458
+                        C 300 468, 240 450, 180 462
+                        C 130 472, 82 458, 62 450
+                        Z
+                    "
+                    fill="url(#wpSheet)"
+                    filter="url(#wpShadow)"
+                />
+
+                {/* Diagonal "MPP Shop" pattern */}
+                <path
+                    d="
+                        M 62 58
+                        C 130 44, 220 72, 305 50
+                        C 335 43, 348 54, 346 62
+                        L 338 458
+                        C 300 468, 240 450, 180 462
+                        C 130 472, 82 458, 62 450
+                        Z
+                    "
+                    fill="url(#mppText)"
+                    clipPath="url(#wpClip)"
+                />
+
+                {/* Thin decorative inset border */}
+                <path
+                    d="
+                        M 80 76
+                        C 142 63, 225 88, 303 68
+                        C 328 62, 330 70, 328 78
+                        L 322 440
+                        C 294 450, 238 433, 180 444
+                        C 135 453, 94 440, 80 432
+                        Z
+                    "
+                    fill="none"
+                    stroke="#A8865A"
+                    strokeWidth="1"
+                    strokeOpacity="0.22"
+                />
+
+                {/* Top edge highlight (paper sheen) */}
+                <path
+                    d="M 68 62 C 140 48, 220 74, 305 53"
+                    stroke="white"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
-                    opacity="0.55"
+                    strokeOpacity="0.55"
+                    fill="none"
+                />
+
+                {/* Bottom edge curl shadow */}
+                <path
+                    d="M 68 452 C 125 464, 200 456, 270 462 C 305 465, 330 460, 338 456"
+                    stroke="#A8865A"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeOpacity="0.28"
+                    fill="none"
                 />
             </animated.g>
         </svg>
