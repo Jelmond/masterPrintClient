@@ -18,6 +18,13 @@ function toAbsoluteMediaUrl(pathOrUrl: string | undefined | null, base: string):
   return `${base.replace(/\/$/, "")}${path}`;
 }
 
+function withVersion(url: string | null, version: string | null): string | null {
+  if (!url) return null;
+  if (!version) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${encodeURIComponent(version)}`;
+}
+
 export default async function Home() {
   const strapiBase = (process.env.NEXT_PUBLIC_STRAPI_URL || "").replace(/\/$/, "");
   let heroImageDesktopUrl = "/hero.webp";
@@ -31,13 +38,12 @@ export default async function Home() {
         next: { revalidate: 60 },
       });
 
-      console.log('homeRes', await homeRes.json())
-
       if (homeRes.ok) {
         const homeDataJson = await homeRes.json();
-
-        console.log('homeDataJson', homeDataJson)
         const row = getStrapiSingleEntryPayload(homeDataJson);
+        const version =
+          (typeof row?.updatedAt === "string" ? row.updatedAt : null) ??
+          (typeof row?.publishedAt === "string" ? row.publishedAt : null);
 
         const desktop = toAbsoluteMediaUrl(
           row ? pickStrapiMediaUrl(row.heroImage) : null,
@@ -48,9 +54,12 @@ export default async function Home() {
           strapiBase
         );
 
-        if (desktop) heroImageDesktopUrl = desktop;
-        if (mobile) heroImageMobileUrl = mobile;
-        else if (desktop) heroImageMobileUrl = desktop;
+        const desktopVersioned = withVersion(desktop, version);
+        const mobileVersioned = withVersion(mobile, version);
+
+        if (desktopVersioned) heroImageDesktopUrl = desktopVersioned;
+        if (mobileVersioned) heroImageMobileUrl = mobileVersioned;
+        else if (desktopVersioned) heroImageMobileUrl = desktopVersioned;
       }
     } catch {
       /* остаются локальные fallback */
