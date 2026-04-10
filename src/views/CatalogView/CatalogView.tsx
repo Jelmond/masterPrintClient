@@ -598,7 +598,7 @@ const StyledScrollToTop = styled.button<{ $isVisible: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 1100;
     box-shadow: 0 ${rm(4)} ${rm(12)} rgba(0, 0, 0, 0.2);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     color: ${colors.white100};
@@ -609,8 +609,9 @@ const StyledScrollToTop = styled.button<{ $isVisible: boolean }>`
     ${media.xsm`
         width: ${rm(45)};
         height: ${rm(45)};
-        bottom: ${rm(20)};
-        right: ${rm(20)};
+        /* Поднимаем над MobileBottomNav */
+        bottom: calc(${rm(78)} + env(safe-area-inset-bottom, 0px));
+        right: ${rm(14)};
     `}
 
     &:hover {

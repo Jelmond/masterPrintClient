@@ -31,8 +31,12 @@ export default async function Home() {
         next: { revalidate: 60 },
       });
 
+      console.log('homeRes', await homeRes.json())
+
       if (homeRes.ok) {
         const homeDataJson = await homeRes.json();
+
+        console.log('homeDataJson', homeDataJson)
         const row = getStrapiSingleEntryPayload(homeDataJson);
 
         const desktop = toAbsoluteMediaUrl(
