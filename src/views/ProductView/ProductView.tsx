@@ -214,11 +214,26 @@ export const ProductView = ({ data }: { data: any }) => {
         if (count % 10 >= 2 && count % 10 <= 4) return 'набора';
         return 'наборов';
     }
+
+    const hasPolishes =
+        data?.polishes !== null &&
+        data?.polishes !== undefined &&
+        Array.isArray(data?.polishes) &&
+        data.polishes.length > 0
     
     return (
         <StyledProductView>
             <Left>
                 <StyledSwiper>
+                    {hasPolishes && (
+                        <StyledPolishesBadgeOnImage>
+                            {data.polishes.map((polish: any, index: number) => (
+                                <span key={polish?.id || index} className="polishName">
+                                    {polish?.name}
+                                </span>
+                            ))}
+                        </StyledPolishesBadgeOnImage>
+                    )}
                     <Swiper
                         onSwiper={setMainSwiper}
                         className="product-main-swiper"
@@ -335,6 +350,11 @@ export const ProductView = ({ data }: { data: any }) => {
                             Количество в наборе: <span>{data.quantityInPack} {getWordForCount(data.quantityInPack)}</span>
                         </p>
                     )}
+                    {hasPolishes && (
+                        <p className="info">
+                            Лак: <span>{data.polishes.map((polish: any) => polish?.name).filter(Boolean).join(', ')}</span>
+                        </p>
+                    )}
                     <StyledDisclaimer>
                         Гарантийный срок, сведения о подтверждении соответствия и иную информацию о товаре можно запросить у продавца.
                     </StyledDisclaimer>
@@ -436,6 +456,53 @@ const StyledDisclaimer = styled.p`
         font-size: ${rm(12)};
         margin-top: ${rm(16)};
     `}
+`
+
+const StyledPolishesBadgeOnImage = styled.div`
+    position: absolute;
+    top: ${rm(12)};
+    right: ${rm(12)};
+    z-index: 30;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #9b59b6 100%);
+    border-radius: ${rm(8)};
+    padding: ${rm(6)} ${rm(10)};
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: ${rm(6)};
+    flex-wrap: wrap;
+    max-width: ${rm(260)};
+    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(102, 126, 234, 0.4),
+        0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+
+    ${media.xsm`
+        top: ${rm(8)};
+        right: ${rm(8)};
+        padding: ${rm(5)} ${rm(8)};
+        gap: ${rm(4)};
+        border-radius: ${rm(6)};
+        max-width: ${rm(170)};
+    `}
+
+    .polishName {
+        font-size: ${rm(11)};
+        ${fontGeist(600)};
+        color: ${colors.white100};
+        line-height: 1;
+        text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        max-width: 100%;
+
+        ${media.xsm`
+            font-size: ${rm(10)};
+        `}
+    }
 `
 
 const StyledActions = styled.div`
@@ -706,28 +773,64 @@ const StyledSwiper = styled.div`
         margin-bottom: ${rm(15)};
     `}
 
+    .swiper-button-prev,
+    .swiper-button-next {
+        width: ${rm(38)};
+        height: ${rm(38)};
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        color: ${colors.black100};
+        box-shadow: 0 ${rm(2)} ${rm(10)} rgba(0, 0, 0, 0.12);
+        transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    }
+
+    .swiper-button-prev {
+        left: ${rm(10)};
+    }
+
+    .swiper-button-next {
+        right: ${rm(10)};
+    }
+
+    .swiper-button-prev:hover,
+    .swiper-button-next:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(${rm(-2)}) scale(1.05);
+    }
+
     .swiper-button-next::after {
         content: '';
         display: block;
-        width: ${rm(15)};
-        height: ${rm(34)};
-        background: url('data:image/svg+xml;utf8,<svg width="15" height="34" viewBox="0 0 15 34" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L13 17L2 32" stroke="%23919191" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;
+        width: ${rm(14)};
+        height: ${rm(14)};
+        background: url('data:image/svg+xml;utf8,<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 3L9 7L5 11" stroke="%231C1C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;
         background-size: contain;
     }
     .swiper-button-prev::after {
         content: '';
         display: block;
-        width: ${rm(15)};
-        height: ${rm(34)};
-        background: url('data:image/svg+xml;utf8,<svg width="15" height="34" viewBox="0 0 15 34" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L2 17L13 32" stroke="%23919191" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;
+        width: ${rm(14)};
+        height: ${rm(14)};
+        background: url('data:image/svg+xml;utf8,<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3L5 7L9 11" stroke="%231C1C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;
         background-size: contain;
     }
 
     .swiper-button-next.swiper-button-disabled,
     .swiper-button-prev.swiper-button-disabled {
-        opacity: 0.3;
+        opacity: 0.4;
         pointer-events: none;
     }
+
+    ${media.xsm`
+        .swiper-button-prev,
+        .swiper-button-next {
+            width: ${rm(32)};
+            height: ${rm(32)};
+        }
+        .swiper-button-prev { left: ${rm(8)}; }
+        .swiper-button-next { right: ${rm(8)}; }
+    `}
 `
 const ImageBox = styled.div`
     width: 100%;
