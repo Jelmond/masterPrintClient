@@ -10,8 +10,10 @@ import { ContactDropdown } from "@/components/ContactDropdown/ContactDropdown"
 import { useState, useRef, useEffect } from "react"
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 
 export const Header = () => {
+    const pathname = usePathname()
     const [searchQuery, setSearchQuery] = useState('')
     const [isSearchOpen, setIsSearchOpen] = useState(false)
     const [isContactOpen, setIsContactOpen] = useState(false)

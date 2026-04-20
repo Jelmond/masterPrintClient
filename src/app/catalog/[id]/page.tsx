@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { generateMetadata as generateMetadataUtil } from "@/utils/generateMetadata";
 import { fetchBatchesFromStrapi } from '@/utils/fetchBatches';
 import { Metadata } from "next";
+import { About } from '@/views/HomeView/screens/About';
 
 interface Product {
     id: number;
@@ -130,13 +131,16 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     });
 
     return (
-        <CatalogView
-            data={categoryData}
-            products={products}
-            tags={tags}
-            tagsProductsData={tagsProductsData}
-            uniqueProducts={uniqueProducts}
-            batchesOrder={batchesOrder}
-        />
+        <>
+            <CatalogView
+                data={categoryData}
+                products={products}
+                tags={tags}
+                tagsProductsData={tagsProductsData}
+                uniqueProducts={uniqueProducts}
+                batchesOrder={batchesOrder}
+            />
+            <About />
+        </>
     );
 } 

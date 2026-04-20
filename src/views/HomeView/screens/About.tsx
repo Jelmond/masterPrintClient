@@ -1,3 +1,5 @@
+'use client'
+
 import { colors, media } from "@/styles"
 import { rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
@@ -11,25 +13,9 @@ interface FormErrors {
     company?: string
     message?: string
     consent?: string
+    circulation?: string
+    productType?: string
 }
-
-const floatAnimation = keyframes`
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-`
-
-const shimmerAnimation = keyframes`
-    0% {
-        background-position: -1000px 0;
-    }
-    100% {
-        background-position: 1000px 0;
-    }
-`
 
 const slideInUp = keyframes`
     from {
@@ -48,6 +34,8 @@ export const About = () => {
         phone: '',
         company: '',
         email: '',
+        circulation: '',
+        productType: '',
         message: '',
         consent: false
     })
@@ -78,13 +66,9 @@ export const About = () => {
         }
 
         // Email validation
-        if (!formData.email.trim()) {
-            newErrors.email = 'Email обязателен для заполнения'
-        } else {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-            if (!emailRegex.test(formData.email.trim())) {
-                newErrors.email = 'Неверный формат email'
-            }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (formData.email !== '' && !emailRegex.test(formData.email.trim())) {
+            newErrors.email = 'Неверный формат email'
         }
 
         // Consent validation
@@ -96,7 +80,7 @@ export const About = () => {
         return Object.keys(newErrors).length === 0
     }
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target
         const checked = (e.target as HTMLInputElement).checked
         setFormData({
@@ -160,6 +144,8 @@ export const About = () => {
                 phone: '',
                 company: '',
                 email: '',
+                circulation: '',
+                productType: '',
                 message: '',
                 consent: false
             })
@@ -184,14 +170,15 @@ export const About = () => {
             <StyledBackgroundDecoration />
             <StyledFormContainer>
                 <StyledHeader>
-                    <StyledTitle>Остались вопросы?</StyledTitle>
+                    <StyledTitle>Делаем продукцию под заказ!</StyledTitle>
                     <StyledSubtitle>Заполните форму ниже, и мы свяжемся с вами в ближайшее время</StyledSubtitle>
+                    <StyledSubtitle className="small">Юридические лица, ИП, и лица осуществляющие самостоятельную профессиональную деятельность могут оформить индивидуальный заказ через менеджера или через форму нижу</StyledSubtitle>
                 </StyledHeader>
                 <StyledForm onSubmit={handleSubmit}>
                     <StyledInputGrid>
                         <StyledInputWrapper>
                             <StyledLabel $isFocused={focusedField === 'name' || !!formData.name} $hasError={!!errors.name}>
-                                Ваше Имя
+                                Ваше Имя*
                             </StyledLabel>
                             <StyledInput
                                 type="text"
@@ -208,7 +195,7 @@ export const About = () => {
                         </StyledInputWrapper>
                         <StyledInputWrapper>
                             <StyledLabel $isFocused={focusedField === 'phone' || !!formData.phone} $hasError={!!errors.phone}>
-                                Ваш Номер
+                                Ваш Номер*
                             </StyledLabel>
                             <StyledInput
                                 type="tel"
@@ -257,6 +244,30 @@ export const About = () => {
                             />
                             {errors.email && <StyledError>{errors.email}</StyledError>}
                         </StyledInputWrapper>
+                        <Field>
+                            <Label>Тираж</Label>
+                            <Select name="circulation" value={formData.circulation} onChange={handleChange}>
+                                <option value="">Выберите тираж</option>
+                                <option value="до 100">до 100 шт.</option>
+                                <option value="100-500">100-500 шт.</option>
+                                <option value="500-1000">500-1000 шт.</option>
+                                <option value="1000+">1000+ шт.</option>
+                            </Select>
+                            {errors.circulation && <StyledError>{errors.circulation}</StyledError>}
+                        </Field>
+                        <Field>
+                            <Label>Вид продукции</Label>
+                            <Select name="productType" value={formData.productType} onChange={handleChange}>
+                                <option value="">Выберите тип продукции</option>
+                                <option value="кашпо">Открытки</option>
+                                <option value="коробки">Стикеры</option>
+                                <option value="упаковка">Коробки</option>
+                                <option value="конверты">Конверты</option>
+                                <option value="переноски">Переноски для цветов</option>
+                                <option value="другое">Другое</option>
+                            </Select>
+                            {errors.productType && <StyledError>{errors.productType}</StyledError>}
+                        </Field>
                     </StyledInputGrid>
                     <StyledTextareaWrapper>
                         <StyledLabel $isFocused={focusedField === 'message' || !!formData.message} $hasError={!!errors.message}>
@@ -382,6 +393,11 @@ const StyledFormContainer = styled.div`
     align-items: center;
     z-index: 1;
     animation: ${slideInUp} 0.6s ease-out;
+
+    .small {
+        font-size: ${rm(14)};
+        margin-top: ${rm(12)};
+    }
 `
 
 const StyledHeader = styled.div`
@@ -833,5 +849,62 @@ const StyledPolicyLink = styled.a`
         svg {
             transform: translateY(-2px);
         }
+    }
+`
+
+
+const Field = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${rm(6)};
+`
+
+const Label = styled.label`
+    ${fontGeist(500)};
+    font-size: ${rm(13)};
+    color: #444;
+`
+
+const Input = styled.input`
+    height: ${rm(46)};
+    border: 1px solid #dcdfe4;
+    border-radius: ${rm(10)};
+    padding: 0 ${rm(12)};
+    ${fontGeist(400)};
+    font-size: ${rm(15)};
+`
+
+const Select = styled.select`
+    width: 100%;
+    padding: ${rm(20)} ${rm(20)} ${rm(12)} ${rm(20)};
+    border: 2px solid #E5E7EB;
+    border-radius: ${rm(12)};
+    background-color: #FFFFFF;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    ${fontGeist(400)};
+    font-size: ${rm(16)};
+    color: #1C1C1C;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+
+    ${media.xsm`
+        padding: ${rm(18)} ${rm(16)} ${rm(10)} ${rm(16)};
+        font-size: ${rm(14)};
+        border-radius: ${rm(10)};
+    `}
+
+    &:focus {
+        border-color: #1C1C1C;
+        box-shadow: 0 4px 16px rgba(28, 28, 28, 0.12);
+        transform: translateY(-1px);
+    }
+
+    &:hover:not(:focus) {
+        border-color: #D1D5DB;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 `

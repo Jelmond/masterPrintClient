@@ -18,6 +18,7 @@ import { BoxSvg } from "./animatedSvgs/Box"
 import { ConvertsSvg } from "./animatedSvgs/Converts"
 import { CardsPostcardsSvg } from "./animatedSvgs/CardsPostcards"
 import { WrappingPaperSvg } from "./animatedSvgs/WrappingPaper"
+import { KashpoSvg } from "./animatedSvgs/Kashpo"
 
 function isWrappingPaperCategory(category: { icon?: string | null; title?: string }) {
     if (category.icon === "wrapping") return true
@@ -44,12 +45,13 @@ export const CatalogSwiper = () => {
             >
                 {data?.data?.map((category, index) => (
                     <SwiperSlide key={category.id}>
-                        <StyledSlide href={`/catalog/${category.id}`}>
+                        <StyledSlide href={category.icon === 'kashpo' ? '/kashpo' : `/catalog/${category.id}`}>
                             <StyledSlideImage>
                                 {category.icon === 'stickers' && <CardsSvg />}
                                 {category.icon === 'box' && <BoxSvg />}
                                 {category.icon === 'convert' && <ConvertsSvg />}
                                 {category.icon === 'cards' && <CardsPostcardsSvg />}
+                                {category.icon === 'kashpo' && <KashpoSvg />}
                                 {isWrappingPaperCategory(category) && <WrappingPaperSvg />}
                             </StyledSlideImage>
                             <StyledSlideText>{category?.title}</StyledSlideText>

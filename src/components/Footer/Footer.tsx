@@ -96,6 +96,10 @@ const info = {
             url: '/promotions'
         },
         {
+            label: 'Программа лояльности',
+            url: '/loyalty'
+        },
+        {
             label: 'Обращения покупателей',
             url: '/requests'
         },
