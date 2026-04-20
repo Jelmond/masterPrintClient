@@ -23,6 +23,9 @@ export const MobileBottomNav = () => {
         setMounted(true)
     }, [])
 
+    // For custom Kashpo landing: only form and footer
+    if (pathname?.startsWith('/kashpo')) return null
+
     const navItems: NavItem[] = [
         {
             label: 'Главная',

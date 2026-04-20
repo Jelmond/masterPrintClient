@@ -8,6 +8,7 @@ import { BoxSvg } from "@/views/HomeView/screens/animatedSvgs/Box";
 import { CardsSvg } from "@/views/HomeView/screens/animatedSvgs/Cards";
 import { CardsPostcardsSvg } from "@/views/HomeView/screens/animatedSvgs/CardsPostcards";
 import { ConvertsSvg } from "@/views/HomeView/screens/animatedSvgs/Converts";
+import { KashpoSvg } from "@/views/HomeView/screens/animatedSvgs/Kashpo";
 import { WrappingPaperSvg } from "@/views/HomeView/screens/animatedSvgs/WrappingPaper";
 import { StyledSlideImage } from "@/views/HomeView/screens/CatalogSwiper";
 import Link from "next/link";
@@ -28,12 +29,13 @@ export default function CatalogPage() {
     return (
         <StyledCatalogPage>
             {data?.data?.map((category, index) => (
-                <StyledCategory href={`/catalog/${category.id}`} key={index}>
+                <StyledCategory href={category.icon === 'kashpo' ? '/kashpo' : `/catalog/${category.id}`} key={index}>
                     <StyledSlideImage>
                         {category.icon === 'stickers' && <CardsSvg />}
                         {category.icon === 'box' && <BoxSvg />}
                         {category.icon === 'convert' && <ConvertsSvg />}
                         {category.icon === 'cards' && <CardsPostcardsSvg />}
+                        {category.icon === 'kashpo' && <KashpoSvg />}
                         {isWrappingPaperCategory(category) && <WrappingPaperSvg />}
                     </StyledSlideImage>
                     <span>{category.title}</span>

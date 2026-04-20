@@ -13,6 +13,8 @@ import { fontGeist } from "@/styles/fonts";
 import { RichText } from '@graphcms/rich-text-react-renderer';
 import { useCartStore } from "@/store/cartStore";
 import { CanBeInteresting } from "@/components/CanBeInteresting/CanBeInteresting";
+import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout";
+import { useInView, useSpring, easings, animated } from "@react-spring/web";
 
 const IMAGE_ZOOM = 1.45;
 /** Размер «лупы» на экране (не зум): прямоугольник */
@@ -176,6 +178,8 @@ export const ProductView = ({ data }: { data: any }) => {
 
     const addToCart = useCartStore(state => state.addToCart);
 
+    const [ref, inView] = useInView();
+
     /** Относительный путь для корзины: сначала preview, затем первая картинка галереи */
     const cartImageRel =
         [data?.preview?.url, Array.isArray(data?.images) ? data.images[0]?.url : undefined].find(
@@ -215,6 +219,33 @@ export const ProductView = ({ data }: { data: any }) => {
         return 'наборов';
     }
 
+
+    const getWordForCountInPack = (count: number) => {
+        if (count === 1) return 'шт.';
+        if (count >= 2 && count <= 4) return 'шт.';
+        if (count >= 5 && count <= 20) return 'шт.';
+        if (count % 10 === 1) return 'шт.';
+        if (count % 10 >= 2 && count % 10 <= 4) return 'шт.';
+        return 'шт.';
+    }
+
+    const textAppearSpring = useSpring({
+        width: inView ? '100%' : '0%',
+        config: {
+            easing: easings.easeInOutCubic,
+            duration: 300,
+        }
+    })
+
+    const containerSpring = useSpring({
+        width: inView ? '100%' : 'auto',
+        background: inView ? colors.white100 : 'transparent',
+        config: {
+            easing: easings.easeInOutCubic,
+            duration: 300,
+        }
+    })
+
     const hasPolishes =
         data?.polishes !== null &&
         data?.polishes !== undefined &&
@@ -223,6 +254,14 @@ export const ProductView = ({ data }: { data: any }) => {
     
     return (
         <StyledProductView>
+            <StyledReturnToCatalog style={containerSpring}>
+                <StyledHiddenLink href="/catalog">
+                </StyledHiddenLink>
+                <svg style={{backgroundColor: colors.white100}} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 19L8 12L15 5" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <animated.p style={textAppearSpring}>Вернуться в каталог</animated.p>
+            </StyledReturnToCatalog>
             <Left>
                 <StyledSwiper>
                     {hasPolishes && (
@@ -347,7 +386,7 @@ export const ProductView = ({ data }: { data: any }) => {
                     )}
                     {data.quantityInPack && (
                         <p className="info">
-                            Количество в наборе: <span>{data.quantityInPack} {getWordForCount(data.quantityInPack)}</span>
+                            Количество в наборе: <span>{data.quantityInPack} {getWordForCountInPack(data.quantityInPack)}</span>
                         </p>
                     )}
                     {hasPolishes && (
@@ -394,7 +433,7 @@ export const ProductView = ({ data }: { data: any }) => {
                                         <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                     </svg>
                                 )}
-                                <span className="button-text">
+                                <span className="button-text" ref={ref}>
                                     {isOutOfStock ? 'Нет в наличии' : 'Добавить в корзину'}
                                 </span>
                             </span>
@@ -406,11 +445,46 @@ export const ProductView = ({ data }: { data: any }) => {
     )
 }
 
+const StyledReturnToCatalog = styled(animated.div)`
+    position: fixed;
+    top: ${rm(64)};
+    left: ${rm(12)};
+    display: flex;
+    align-items: center;
+    gap: ${rm(12)};
+    border-radius: ${rm(8)};
+    z-index: 100;
+
+    svg{
+        width: ${rm(36)};
+        height: ${rm(36)};
+    }
+
+    p{
+        color: ${colors.black100};
+        font-size: ${rm(16)};
+        ${fontGeist(500)};
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+`
+
+const StyledHiddenLink = styled(AnimLink)`
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+`
+
 const StyledProductView = styled.div`
     display: flex;
     padding: ${rm(90)} ${rm(130)};
     gap: ${rm(60)};
-
+    position: relative;
+    
     ${media.lg`
         padding: ${rm(80)} ${rm(80)} ${rm(60)} ${rm(80)};
         gap: ${rm(40)};
