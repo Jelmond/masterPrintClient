@@ -5,6 +5,8 @@ import { colors, media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { validateBelarusPhone } from "@/utils/validateBelarusPhone"
 
 interface FormErrors {
     name?: string
@@ -16,6 +18,7 @@ interface FormErrors {
 }
 
 export default function ContactsPage() {
+    const router = useRouter()
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -42,11 +45,8 @@ export default function ContactsPage() {
         // Phone validation
         if (!formData.phone.trim()) {
             newErrors.phone = 'Номер телефона обязателен для заполнения'
-        } else {
-            const phoneRegex = /^[\d\s\-\+\(\)]+$/
-            if (!phoneRegex.test(formData.phone.trim())) {
-                newErrors.phone = 'Неверный формат номера телефона'
-            }
+        } else if (!validateBelarusPhone(formData.phone)) {
+            newErrors.phone = 'Введите корректный белорусский номер (+375XXXXXXXXX)'
         }
 
         // Email validation
@@ -115,25 +115,7 @@ export default function ContactsPage() {
                 throw new Error(data.error || 'Ошибка при отправке заявки')
             }
 
-            setSubmitStatus('success')
-            setSubmitMessage('Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.')
-            
-            // Reset form
-            setFormData({
-                name: '',
-                phone: '',
-                company: '',
-                email: '',
-                message: '',
-                consent: false
-            })
-            setErrors({})
-
-            // Clear success message after 5 seconds
-            setTimeout(() => {
-                setSubmitStatus('idle')
-                setSubmitMessage('')
-            }, 5000)
+            router.push('/form-success')
 
         } catch (error) {
             setSubmitStatus('error')

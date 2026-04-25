@@ -45,7 +45,7 @@ export const CatalogSwiper = () => {
             >
                 {data?.data?.map((category, index) => (
                     <SwiperSlide key={category.id}>
-                        <StyledSlide href={category.icon === 'kashpo' ? '/kashpo' : `/catalog/${category.id}`}>
+                        <StyledSlide href={category.icon === 'kashpo' ? '/kashpo' : `/catalog/${category.slug || category.id}`}>
                             <StyledSlideImage>
                                 {category.icon === 'stickers' && <CardsSvg />}
                                 {category.icon === 'box' && <BoxSvg />}

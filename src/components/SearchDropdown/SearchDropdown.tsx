@@ -23,6 +23,7 @@ interface SearchResult {
     preview?: unknown
     categories: Array<{
         id: number
+        slug?: string
         title: string
     }>
     tags: Array<{
@@ -619,7 +620,12 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                             {searchData.tags.map((tag) => {
                                 const firstProduct = tag.products?.[0]
                                 const categoryId = firstProduct?.categories?.[0]?.id
-                                const href = categoryId ? `/catalog/${categoryId}` : '/catalog'
+                                const categorySlug = firstProduct?.categories?.[0]?.slug
+                                const href = categorySlug
+                                    ? `/catalog/${categorySlug}`
+                                    : categoryId
+                                        ? `/catalog/${categoryId}`
+                                        : '/catalog'
                                 return (
                                     <Link key={tag.id} href={href} onClick={onClose}>
                                         <StyledTagItem>

@@ -41,7 +41,7 @@ export const KashpoSvg = () => {
         <svg
             width="765"
             height="1197"
-            viewBox="0 0 765 1197"
+            viewBox="-163.9285 -256.5 1092.857 1710"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             onMouseEnter={() => setIsHovered(true)}

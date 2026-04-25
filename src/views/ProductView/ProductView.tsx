@@ -20,6 +20,7 @@ const IMAGE_ZOOM = 1.45;
 /** Размер «лупы» на экране (не зум): прямоугольник */
 const LENS_WIDTH_PX = 320;
 const LENS_HEIGHT_PX = 230;
+const LAST_CATALOG_CATEGORY_PATH_KEY = 'lastCatalogCategoryPath'
 
 /** Главное фото с прямоугольной линзой при наведении (только fine pointer + hover) */
 function ProductMainImageWithLens({ src, alt }: { src: string; alt: string }) {
@@ -175,6 +176,7 @@ export const ProductView = ({ data }: { data: any }) => {
 
     const [mainSwiper, setMainSwiper] = useState<any>(null);
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
+    const [returnCatalogHref, setReturnCatalogHref] = useState('/catalog');
 
     const addToCart = useCartStore(state => state.addToCart);
 
@@ -251,11 +253,19 @@ export const ProductView = ({ data }: { data: any }) => {
         data?.polishes !== undefined &&
         Array.isArray(data?.polishes) &&
         data.polishes.length > 0
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        const savedPath = window.localStorage.getItem(LAST_CATALOG_CATEGORY_PATH_KEY)
+        if (savedPath && savedPath.startsWith('/catalog/')) {
+            setReturnCatalogHref(savedPath)
+        }
+    }, [])
     
     return (
         <StyledProductView>
             <StyledReturnToCatalog style={containerSpring}>
-                <StyledHiddenLink href="/catalog">
+                <StyledHiddenLink href={returnCatalogHref}>
                 </StyledHiddenLink>
                 <svg style={{backgroundColor: colors.white100}} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15 19L8 12L15 5" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -309,26 +319,12 @@ export const ProductView = ({ data }: { data: any }) => {
                     <ThumbsWrapper>
                         <Swiper
                             onSwiper={setThumbsSwiper}
-                            spaceBetween={20}
-                            slidesPerView={Math.min(galleryItems.length, 5)}
+                            spaceBetween={12}
+                            slidesPerView="auto"
                             slideToClickedSlide
                             watchSlidesProgress
                             modules={[Thumbs]}
                             style={{ width: '100%' }}
-                            breakpoints={{
-                                320: {
-                                    slidesPerView: Math.min(galleryItems.length, 3),
-                                    spaceBetween: 10,
-                                },
-                                576: {
-                                    slidesPerView: Math.min(galleryItems.length, 4),
-                                    spaceBetween: 15,
-                                },
-                                1024: {
-                                    slidesPerView: Math.min(galleryItems.length, 5),
-                                    spaceBetween: 20,
-                                },
-                            }}
                         >
                             {galleryItems.map((item, idx) => (
                                 <SwiperSlide
@@ -447,7 +443,7 @@ export const ProductView = ({ data }: { data: any }) => {
 
 const StyledReturnToCatalog = styled(animated.div)`
     position: fixed;
-    top: ${rm(64)};
+    top: ${rm(92)};
     left: ${rm(12)};
     display: flex;
     align-items: center;
@@ -468,6 +464,14 @@ const StyledReturnToCatalog = styled(animated.div)`
         overflow: hidden;
         white-space: nowrap;
     }
+
+    ${media.md`
+        top: ${rm(82)};
+    `}
+
+    ${media.xsm`
+        top: ${rm(74)};
+    `}
 `
 
 const StyledHiddenLink = styled(AnimLink)`
@@ -813,7 +817,7 @@ const StyledSwiper = styled.div`
     height: ${rm(680)};
     border-radius: ${rm(5)};
     background: #e0e0e0;
-    margin-bottom: ${rm(30)};
+    margin-bottom: ${rm(12)};
     /* hidden — viewport Swiper: только один слайд, иначе wrapper со transform показывает все кадры */
     overflow: hidden;
     position: relative;
@@ -839,12 +843,12 @@ const StyledSwiper = styled.div`
     ${media.md`
         max-width: 100%;
         height: ${rm(500)};
-        margin-bottom: ${rm(20)};
+        margin-bottom: ${rm(10)};
     `}
 
     ${media.xsm`
         height: ${rm(450)};
-        margin-bottom: ${rm(15)};
+        margin-bottom: ${rm(8)};
     `}
 
     .swiper-button-prev,
@@ -956,6 +960,14 @@ const ThumbsWrapper = styled.div`
 
     .swiper {
         height: 100%;
+    }
+
+    .swiper-wrapper {
+        align-items: center;
+    }
+
+    .swiper-slide {
+        width: auto !important;
     }
 `
 const Thumb = styled.div`

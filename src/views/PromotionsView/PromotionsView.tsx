@@ -5,6 +5,8 @@ import { colors, media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled from "styled-components"
 import { useState, useRef } from "react"
+import { useRouter } from "next/navigation"
+import { validateBelarusPhone } from "@/utils/validateBelarusPhone"
 
 interface FormErrors {
     name?: string
@@ -20,6 +22,7 @@ interface FormErrors {
  * Полный текст утверждённой редакции хранится у организации и публикуется на сайте.
  */
 export default function PromotionsView() {
+    const router = useRouter()
     const formRef = useRef<HTMLDivElement>(null)
 
     const [formData, setFormData] = useState({
@@ -48,11 +51,8 @@ export default function PromotionsView() {
         }
         if (!formData.phone.trim()) {
             newErrors.phone = 'Номер телефона обязателен для заполнения'
-        } else {
-            const phoneRegex = /^[\d\s\-\+\(\)]+$/
-            if (!phoneRegex.test(formData.phone.trim())) {
-                newErrors.phone = 'Неверный формат номера телефона'
-            }
+        } else if (!validateBelarusPhone(formData.phone)) {
+            newErrors.phone = 'Введите корректный белорусский номер (+375XXXXXXXXX)'
         }
         if (!formData.email.trim()) {
             newErrors.email = 'Email обязателен для заполнения'
@@ -89,18 +89,14 @@ export default function PromotionsView() {
         setSubmitStatus('idle')
         setSubmitMessage('')
         try {
-            const response = await fetch('/api/contact', {
+            const response = await fetch('/api/partner', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             })
             const data = await response.json()
             if (!response.ok) throw new Error(data.error || 'Ошибка при отправке заявки')
-            setSubmitStatus('success')
-            setSubmitMessage('Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.')
-            setFormData({ name: '', phone: '', company: '', email: '', message: '', consent: false })
-            setErrors({})
-            setTimeout(() => { setSubmitStatus('idle'); setSubmitMessage('') }, 5000)
+            router.push('/form-success')
         } catch (error) {
             setSubmitStatus('error')
             setSubmitMessage(error instanceof Error ? error.message : 'Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.')
@@ -170,7 +166,170 @@ export default function PromotionsView() {
                     </StyledPromoCard>
                 </StyledHighlightCards>
 
-                <StyledLoyaltyHero>
+                <StyledContent>
+                    <StyledBlockTitle>Скидки, установленные Положением</StyledBlockTitle>
+                    <StyledSection>
+                        <StyledSubTitle>За объём приобретённой продукции</StyledSubTitle>
+                        <StyledText>
+                            Скидка с <strong>отпускной цены (с НДС)</strong> при сумме заказа:
+                        </StyledText>
+                        <StyledList>
+                            <li>
+                                свыше <strong>700,00 BYN</strong> — скидка <strong>5%</strong>;
+                            </li>
+                            <li>
+                                свыше <strong>1&nbsp;500,00 BYN</strong> — скидка <strong>20%</strong>.
+                            </li>
+                        </StyledList>
+                        <StyledSubTitle>Самовывоз</StyledSubTitle>
+                        <StyledText>
+                            При самовывозе продукции предоставляется скидка с отпускной цены{' '}
+                            <strong>3%</strong>. Подробности о пункте выдачи — в разделе{' '}
+                            <AnimLink href="/delivery">«Доставка»</AnimLink>.
+                        </StyledText>
+                    </StyledSection>
+
+                    <StyledBlockTitle>Суммирование скидок, промокодов и акций</StyledBlockTitle>
+                    <StyledSection>
+                        <StyledList>
+                            <li>
+                                Скидки за <strong>объём</strong> и за <strong>самовывоз</strong> могут{' '}
+                                <strong>суммироваться</strong>, если выполняются условия обоих пунктов
+                                Положения одновременно.
+                            </li>
+                            <li>
+                                <strong>Промокод</strong> может применяться к стоимости заказа, товара
+                                и/или услуги по доставке. В одном заказе допускается использование{' '}
+                                <strong>только одного</strong> промокода. Скидки по промокоду{' '}
+                                <strong>суммируются</strong> с иными скидками, действующими на Сайте.
+                            </li>
+                            <li>
+                                <strong>Акции</strong> (в том числе кратковременные): скидки по акции{' '}
+                                <strong>суммируются</strong> со скидками по промокодам, другими
+                                скидками и иными акциями, проводимыми на Сайте.
+                            </li>
+                        </StyledList>
+                    </StyledSection>
+
+                    <StyledBlockTitle>Изменение и отмена условий продавцом</StyledBlockTitle>
+                    <StyledSection>
+                        <StyledHighlight>
+                            <StyledText>
+                                ООО «Мастерпринт-Пак» вправе <strong>вносить изменения</strong> в
+                                Положение, в перечень товаров, в отношении которых предоставляются
+                                скидка, промокод или акция, а также <strong>изменять размер</strong>{' '}
+                                скидки, промокода или акции <strong>в любое время</strong> без
+                                предварительного уведомления Покупателя. Сведения об изменениях{' '}
+                                <strong>публикуются на сайте</strong> интернет-магазина в день
+                                вступления изменений в силу.
+                            </StyledText>
+                            <StyledText style={{ marginTop: rm(16) }}>
+                                Продавец оставляет за собой право в любое время{' '}
+                                <strong>приостановить, изменить или отменить</strong> Положение с
+                                размещением информации на сайте; это <strong>не влечёт</strong> для
+                                ООО «Мастерпринт-Пак» <strong>какой-либо ответственности</strong>.
+                                При прекращении действия Положения на сайте публикуется сообщение о
+                                прекращении действия скидок, промокодов и акций.
+                            </StyledText>
+                        </StyledHighlight>
+                    </StyledSection>
+
+                    <StyledBlockTitle>Кратковременные акции и актуальные предложения</StyledBlockTitle>
+                    <StyledSection>
+                        <StyledText>
+                            ООО «Мастерпринт-Пак» вправе проводить <strong>различные акции</strong>,
+                            в том числе ограниченные по сроку. Срок действия скидок, промокодов и
+                            акций, а также иные условия их применения указываются в{' '}
+                            <strong>информационных материалах</strong> (на сайте, в описаниях акций,
+                            при необходимости — в SMS, e-mail, социальных сетях и др.).
+                        </StyledText>
+                        <StyledText>
+                            Товары со сниженной ценой в рамках акций вы можете посмотреть в{' '}
+                            <strong>каталоге</strong>: откройте нужную категорию и включите фильтр{' '}
+                            <strong>«Акции»</strong>.
+                        </StyledText>
+                        <StyledCta>
+                            <AnimLink href="/catalog">Перейти в каталог</AnimLink>
+                        </StyledCta>
+                    </StyledSection>
+
+                    <StyledBlockTitle>Акция «На все случаи жизни!»</StyledBlockTitle>
+                    <StyledSection>
+                        <StyledList>
+                            <li>
+                                <strong>Срок проведения:</strong> с 27 апреля 2026 года по 26 апреля
+                                2027 года.
+                            </li>
+                            <li>
+                                <strong>Участники и место проведения:</strong> физические лица, а
+                                также юридические лица, индивидуальные предприниматели и лица,
+                                осуществляющие самостоятельную профессиональную деятельность,
+                                приобретающие товары по образцам, представленным в
+                                интернет-магазине <strong>https://mppshop.by</strong>.
+                            </li>
+                            <li>
+                                <strong>Условия акции:</strong> в период с 27.04.2026 по 26.04.2027
+                                на наборы по акции «На все случаи жизни!» предоставляется скидка
+                                <strong> 15%</strong> для покупателей, приобретающих наборы по
+                                образцам, представленным в интернет-магазине{' '}
+                                <strong>https://mppshop.by</strong>.
+                            </li>
+                            <li>
+                                <strong>Наборы, участвующие в акции:</strong>
+                                <br />Набор «На все случаи жизни!» Мини;
+                                <br />Набор «На все случаи жизни!» Миди;
+                                <br />Набор «На все случаи жизни!» Макси.
+                            </li>
+                        </StyledList>
+                    </StyledSection>
+
+                    <StyledBlockTitle>Акция «Готовимся к праздникам выгодно!»</StyledBlockTitle>
+                    <StyledSection>
+                        <StyledList>
+                            <li>
+                                <strong>Срок проведения:</strong> с 27 апреля 2026 года по 26 октября
+                                2026 года.
+                            </li>
+                            <li>
+                                <strong>Участники и место проведения:</strong> физические лица, а
+                                также юридические лица, индивидуальные предприниматели и лица,
+                                осуществляющие самостоятельную профессиональную деятельность,
+                                приобретающие товары по образцам, представленным в
+                                интернет-магазине <strong>https://mppshop.by</strong>.
+                            </li>
+                            <li>
+                                <strong>Условия акции:</strong> в период с 27.04.2026 по 26.10.2026
+                                на товары по акции «Готовимся к праздникам выгодно!» предоставляется
+                                скидка <strong>10%</strong> для покупателей, приобретающих товары по
+                                образцам, представленным в интернет-магазине{' '}
+                                <strong>https://mppshop.by</strong>.
+                            </li>
+                            <li>
+                                <strong>Товары, участвующие в акции:</strong> таблица с
+                                наименованиями и артикулами товаров размещается в материалах акции.
+                            </li>
+                        </StyledList>
+                    </StyledSection>
+
+                    <StyledBlockTitle>Дополнительно</StyledBlockTitle>
+                    <StyledSection>
+                        <StyledList>
+                            <li>
+                                Положение <strong>не распространяется</strong> на продукцию по
+                                индивидуальным заказам и на продукцию для дальнейшей переработки
+                                заказчиком.
+                            </li>
+                            <li>
+                                При возврате товара, приобретённого со скидкой, по промокоду или в
+                                рамках акции, Покупателю возвращается сумма с учётом предоставленной
+                                скидки (фактически уплаченная цена).
+                            </li>
+                        </StyledList>
+                    </StyledSection>
+                </StyledContent>
+            </StyledContainer>
+
+            <StyledLoyaltyHero>
                 <StyledLoyaltyLabel>MPPShop · программа лояльности</StyledLoyaltyLabel>
                 <StyledLoyaltyTitle>Особые условия<br />для постоянных клиентов</StyledLoyaltyTitle>
                 <StyledLoyaltySubtitle>
@@ -283,111 +442,6 @@ export default function PromotionsView() {
                     </StyledLoyaltyForm>
                 </StyledLoyaltyFormContainer>
             </StyledLoyaltyFormSection>
-
-                <StyledContent>
-                    <StyledBlockTitle>Скидки, установленные Положением</StyledBlockTitle>
-                    <StyledSection>
-                        <StyledSubTitle>За объём приобретённой продукции</StyledSubTitle>
-                        <StyledText>
-                            Скидка с <strong>отпускной цены (с НДС)</strong> при сумме заказа:
-                        </StyledText>
-                        <StyledList>
-                            <li>
-                                свыше <strong>700,00 BYN</strong> — скидка <strong>5%</strong>;
-                            </li>
-                            <li>
-                                свыше <strong>1&nbsp;500,00 BYN</strong> — скидка <strong>20%</strong>.
-                            </li>
-                        </StyledList>
-                        <StyledSubTitle>Самовывоз</StyledSubTitle>
-                        <StyledText>
-                            При самовывозе продукции предоставляется скидка с отпускной цены{' '}
-                            <strong>3%</strong>. Подробности о пункте выдачи — в разделе{' '}
-                            <AnimLink href="/delivery">«Доставка»</AnimLink>.
-                        </StyledText>
-                    </StyledSection>
-
-                    <StyledBlockTitle>Суммирование скидок, промокодов и акций</StyledBlockTitle>
-                    <StyledSection>
-                        <StyledList>
-                            <li>
-                                Скидки за <strong>объём</strong> и за <strong>самовывоз</strong> могут{' '}
-                                <strong>суммироваться</strong>, если выполняются условия обоих пунктов
-                                Положения одновременно.
-                            </li>
-                            <li>
-                                <strong>Промокод</strong> может применяться к стоимости заказа, товара
-                                и/или услуги по доставке. В одном заказе допускается использование{' '}
-                                <strong>только одного</strong> промокода. Скидки по промокоду{' '}
-                                <strong>суммируются</strong> с иными скидками, действующими на Сайте.
-                            </li>
-                            <li>
-                                <strong>Акции</strong> (в том числе кратковременные): скидки по акции{' '}
-                                <strong>суммируются</strong> со скидками по промокодам, другими
-                                скидками и иными акциями, проводимыми на Сайте.
-                            </li>
-                        </StyledList>
-                    </StyledSection>
-
-                    <StyledBlockTitle>Изменение и отмена условий продавцом</StyledBlockTitle>
-                    <StyledSection>
-                        <StyledHighlight>
-                            <StyledText>
-                                ООО «Мастерпринт-Пак» вправе <strong>вносить изменения</strong> в
-                                Положение, в перечень товаров, в отношении которых предоставляются
-                                скидка, промокод или акция, а также <strong>изменять размер</strong>{' '}
-                                скидки, промокода или акции <strong>в любое время</strong> без
-                                предварительного уведомления Покупателя. Сведения об изменениях{' '}
-                                <strong>публикуются на сайте</strong> интернет-магазина в день
-                                вступления изменений в силу.
-                            </StyledText>
-                            <StyledText style={{ marginTop: rm(16) }}>
-                                Продавец оставляет за собой право в любое время{' '}
-                                <strong>приостановить, изменить или отменить</strong> Положение с
-                                размещением информации на сайте; это <strong>не влечёт</strong> для
-                                ООО «Мастерпринт-Пак» <strong>какой-либо ответственности</strong>.
-                                При прекращении действия Положения на сайте публикуется сообщение о
-                                прекращении действия скидок, промокодов и акций.
-                            </StyledText>
-                        </StyledHighlight>
-                    </StyledSection>
-
-                    <StyledBlockTitle>Кратковременные акции и актуальные предложения</StyledBlockTitle>
-                    <StyledSection>
-                        <StyledText>
-                            ООО «Мастерпринт-Пак» вправе проводить <strong>различные акции</strong>,
-                            в том числе ограниченные по сроку. Срок действия скидок, промокодов и
-                            акций, а также иные условия их применения указываются в{' '}
-                            <strong>информационных материалах</strong> (на сайте, в описаниях акций,
-                            при необходимости — в SMS, e-mail, социальных сетях и др.).
-                        </StyledText>
-                        <StyledText>
-                            Товары со сниженной ценой в рамках акций вы можете посмотреть в{' '}
-                            <strong>каталоге</strong>: откройте нужную категорию и включите фильтр{' '}
-                            <strong>«Акции»</strong>.
-                        </StyledText>
-                        <StyledCta>
-                            <AnimLink href="/catalog">Перейти в каталог</AnimLink>
-                        </StyledCta>
-                    </StyledSection>
-
-                    <StyledBlockTitle>Дополнительно</StyledBlockTitle>
-                    <StyledSection>
-                        <StyledList>
-                            <li>
-                                Положение <strong>не распространяется</strong> на продукцию по
-                                индивидуальным заказам и на продукцию для дальнейшей переработки
-                                заказчиком.
-                            </li>
-                            <li>
-                                При возврате товара, приобретённого со скидкой, по промокоду или в
-                                рамках акции, Покупателю возвращается сумма с учётом предоставленной
-                                скидки (фактически уплаченная цена).
-                            </li>
-                        </StyledList>
-                    </StyledSection>
-                </StyledContent>
-            </StyledContainer>
         </StyledPage>
     )
 }

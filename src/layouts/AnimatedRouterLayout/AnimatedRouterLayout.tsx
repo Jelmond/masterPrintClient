@@ -25,6 +25,18 @@ function scrollToTopIfNoHash() {
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
+const LAST_CATALOG_CATEGORY_PATH_KEY = "lastCatalogCategoryPath";
+
+function rememberLastCatalogCategoryPath(pathname: string) {
+  if (typeof window === "undefined") return;
+  // Сохраняем только страницы конкретной категории: /catalog/{slug}
+  if (!pathname.startsWith("/catalog/")) return;
+  const withoutQuery = pathname.split("?")[0];
+  const segments = withoutQuery.split("/").filter(Boolean);
+  if (segments.length !== 2) return;
+  window.localStorage.setItem(LAST_CATALOG_CATEGORY_PATH_KEY, withoutQuery);
+}
+
 const AnimatedRouterContext = createContext({});
 export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
   children,
@@ -58,6 +70,7 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     if (typeof window === "undefined") return;
     if (!isMounted) return;
 
+    rememberLastCatalogCategoryPath(window.location.pathname);
     scrollToTopIfNoHash();
 
     routeChangeComplete();
@@ -68,6 +81,7 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     const handleRouteChange = () => {
       pathnameRef.current = window.location.pathname;
       searchParamsRef.current = new URLSearchParams(window.location.search);
+      rememberLastCatalogCategoryPath(window.location.pathname);
 
       scrollToTopIfNoHash();
 
