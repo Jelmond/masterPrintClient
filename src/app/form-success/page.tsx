@@ -97,7 +97,7 @@ const StyledText = styled.p<{ $small?: boolean }>`
     margin: 0 0 ${props => props.$small ? rm(32) : rm(8)} 0;
 
     ${media.xsm`
-        font-size: ${props => props.$small ? rm(12) : rm(15)};
+        font-size: ${(props: any) => props.$small ? rm(12) : rm(15)};
     `}
 `
 
