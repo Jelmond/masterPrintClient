@@ -116,7 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const categories = categoriesData?.data || [];
       
       categoryPages = categories.map((category: any) => ({
-        url: `${siteUrl}/catalog/${category.id}`,
+        url: `${siteUrl}/catalog/${category.slug || category.id}`,
         lastModified: new Date(category.updatedAt || category.createdAt),
         changeFrequency: 'daily' as const,
         priority: 0.8,

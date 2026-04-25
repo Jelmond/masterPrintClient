@@ -1,41 +1,42 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import styled from 'styled-components'
 import { media, rm } from '@/styles'
 import { fontGeist } from '@/styles/fonts'
+import { validateBelarusPhone } from '@/utils/validateBelarusPhone'
 
 interface FormErrors {
     name?: string
     phone?: string
     email?: string
-    circulation?: string
-    cardboardType?: string
     consent?: string
 }
 
 export const KashpoOrderForm = () => {
+    const router = useRouter()
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
         email: '',
         circulation: '',
-        cardboardType: '',
         message: '',
         consent: false,
     })
     const [errors, setErrors] = useState<FormErrors>({})
     const [isLoading, setIsLoading] = useState(false)
-    const [submitMessage, setSubmitMessage] = useState('')
-    const [isSuccess, setIsSuccess] = useState(false)
+    const [submitError, setSubmitError] = useState('')
 
     const validate = () => {
         const next: FormErrors = {}
         if (!formData.name.trim()) next.name = 'Введите имя'
-        if (!formData.phone.trim()) next.phone = 'Введите телефон'
+        if (!formData.phone.trim()) {
+            next.phone = 'Введите телефон'
+        } else if (!validateBelarusPhone(formData.phone)) {
+            next.phone = 'Введите корректный белорусский номер (+375XXXXXXXXX)'
+        }
         if (!formData.email.trim()) next.email = 'Введите email'
-        if (!formData.circulation) next.circulation = 'Выберите тираж'
-        if (!formData.cardboardType) next.cardboardType = 'Выберите тип картона'
         if (!formData.consent) next.consent = 'Нужно согласие на обработку данных'
         setErrors(next)
         return Object.keys(next).length === 0
@@ -50,7 +51,7 @@ export const KashpoOrderForm = () => {
         if (errors[name as keyof FormErrors]) {
             setErrors((prev) => ({ ...prev, [name]: undefined }))
         }
-        if (submitMessage) setSubmitMessage('')
+        if (submitError) setSubmitError('')
     }
 
     const onSubmit = async (e: React.FormEvent) => {
@@ -58,19 +59,19 @@ export const KashpoOrderForm = () => {
         if (!validate()) return
 
         setIsLoading(true)
+        setSubmitError('')
         try {
+            const messageLines = [
+                formData.circulation ? `Тираж: ${formData.circulation}` : '',
+                formData.message ? `Комментарий: ${formData.message}` : '',
+            ].filter(Boolean).join('\n')
+
             const payload = {
                 name: formData.name,
                 phone: formData.phone,
                 email: formData.email,
-                company: 'Кашпо под заказ',
-                message: [
-                    `Тираж: ${formData.circulation}`,
-                    `Тип картона: ${formData.cardboardType}`,
-                    formData.message ? `Комментарий: ${formData.message}` : '',
-                ]
-                    .filter(Boolean)
-                    .join('\n'),
+                category: 'Кашпо под заказ',
+                message: messageLines || undefined,
             }
 
             const res = await fetch('/api/contact', {
@@ -81,20 +82,9 @@ export const KashpoOrderForm = () => {
             const data = await res.json()
             if (!res.ok) throw new Error(data?.error || 'Ошибка отправки')
 
-            setIsSuccess(true)
-            setSubmitMessage('Заявка отправлена. Мы свяжемся с вами в ближайшее время.')
-            setFormData({
-                name: '',
-                phone: '',
-                email: '',
-                circulation: '',
-                cardboardType: '',
-                message: '',
-                consent: false,
-            })
+            router.push('/form-success')
         } catch (err) {
-            setIsSuccess(false)
-            setSubmitMessage(err instanceof Error ? err.message : 'Ошибка отправки заявки')
+            setSubmitError(err instanceof Error ? err.message : 'Ошибка отправки заявки')
         } finally {
             setIsLoading(false)
         }
@@ -106,44 +96,45 @@ export const KashpoOrderForm = () => {
             <Form onSubmit={onSubmit}>
                 <Grid>
                     <Field>
-                        <Label>Имя</Label>
-                        <Input name="name" value={formData.name} onChange={onChange} />
+                        <Label>Имя *</Label>
+                        <Input name="name" value={formData.name} onChange={onChange} $hasError={!!errors.name} />
                         {errors.name && <ErrorText>{errors.name}</ErrorText>}
                     </Field>
                     <Field>
-                        <Label>Телефон</Label>
-                        <Input name="phone" value={formData.phone} onChange={onChange} />
+                        <Label>Телефон *</Label>
+                        <Input
+                            name="phone"
+                            value={formData.phone}
+                            onChange={onChange}
+                            placeholder="+375 XX XXX-XX-XX"
+                            $hasError={!!errors.phone}
+                        />
                         {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
                     </Field>
                     <Field>
-                        <Label>Email</Label>
-                        <Input type="email" name="email" value={formData.email} onChange={onChange} />
+                        <Label>Email *</Label>
+                        <Input type="email" name="email" value={formData.email} onChange={onChange} $hasError={!!errors.email} />
                         {errors.email && <ErrorText>{errors.email}</ErrorText>}
                     </Field>
                     <Field>
                         <Label>Тираж</Label>
-                        <Select name="circulation" value={formData.circulation} onChange={onChange}>
-                            <option value="">Выберите тираж</option>
-                            <option value="до 100">до 100 шт.</option>
-                            <option value="100-500">100-500 шт.</option>
-                            <option value="500-1000">500-1000 шт.</option>
-                            <option value="1000+">1000+ шт.</option>
-                        </Select>
-                        {errors.circulation && <ErrorText>{errors.circulation}</ErrorText>}
+                        <SelectWrap>
+                            <Select name="circulation" value={formData.circulation} onChange={onChange}>
+                                <option value="">Выберите тираж</option>
+                                <option value="до 100">до 100 шт.</option>
+                                <option value="100-500">100–500 шт.</option>
+                                <option value="500-1000">500–1000 шт.</option>
+                                <option value="1000+">1000+ шт.</option>
+                            </Select>
+                            <SelectArrow>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </SelectArrow>
+                        </SelectWrap>
                     </Field>
                     <Field>
-                        <Label>Тип картона</Label>
-                        <Select name="cardboardType" value={formData.cardboardType} onChange={onChange}>
-                            <option value="">Выберите тип картона</option>
-                            <option value="мелованный">Мелованный</option>
-                            <option value="дизайнерский">Дизайнерский</option>
-                            <option value="крафт">Крафт</option>
-                            <option value="микрогофрокартон">Микрогофрокартон</option>
-                        </Select>
-                        {errors.cardboardType && <ErrorText>{errors.cardboardType}</ErrorText>}
-                    </Field>
-                    <Field>
-                        <Label>Комментарий (опционально)</Label>
+                        <Label>Комментарий</Label>
                         <Input name="message" value={formData.message} onChange={onChange} />
                     </Field>
                 </Grid>
@@ -160,7 +151,7 @@ export const KashpoOrderForm = () => {
                 </ConsentRow>
                 {errors.consent && <ErrorText>{errors.consent}</ErrorText>}
 
-                {submitMessage && <Status $success={isSuccess}>{submitMessage}</Status>}
+                {submitError && <ErrorText>{submitError}</ErrorText>}
 
                 <Submit disabled={isLoading}>{isLoading ? 'Отправка...' : 'Отправить'}</Submit>
             </Form>
@@ -214,23 +205,63 @@ const Label = styled.label`
     color: #444;
 `
 
-const Input = styled.input`
+const Input = styled.input<{ $hasError?: boolean }>`
     height: ${rm(46)};
-    border: 1px solid #dcdfe4;
+    border: 1px solid ${props => props.$hasError ? '#d92727' : '#dcdfe4'};
     border-radius: ${rm(10)};
     padding: 0 ${rm(12)};
     ${fontGeist(400)};
     font-size: ${rm(15)};
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &::placeholder {
+        color: #aaa;
+    }
+
+    &:focus {
+        border-color: #1c1c1c;
+    }
+`
+
+const SelectWrap = styled.div`
+    position: relative;
+    display: flex;
+    align-items: center;
 `
 
 const Select = styled.select`
+    width: 100%;
     height: ${rm(46)};
     border: 1px solid #dcdfe4;
     border-radius: ${rm(10)};
-    padding: 0 ${rm(12)};
+    padding: 0 ${rm(36)} 0 ${rm(12)};
     ${fontGeist(400)};
     font-size: ${rm(15)};
     background: #fff;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+    color: #1c1c1c;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+        border-color: #1c1c1c;
+    }
+
+    option[value=""] {
+        color: #aaa;
+    }
+`
+
+const SelectArrow = styled.div`
+    position: absolute;
+    right: ${rm(12)};
+    pointer-events: none;
+    color: #888;
+    display: flex;
+    align-items: center;
 `
 
 const ConsentRow = styled.div`
@@ -241,6 +272,7 @@ const ConsentRow = styled.div`
         ${fontGeist(400)};
         font-size: ${rm(13)};
         color: #444;
+        cursor: pointer;
     }
 `
 
@@ -254,6 +286,12 @@ const Submit = styled.button`
     font-size: ${rm(15)};
     padding: ${rm(12)} ${rm(22)};
     cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background: #2c2c2c;
+    }
+
     &:disabled {
         opacity: 0.7;
         cursor: default;
@@ -265,10 +303,3 @@ const ErrorText = styled.span`
     font-size: ${rm(12)};
     color: #d92727;
 `
-
-const Status = styled.div<{ $success: boolean }>`
-    ${fontGeist(400)};
-    font-size: ${rm(13)};
-    color: ${(p) => (p.$success ? '#0f7a3d' : '#d92727')};
-`
-

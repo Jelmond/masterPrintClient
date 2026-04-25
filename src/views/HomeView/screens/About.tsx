@@ -5,6 +5,8 @@ import { rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled, { keyframes } from "styled-components"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { validateBelarusPhone } from "@/utils/validateBelarusPhone"
 
 interface FormErrors {
     name?: string
@@ -29,6 +31,7 @@ const slideInUp = keyframes`
 `
 
 export const About = () => {
+    const router = useRouter()
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -58,11 +61,8 @@ export const About = () => {
         // Phone validation
         if (!formData.phone.trim()) {
             newErrors.phone = 'Номер телефона обязателен для заполнения'
-        } else {
-            const phoneRegex = /^[\d\s\-\+\(\)]+$/
-            if (!phoneRegex.test(formData.phone.trim())) {
-                newErrors.phone = 'Неверный формат номера телефона'
-            }
+        } else if (!validateBelarusPhone(formData.phone)) {
+            newErrors.phone = 'Введите корректный белорусский номер (+375XXXXXXXXX)'
         }
 
         // Email validation
@@ -121,42 +121,16 @@ export const About = () => {
         setSubmitMessage('')
 
         try {
-            const response = await fetch('/api/contact', {
+            const response = await fetch('/api/partner', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             })
 
             const data = await response.json()
+            if (!response.ok) throw new Error(data.error || 'Ошибка при отправке заявки')
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Ошибка при отправке заявки')
-            }
-
-            setSubmitStatus('success')
-            setSubmitMessage('Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.')
-            
-            // Reset form
-            setFormData({
-                name: '',
-                phone: '',
-                company: '',
-                email: '',
-                circulation: '',
-                productType: '',
-                message: '',
-                consent: false
-            })
-            setErrors({})
-
-            // Clear success message after 5 seconds
-            setTimeout(() => {
-                setSubmitStatus('idle')
-                setSubmitMessage('')
-            }, 5000)
-
+            router.push('/form-success')
         } catch (error) {
             setSubmitStatus('error')
             setSubmitMessage(error instanceof Error ? error.message : 'Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.')
@@ -246,27 +220,39 @@ export const About = () => {
                         </StyledInputWrapper>
                         <Field>
                             <Label>Тираж</Label>
-                            <Select name="circulation" value={formData.circulation} onChange={handleChange}>
-                                <option value="">Выберите тираж</option>
-                                <option value="до 100">до 100 шт.</option>
-                                <option value="100-500">100-500 шт.</option>
-                                <option value="500-1000">500-1000 шт.</option>
-                                <option value="1000+">1000+ шт.</option>
-                            </Select>
-                            {errors.circulation && <StyledError>{errors.circulation}</StyledError>}
+                            <SelectWrap>
+                                <Select name="circulation" value={formData.circulation} onChange={handleChange}>
+                                    <option value="">Выберите тираж</option>
+                                    <option value="до 100">до 100 шт.</option>
+                                    <option value="100-500">100–500 шт.</option>
+                                    <option value="500-1000">500–1000 шт.</option>
+                                    <option value="1000+">1000+ шт.</option>
+                                </Select>
+                                <SelectArrow>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </SelectArrow>
+                            </SelectWrap>
                         </Field>
                         <Field>
                             <Label>Вид продукции</Label>
-                            <Select name="productType" value={formData.productType} onChange={handleChange}>
-                                <option value="">Выберите тип продукции</option>
-                                <option value="кашпо">Открытки</option>
-                                <option value="коробки">Стикеры</option>
-                                <option value="упаковка">Коробки</option>
-                                <option value="конверты">Конверты</option>
-                                <option value="переноски">Переноски для цветов</option>
-                                <option value="другое">Другое</option>
-                            </Select>
-                            {errors.productType && <StyledError>{errors.productType}</StyledError>}
+                            <SelectWrap>
+                                <Select name="productType" value={formData.productType} onChange={handleChange}>
+                                    <option value="">Выберите тип продукции</option>
+                                    <option value="открытки">Открытки</option>
+                                    <option value="стикеры">Стикеры</option>
+                                    <option value="коробки">Коробки</option>
+                                    <option value="конверты">Конверты</option>
+                                    <option value="переноски">Переноски для цветов</option>
+                                    <option value="другое">Другое</option>
+                                </Select>
+                                <SelectArrow>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </SelectArrow>
+                            </SelectWrap>
                         </Field>
                     </StyledInputGrid>
                     <StyledTextareaWrapper>
@@ -874,9 +860,24 @@ const Input = styled.input`
     font-size: ${rm(15)};
 `
 
+const SelectWrap = styled.div`
+    position: relative;
+    display: flex;
+    align-items: center;
+`
+
+const SelectArrow = styled.div`
+    position: absolute;
+    right: ${rm(14)};
+    pointer-events: none;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+`
+
 const Select = styled.select`
     width: 100%;
-    padding: ${rm(20)} ${rm(20)} ${rm(12)} ${rm(20)};
+    padding: ${rm(20)} ${rm(44)} ${rm(12)} ${rm(20)};
     border: 2px solid #E5E7EB;
     border-radius: ${rm(12)};
     background-color: #FFFFFF;
@@ -887,24 +888,20 @@ const Select = styled.select`
     font-size: ${rm(16)};
     color: #1C1C1C;
     outline: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     cursor: pointer;
+    transition: border-color 0.2s ease;
 
     ${media.xsm`
-        padding: ${rm(18)} ${rm(16)} ${rm(10)} ${rm(16)};
+        padding: ${rm(18)} ${rm(40)} ${rm(10)} ${rm(16)};
         font-size: ${rm(14)};
         border-radius: ${rm(10)};
     `}
 
     &:focus {
         border-color: #1C1C1C;
-        box-shadow: 0 4px 16px rgba(28, 28, 28, 0.12);
-        transform: translateY(-1px);
     }
 
     &:hover:not(:focus) {
         border-color: #D1D5DB;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 `

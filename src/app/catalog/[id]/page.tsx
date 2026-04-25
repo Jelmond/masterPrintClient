@@ -18,8 +18,55 @@ interface Product {
     // ... other product properties
 }
 
+function normalizeCategoryPayload(raw: any) {
+    const source = raw?.data ?? raw
+    const base = source?.attributes ?? source ?? {}
+
+    const normalizeProducts = (products: any) => {
+        if (!products) return []
+        if (Array.isArray(products)) return products
+        if (Array.isArray(products?.data)) {
+            return products.data.map((item: any) => item?.attributes ?? item).filter(Boolean)
+        }
+        return []
+    }
+
+    return {
+        ...base,
+        products: normalizeProducts(base?.products),
+    }
+}
+
+async function fetchTagsForCategoryWithFallback(categoryKey: string) {
+    const base = process.env.NEXT_PUBLIC_STRAPI_URL
+    const candidates = [
+        `${base}/api/tags/getTagsForCategory/${categoryKey}`,
+        `${base}/api/getTagsForCategory/${categoryKey}`,
+    ]
+
+    for (const url of candidates) {
+        const res = await fetch(url, {
+            cache: 'no-store',
+            headers: { 'Content-Type': 'application/json' },
+        })
+
+        if (res.ok) {
+            const data = await res.json()
+            return { data, endpoint: url }
+        }
+
+        // Если эндпоинт не найден — пробуем следующий вариант пути.
+        if (res.status === 404) continue
+
+        throw new Error(`Failed to fetch tags: ${res.status} ${res.statusText}`)
+    }
+
+    throw new Error('Failed to fetch tags: Not Found')
+}
+
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-    const categoryUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getPopulatedCategory/${params.id}`;
+    const categorySlug = params.id
+    const categoryUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/categories/${categorySlug}?populate[products][populate]=tags`;
     
     try {
         const categoryRes = await fetch(categoryUrl, { 
@@ -30,7 +77,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         });
 
         if (categoryRes.ok) {
-            const categoryData = await categoryRes.json();
+            const rawCategoryData = await categoryRes.json();
+            const categoryData = normalizeCategoryPayload(rawCategoryData)
             const categoryTitle = categoryData?.title || 'Категория';
             const productCount = categoryData?.products?.length || 0;
             
@@ -52,29 +100,24 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function SingleCatalogPage({ params }: { params: { id: string } }) {
-    const categoryUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getPopulatedCategory/${params.id}`;
-    const tagsUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getTagsForCategory/${params.id}`;
+    const categorySlug = params.id
+    const categoryUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/categories/${categorySlug}?populate[products][populate]=tags`;
 
-    const [categoryRes, tagsRes, batchesOrder] = await Promise.all([
+    const [categoryRes, tagsResponse, batchesOrder] = await Promise.all([
         fetch(categoryUrl, {
             cache: 'no-store',
             headers: { 'Content-Type': 'application/json' },
         }),
-        fetch(tagsUrl, {
-            cache: 'no-store',
-            headers: { 'Content-Type': 'application/json' },
-        }),
+        fetchTagsForCategoryWithFallback(categorySlug),
         fetchBatchesFromStrapi(),
     ]);
 
-    const tagsData = await tagsRes.json();
-    const categoryData = await categoryRes.json();
+    const tagsData = tagsResponse.data;
+    const rawCategoryData = await categoryRes.json();
+    const categoryData = normalizeCategoryPayload(rawCategoryData)
 
     if (!categoryRes.ok) {
         throw new Error(`Failed to fetch category: ${categoryRes.statusText}`);
-    }
-    if (!tagsRes.ok) {
-        throw new Error(`Failed to fetch tags: ${tagsRes.statusText}`);
     }
     if (!categoryData) {
         notFound();
@@ -119,7 +162,8 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
         hasDuplicatesInCategory: productsFromCategory !== uniqueIdsFromCategory,
         productIds: productIdsFromCategory,
     });
-    console.log('[Catalog] tagsProductsData (from getTagsForCategory):', {
+    console.log('[Catalog] tagsProductsData (from getTagsForCategory endpoint):', {
+        endpointUsed: tagsResponse.endpoint,
         groupsCount: tagsProductsData.length,
         groups: tagsProductsData.map((g: any) => ({
             title: g?.title,

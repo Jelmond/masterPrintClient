@@ -18,7 +18,7 @@ function toAbsoluteUrl(pathOrUrl: string | null | undefined, strapiBase: string)
 }
 
 /**
- * Картинка для поиска: сначала галерея (formats / url), если пусто — preview (как в карточке товара).
+ * Картинка для поиска: всегда приоритетно используем preview.
  */
 export function getSearchProductImageUrl(
     product: {
@@ -28,6 +28,10 @@ export function getSearchProductImageUrl(
     strapiBase: string,
     size: "thumbnail" | "medium" = "medium"
 ): string {
+    const previewPath = pickStrapiMediaUrl(product?.preview)
+    const fromPreview = toAbsoluteUrl(previewPath, strapiBase)
+    if (fromPreview) return fromPreview
+
     const first = product?.images?.[0]
     let rel: string | null | undefined =
         size === "medium"
@@ -36,10 +40,6 @@ export function getSearchProductImageUrl(
 
     const fromGallery = toAbsoluteUrl(rel ?? null, strapiBase)
     if (fromGallery) return fromGallery
-
-    const previewPath = pickStrapiMediaUrl(product?.preview)
-    const fromPreview = toAbsoluteUrl(previewPath, strapiBase)
-    if (fromPreview) return fromPreview
 
     return "/placeholder.jpg"
 }

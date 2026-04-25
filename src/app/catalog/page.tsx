@@ -29,7 +29,10 @@ export default function CatalogPage() {
     return (
         <StyledCatalogPage>
             {data?.data?.map((category, index) => (
-                <StyledCategory href={category.icon === 'kashpo' ? '/kashpo' : `/catalog/${category.id}`} key={index}>
+                <StyledCategory
+                    href={category.icon === 'kashpo' ? '/kashpo' : `/catalog/${category.slug || category.id}`}
+                    key={index}
+                >
                     <StyledSlideImage>
                         {category.icon === 'stickers' && <CardsSvg />}
                         {category.icon === 'box' && <BoxSvg />}
