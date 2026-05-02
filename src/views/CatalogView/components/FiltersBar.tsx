@@ -23,7 +23,7 @@ interface FiltersBarProps {
 }
 
 
-export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClearFilters, onOpenFilterModal, showCategories = true }: FiltersBarProps) => {
+export const FiltersBar = ({ tags, filters, onTagToggle, onClearFilters, onOpenFilterModal }: FiltersBarProps) => {
 
     const [isShown, setIsShown] = useState(true)
     const [showAllTags, setShowAllTags] = useState(false)
@@ -99,35 +99,11 @@ export const FiltersBar = ({ tags, filters, onFilterChange, onTagToggle, onClear
                         )}
                     </StyledHeaderSection>
 
-                    {showCategories && (
+                    {/* {showCategories && (
                         <>
                             <StyledSectionTitle>Теги</StyledSectionTitle>
-                            <StyledSalesFilter>
-                                {/* <StyledFilterButton 
-                                    className={filters.sales === 'new' ? 'active' : ''}
-                                    onClick={() => onFilterChange('sales', filters.sales === 'new' ? '' : 'new')}
-                                >
-                                    <span>Новинки</span>
-                                    {filters.sales === 'new' && (
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    )}
-                                </StyledFilterButton> */}
-                                <StyledFilterButton 
-                                    className={filters.sales === 'sale' ? 'active' : ''}
-                                    onClick={() => onFilterChange('sales', filters.sales === 'sale' ? '' : 'sale')}
-                                >
-                                    <span>Акции</span>
-                                    {filters.sales === 'sale' && (
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    )}
-                                </StyledFilterButton>
-                            </StyledSalesFilter>
                         </>
-                    )}
+                    )} */}
 
                     <StyledSectionTitle>Категории</StyledSectionTitle>
                     <StyledTagsFilterWrapper
@@ -288,63 +264,6 @@ const StyledSectionTitle = styled.h3`
     }
 `
 
-const StyledSalesFilter = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: ${rm(10)};
-    margin-bottom: ${rm(20)};
-`
-
-const StyledFilterButton = styled.button`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: ${rm(8)};
-    font-size: ${rm(16)};
-    ${fontGeist(500)};
-    color: ${colors.black100};
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: ${rm(10)} ${rm(14)};
-    border-radius: ${rm(10)};
-    border: 2px solid transparent;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    text-align: left;
-
-    span {
-        flex: 1;
-    }
-
-    svg {
-        opacity: 0;
-        transform: scale(0.8);
-        transition: all 0.2s ease;
-    }
-
-    &:hover {
-        transform: translateX(${rm(6)});
-        background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
-        border-color: rgba(102, 126, 234, 0.2);
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-    }
-
-    &.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-color: #667eea;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-
-        svg {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        &:hover {
-            transform: translateX(${rm(4)});
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-        }
-    }
-`
 
 const StyledTagsFilterWrapper = styled.div`
     max-height: ${rm(400)};

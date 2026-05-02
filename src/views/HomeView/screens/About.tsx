@@ -1,23 +1,7 @@
-'use client'
-
-import { colors, media } from "@/styles"
-import { rm } from "@/styles"
+import { media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled, { keyframes } from "styled-components"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { validateBelarusPhone } from "@/utils/validateBelarusPhone"
-
-interface FormErrors {
-    name?: string
-    phone?: string
-    email?: string
-    company?: string
-    message?: string
-    consent?: string
-    circulation?: string
-    productType?: string
-}
+import { CatalogueButton } from "@/components/UI/Buttons/CatalogueButton"
 
 const slideInUp = keyframes`
     from {
@@ -31,304 +15,46 @@ const slideInUp = keyframes`
 `
 
 export const About = () => {
-    const router = useRouter()
-    const [formData, setFormData] = useState({
-        name: '',
-        phone: '',
-        company: '',
-        email: '',
-        circulation: '',
-        productType: '',
-        message: '',
-        consent: false
-    })
-    const [errors, setErrors] = useState<FormErrors>({})
-    const [isLoading, setIsLoading] = useState(false)
-    const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-    const [submitMessage, setSubmitMessage] = useState('')
-    const [focusedField, setFocusedField] = useState<string | null>(null)
-
-    const validateForm = (): boolean => {
-        const newErrors: FormErrors = {}
-
-        // Name validation
-        if (!formData.name.trim()) {
-            newErrors.name = 'Имя обязательно для заполнения'
-        } else if (formData.name.trim().length < 2) {
-            newErrors.name = 'Имя должно содержать минимум 2 символа'
-        }
-
-        // Phone validation
-        if (!formData.phone.trim()) {
-            newErrors.phone = 'Номер телефона обязателен для заполнения'
-        } else if (!validateBelarusPhone(formData.phone)) {
-            newErrors.phone = 'Введите корректный белорусский номер (+375XXXXXXXXX)'
-        }
-
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (formData.email !== '' && !emailRegex.test(formData.email.trim())) {
-            newErrors.email = 'Неверный формат email'
-        }
-
-        // Consent validation
-        if (!formData.consent) {
-            newErrors.consent = 'Необходимо согласие на обработку персональных данных'
-        }
-
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
-    }
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target
-        const checked = (e.target as HTMLInputElement).checked
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value
-        })
-        // Clear error for this field when user starts typing
-        if (errors[name as keyof FormErrors]) {
-            setErrors({
-                ...errors,
-                [name]: undefined
-            })
-        }
-        // Clear submit status when user makes changes
-        if (submitStatus !== 'idle') {
-            setSubmitStatus('idle')
-            setSubmitMessage('')
-        }
-    }
-
-    const handleFocus = (fieldName: string) => {
-        setFocusedField(fieldName)
-    }
-
-    const handleBlur = () => {
-        setFocusedField(null)
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        
-        if (!validateForm()) {
-            return
-        }
-
-        setIsLoading(true)
-        setSubmitStatus('idle')
-        setSubmitMessage('')
-
-        try {
-            const response = await fetch('/api/partner', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            })
-
-            const data = await response.json()
-            if (!response.ok) throw new Error(data.error || 'Ошибка при отправке заявки')
-
-            router.push('/form-success')
-        } catch (error) {
-            setSubmitStatus('error')
-            setSubmitMessage(error instanceof Error ? error.message : 'Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.')
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
     return (
         <StyledAbout>
             <StyledBackgroundDecoration />
             <StyledFormContainer>
                 <StyledHeader>
                     <StyledTitle>Делаем продукцию под заказ!</StyledTitle>
-                    <StyledSubtitle>Заполните форму ниже, и мы свяжемся с вами в ближайшее время</StyledSubtitle>
-                    <StyledSubtitle className="small">Юридические лица, ИП, и лица осуществляющие самостоятельную профессиональную деятельность могут оформить индивидуальный заказ через менеджера или через форму нижу</StyledSubtitle>
+                    <StyledSubtitle>Открытки, стикеры, коробки, конверты и многое другое — под ваш бренд и в нужном тираже</StyledSubtitle>
+                    <StyledSubtitle className="small">Юридические лица, ИП, и лица осуществляющие самостоятельную профессиональную деятельность могут оформить индивидуальный заказ через менеджера</StyledSubtitle>
                 </StyledHeader>
-                <StyledForm onSubmit={handleSubmit}>
-                    <StyledInputGrid>
-                        <StyledInputWrapper>
-                            <StyledLabel $isFocused={focusedField === 'name' || !!formData.name} $hasError={!!errors.name}>
-                                Ваше Имя*
-                            </StyledLabel>
-                            <StyledInput
-                                type="text"
-                                name="name"
-                                placeholder=""
-                                value={formData.name}
-                                onChange={handleChange}
-                                onFocus={() => handleFocus('name')}
-                                onBlur={handleBlur}
-                                $hasError={!!errors.name}
-                                $isFocused={focusedField === 'name'}
-                            />
-                            {errors.name && <StyledError>{errors.name}</StyledError>}
-                        </StyledInputWrapper>
-                        <StyledInputWrapper>
-                            <StyledLabel $isFocused={focusedField === 'phone' || !!formData.phone} $hasError={!!errors.phone}>
-                                Ваш Номер*
-                            </StyledLabel>
-                            <StyledInput
-                                type="tel"
-                                name="phone"
-                                placeholder=""
-                                value={formData.phone}
-                                onChange={handleChange}
-                                onFocus={() => handleFocus('phone')}
-                                onBlur={handleBlur}
-                                $hasError={!!errors.phone}
-                                $isFocused={focusedField === 'phone'}
-                            />
-                            {errors.phone && <StyledError>{errors.phone}</StyledError>}
-                        </StyledInputWrapper>
-                        <StyledInputWrapper>
-                            <StyledLabel $isFocused={focusedField === 'company' || !!formData.company} $hasError={!!errors.company}>
-                                Название Фирмы
-                            </StyledLabel>
-                            <StyledInput
-                                type="text"
-                                name="company"
-                                placeholder=""
-                                value={formData.company}
-                                onChange={handleChange}
-                                onFocus={() => handleFocus('company')}
-                                onBlur={handleBlur}
-                                $hasError={!!errors.company}
-                                $isFocused={focusedField === 'company'}
-                            />
-                            {errors.company && <StyledError>{errors.company}</StyledError>}
-                        </StyledInputWrapper>
-                        <StyledInputWrapper>
-                            <StyledLabel $isFocused={focusedField === 'email' || !!formData.email} $hasError={!!errors.email}>
-                                Ваша Почта
-                            </StyledLabel>
-                            <StyledInput
-                                type="email"
-                                name="email"
-                                placeholder=""
-                                value={formData.email}
-                                onChange={handleChange}
-                                onFocus={() => handleFocus('email')}
-                                onBlur={handleBlur}
-                                $hasError={!!errors.email}
-                                $isFocused={focusedField === 'email'}
-                            />
-                            {errors.email && <StyledError>{errors.email}</StyledError>}
-                        </StyledInputWrapper>
-                        <Field>
-                            <Label>Тираж</Label>
-                            <SelectWrap>
-                                <Select name="circulation" value={formData.circulation} onChange={handleChange}>
-                                    <option value="">Выберите тираж</option>
-                                    <option value="до 100">до 100 шт.</option>
-                                    <option value="100-500">100–500 шт.</option>
-                                    <option value="500-1000">500–1000 шт.</option>
-                                    <option value="1000+">1000+ шт.</option>
-                                </Select>
-                                <SelectArrow>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </SelectArrow>
-                            </SelectWrap>
-                        </Field>
-                        <Field>
-                            <Label>Вид продукции</Label>
-                            <SelectWrap>
-                                <Select name="productType" value={formData.productType} onChange={handleChange}>
-                                    <option value="">Выберите тип продукции</option>
-                                    <option value="открытки">Открытки</option>
-                                    <option value="стикеры">Стикеры</option>
-                                    <option value="коробки">Коробки</option>
-                                    <option value="конверты">Конверты</option>
-                                    <option value="переноски">Переноски для цветов</option>
-                                    <option value="другое">Другое</option>
-                                </Select>
-                                <SelectArrow>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </SelectArrow>
-                            </SelectWrap>
-                        </Field>
-                    </StyledInputGrid>
-                    <StyledTextareaWrapper>
-                        <StyledLabel $isFocused={focusedField === 'message' || !!formData.message} $hasError={!!errors.message}>
-                            Ваше Сообщение
-                        </StyledLabel>
-                        <StyledTextarea
-                            name="message"
-                            placeholder=""
-                            value={formData.message}
-                            onChange={handleChange}
-                            onFocus={() => handleFocus('message')}
-                            onBlur={handleBlur}
-                            rows={5}
-                            $hasError={!!errors.message}
-                            $isFocused={focusedField === 'message'}
-                        />
-                        {errors.message && <StyledError>{errors.message}</StyledError>}
-                    </StyledTextareaWrapper>
-                    <StyledCheckboxWrapper>
-                        <StyledCheckbox
-                            type="checkbox"
-                            name="consent"
-                            id="consent"
-                            checked={formData.consent}
-                            onChange={handleChange}
-                            $hasError={!!errors.consent}
-                        />
-                        <StyledCheckboxLabel htmlFor="consent">
-                            Я согласен на обработку персональных данных
-                        </StyledCheckboxLabel>
-                    </StyledCheckboxWrapper>
-                    {errors.consent && <StyledError>{errors.consent}</StyledError>}
-                    {submitMessage && (
-                        <StyledStatusMessage $isSuccess={submitStatus === 'success'}>
-                            <StyledStatusIcon $isSuccess={submitStatus === 'success'}>
-                                {submitStatus === 'success' ? (
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                ) : (
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                )}
-                            </StyledStatusIcon>
-                            {submitMessage}
-                        </StyledStatusMessage>
-                    )}
-                    <StyledPolicyLink href="/policy.pdf" download>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        Скачать политику конфиденциальности
-                    </StyledPolicyLink>
-                    <StyledSubmitButton type="submit" disabled={isLoading} $isLoading={isLoading}>
-                        {isLoading ? (
-                            <>
-                                <StyledSpinner />
-                                <span>Отправка...</span>
-                            </>
-                        ) : (
-                            <>
-                                <span>Отправить</span>
-                                <StyledButtonIcon>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </StyledButtonIcon>
-                            </>
-                        )}
-                    </StyledSubmitButton>
-                </StyledForm>
+                <StyledFeatureList>
+                    <StyledFeatureItem>
+                        <StyledFeatureIcon>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </StyledFeatureIcon>
+                        <span>Высокое качество печати</span>
+                    </StyledFeatureItem>
+                    <StyledFeatureItem>
+                        <StyledFeatureIcon>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </StyledFeatureIcon>
+                        <span>Любой тираж — от 100 шт.</span>
+                    </StyledFeatureItem>
+                    <StyledFeatureItem>
+                        <StyledFeatureIcon>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </StyledFeatureIcon>
+                        <span>Персональный менеджер</span>
+                    </StyledFeatureItem>
+                </StyledFeatureList>
+                <StyledCtaWrapper>
+                    <CatalogueButton link="/custom-order" color="black" isArrowLeft={false}>
+                        <span>Оформить заказ</span>
+                    </CatalogueButton>
+                </StyledCtaWrapper>
             </StyledFormContainer>
         </StyledAbout>
     )
@@ -363,7 +89,7 @@ const StyledBackgroundDecoration = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
         radial-gradient(circle at 20% 30%, rgba(28, 28, 28, 0.03) 0%, transparent 50%),
         radial-gradient(circle at 80% 70%, rgba(28, 28, 28, 0.03) 0%, transparent 50%);
     pointer-events: none;
@@ -388,15 +114,14 @@ const StyledFormContainer = styled.div`
 
 const StyledHeader = styled.div`
     text-align: center;
-    margin-bottom: ${rm(60)};
-    animation: ${slideInUp} 0.6s ease-out 0.1s both;
+    margin-bottom: ${rm(48)};
 
     ${media.md`
-        margin-bottom: ${rm(50)};
+        margin-bottom: ${rm(40)};
     `}
 
     ${media.xsm`
-        margin-bottom: ${rm(40)};
+        margin-bottom: ${rm(32)};
     `}
 `
 
@@ -431,10 +156,9 @@ const StyledSubtitle = styled.p`
     ${fontGeist(400)};
     font-size: ${rm(18)};
     color: #6B7280;
-    margin: 0;
+    margin: 0 auto;
     line-height: 1.6;
     max-width: ${rm(600)};
-    margin: 0 auto;
 
     ${media.md`
         font-size: ${rm(16)};
@@ -445,463 +169,44 @@ const StyledSubtitle = styled.p`
     `}
 `
 
-const StyledForm = styled.form`
-    width: 100%;
+const StyledFeatureList = styled.div`
     display: flex;
-    flex-direction: column;
-    gap: ${rm(28)};
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    padding: ${rm(50)};
-    border-radius: ${rm(24)};
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.08),
-        0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-    animation: ${slideInUp} 0.6s ease-out 0.2s both;
-
-    ${media.md`
-        padding: ${rm(40)};
-        gap: ${rm(24)};
-        border-radius: ${rm(20)};
-    `}
+    gap: ${rm(40)};
+    margin-bottom: ${rm(48)};
+    flex-wrap: wrap;
+    justify-content: center;
 
     ${media.xsm`
-        padding: ${rm(30)} ${rm(24)};
         gap: ${rm(20)};
-        border-radius: ${rm(16)};
+        margin-bottom: ${rm(36)};
     `}
 `
 
-const StyledInputGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: ${rm(24)};
-
-    ${media.xsm`
-        grid-template-columns: 1fr;
-        gap: ${rm(20)};
-    `}
-`
-
-const StyledInputWrapper = styled.div`
-    position: relative;
-    display: flex;
-    flex-direction: column;
-`
-
-const StyledTextareaWrapper = styled.div`
-    position: relative;
-    display: flex;
-    flex-direction: column;
-`
-
-const StyledCheckboxWrapper = styled.div`
+const StyledFeatureItem = styled.div`
     display: flex;
     align-items: center;
-    gap: ${rm(12)};
-`
-
-const StyledCheckbox = styled.input<{ $hasError?: boolean }>`
-    width: ${rm(20)};
-    height: ${rm(20)};
-    cursor: pointer;
-    accent-color: #1C1C1C;
-    flex-shrink: 0;
-`
-
-const StyledCheckboxLabel = styled.label`
-    ${fontGeist(400)};
-    font-size: ${rm(16)};
-    color: #1C1C1C;
-    cursor: pointer;
-
-    ${media.xsm`
-        font-size: ${rm(14)};
-    `}
-`
-
-const StyledLabel = styled.label<{ $isFocused?: boolean; $hasError?: boolean }>`
-    position: absolute;
-    left: ${rm(20)};
-    top: ${props => props.$isFocused ? rm(8) : rm(18)};
-    font-size: ${props => props.$isFocused ? rm(12) : rm(16)};
-    ${fontGeist(400)};
-    color: ${props => {
-        if (props.$hasError) return '#EF4444';
-        if (props.$isFocused) return '#1C1C1C';
-        return '#9CA3AF';
-    }};
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2;
-    background: ${props => props.$isFocused ? 'rgba(255, 255, 255, 0.95)' : 'transparent'};
-    padding: ${props => props.$isFocused ? `0 ${rm(8)}` : '0'};
-    transform-origin: left top;
-
-    ${media.xsm`
-        left: ${rm(16)};
-        top: ${(props: { $isFocused?: boolean; $hasError?: boolean }) => props.$isFocused ? rm(6) : rm(16)};
-        font-size: ${(props: { $isFocused?: boolean; $hasError?: boolean }) => props.$isFocused ? rm(11) : rm(14)};
-    `}
-`
-
-const StyledInput = styled.input<{ $hasError?: boolean; $isFocused?: boolean }>`
-    width: 100%;
-    padding: ${rm(20)} ${rm(20)} ${rm(12)} ${rm(20)};
-    border: 2px solid ${props => {
-        if (props.$hasError) return '#EF4444';
-        if (props.$isFocused) return '#1C1C1C';
-        return '#E5E7EB';
-    }};
-    border-radius: ${rm(12)};
-    background-color: #FFFFFF;
-    font-size: ${rm(16)};
-    ${fontGeist(400)};
-    color: #1C1C1C;
-    outline: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: ${props => props.$isFocused 
-        ? '0 4px 12px rgba(28, 28, 28, 0.08)' 
-        : '0 1px 3px rgba(0, 0, 0, 0.05)'};
-
-    ${media.xsm`
-        padding: ${rm(18)} ${rm(16)} ${rm(10)} ${rm(16)};
-        font-size: ${rm(14)};
-        border-radius: ${rm(10)};
-    `}
-
-    &:focus {
-        border-color: ${props => props.$hasError ? '#EF4444' : '#1C1C1C'};
-        box-shadow: 0 4px 16px rgba(28, 28, 28, 0.12);
-        transform: translateY(-1px);
-    }
-
-    &:hover:not(:focus) {
-        border-color: ${props => props.$hasError ? '#EF4444' : '#D1D5DB'};
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    &::placeholder {
-        opacity: 0;
-    }
-`
-
-const StyledTextarea = styled.textarea<{ $hasError?: boolean; $isFocused?: boolean }>`
-    width: 100%;
-    padding: ${rm(20)} ${rm(20)} ${rm(12)} ${rm(20)};
-    border: 2px solid ${props => {
-        if (props.$hasError) return '#EF4444';
-        if (props.$isFocused) return '#1C1C1C';
-        return '#E5E7EB';
-    }};
-    border-radius: ${rm(12)};
-    background-color: #FFFFFF;
-    font-size: ${rm(16)};
-    ${fontGeist(400)};
-    color: #1C1C1C;
-    outline: none;
-    resize: vertical;
-    min-height: ${rm(140)};
-    font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: ${props => props.$isFocused 
-        ? '0 4px 12px rgba(28, 28, 28, 0.08)' 
-        : '0 1px 3px rgba(0, 0, 0, 0.05)'};
-
-    ${media.xsm`
-        padding: ${rm(18)} ${rm(16)} ${rm(10)} ${rm(16)};
-        font-size: ${rm(14)};
-        min-height: ${rm(120)};
-        border-radius: ${rm(10)};
-    `}
-
-    &:focus {
-        border-color: ${props => props.$hasError ? '#EF4444' : '#1C1C1C'};
-        box-shadow: 0 4px 16px rgba(28, 28, 28, 0.12);
-        transform: translateY(-1px);
-    }
-
-    &:hover:not(:focus) {
-        border-color: ${props => props.$hasError ? '#EF4444' : '#D1D5DB'};
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    &::placeholder {
-        opacity: 0;
-    }
-`
-
-const StyledError = styled.span`
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    margin-bottom: ${rm(6)};
-    font-size: ${rm(12)};
-    ${fontGeist(400)};
-    color: #EF4444;
-    white-space: nowrap;
-    z-index: 10;
-    pointer-events: none;
-    background: rgba(255, 255, 255, 0.95);
-    padding: ${rm(4)} ${rm(8)};
-    border-radius: ${rm(6)};
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
-
-    ${media.xsm`
-        font-size: ${rm(11)};
-        margin-bottom: ${rm(4)};
-        padding: ${rm(3)} ${rm(6)};
-    `}
-`
-
-const StyledStatusMessage = styled.div<{ $isSuccess: boolean }>`
-    display: flex;
-    align-items: center;
-    gap: ${rm(12)};
-    padding: ${rm(16)} ${rm(20)};
-    border-radius: ${rm(12)};
-    font-size: ${rm(14)};
-    ${fontGeist(400)};
-    background: ${props => props.$isSuccess 
-        ? 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)' 
-        : 'linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%)'};
-    color: ${props => props.$isSuccess ? '#065F46' : '#991B1B'};
-    border: 1px solid ${props => props.$isSuccess ? '#A7F3D0' : '#FECACA'};
-    box-shadow: 0 4px 12px ${props => props.$isSuccess 
-        ? 'rgba(16, 185, 129, 0.15)' 
-        : 'rgba(239, 68, 68, 0.15)'};
-    animation: ${slideInUp} 0.4s ease-out;
-
-    ${media.xsm`
-        font-size: ${rm(12)};
-        padding: ${rm(12)} ${rm(16)};
-        gap: ${rm(10)};
-    `}
-`
-
-const StyledStatusIcon = styled.div<{ $isSuccess: boolean }>`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: ${rm(24)};
-    height: ${rm(24)};
-    flex-shrink: 0;
-    background: ${props => props.$isSuccess ? '#10B981' : '#EF4444'};
-    border-radius: 50%;
-    color: white;
-
-    ${media.xsm`
-        width: ${rm(20)};
-        height: ${rm(20)};
-    `}
-
-    svg {
-        width: ${rm(14)};
-        height: ${rm(14)};
-    }
-`
-
-const StyledSubmitButton = styled.button<{ $isLoading?: boolean }>`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: ${rm(12)};
-    padding: ${rm(18)} ${rm(40)};
-    background: linear-gradient(135deg, #1C1C1C 0%, #2C2C2C 100%);
-    color: #FFFFFF;
-    border: none;
-    border-radius: ${rm(12)};
-    font-size: ${rm(18)};
-    ${fontGeist(600)};
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-top: ${rm(12)};
-    align-self: center;
-    min-width: ${rm(220)};
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(28, 28, 28, 0.2);
-
-    ${media.xsm`
-        padding: ${rm(16)} ${rm(32)};
-        font-size: ${rm(16)};
-        min-width: ${rm(200)};
-        gap: ${rm(10)};
-        border-radius: ${rm(10)};
-    `}
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.2),
-            transparent
-        );
-        transition: left 0.5s;
-    }
-
-    &:hover:not(:disabled)::before {
-        left: 100%;
-    }
-
-    &:hover:not(:disabled) {
-        background: linear-gradient(135deg, #2C2C2C 0%, #1C1C1C 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(28, 28, 28, 0.3);
-    }
-
-    &:active:not(:disabled) {
-        transform: translateY(0);
-        box-shadow: 0 4px 12px rgba(28, 28, 28, 0.2);
-    }
-
-    &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-        transform: none;
-    }
-`
-
-const StyledButtonIcon = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    svg {
-        width: ${rm(20)};
-        height: ${rm(20)};
-    }
-
-    ${StyledSubmitButton}:hover:not(:disabled) & {
-        transform: translateX(4px);
-    }
-`
-
-const StyledSpinner = styled.div`
-    width: ${rm(20)};
-    height: ${rm(20)};
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #FFFFFF;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-`
-
-const StyledPolicyLink = styled.a`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: ${rm(8)};
-    font-size: ${rm(14)};
-    color: #6B7280;
-    text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    ${fontGeist(400)};
-    margin-top: ${rm(8)};
-
-    ${media.xsm`
-        font-size: ${rm(12)};
-        gap: ${rm(6)};
-    `}
-
-    svg {
-        width: ${rm(16)};
-        height: ${rm(16)};
-        flex-shrink: 0;
-        transition: transform 0.3s ease;
-
-        ${media.xsm`
-            width: ${rm(14)};
-            height: ${rm(14)};
-        `}
-    }
-
-    &:hover {
-        color: #1C1C1C;
-        text-decoration: underline;
-        
-        svg {
-            transform: translateY(-2px);
-        }
-    }
-`
-
-
-const Field = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: ${rm(6)};
-`
-
-const Label = styled.label`
+    gap: ${rm(10)};
     ${fontGeist(500)};
-    font-size: ${rm(13)};
-    color: #444;
-`
-
-const Input = styled.input`
-    height: ${rm(46)};
-    border: 1px solid #dcdfe4;
-    border-radius: ${rm(10)};
-    padding: 0 ${rm(12)};
-    ${fontGeist(400)};
-    font-size: ${rm(15)};
-`
-
-const SelectWrap = styled.div`
-    position: relative;
-    display: flex;
-    align-items: center;
-`
-
-const SelectArrow = styled.div`
-    position: absolute;
-    right: ${rm(14)};
-    pointer-events: none;
-    color: #6B7280;
-    display: flex;
-    align-items: center;
-`
-
-const Select = styled.select`
-    width: 100%;
-    padding: ${rm(20)} ${rm(44)} ${rm(12)} ${rm(20)};
-    border: 2px solid #E5E7EB;
-    border-radius: ${rm(12)};
-    background-color: #FFFFFF;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    ${fontGeist(400)};
     font-size: ${rm(16)};
     color: #1C1C1C;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
 
     ${media.xsm`
-        padding: ${rm(18)} ${rm(40)} ${rm(10)} ${rm(16)};
         font-size: ${rm(14)};
-        border-radius: ${rm(10)};
     `}
+`
 
-    &:focus {
-        border-color: #1C1C1C;
-    }
+const StyledFeatureIcon = styled.div`
+    display: flex;
+    align-items: center;
+    color: #1C9C56;
 
-    &:hover:not(:focus) {
-        border-color: #D1D5DB;
+    svg {
+        width: ${rm(22)};
+        height: ${rm(22)};
     }
+`
+
+const StyledCtaWrapper = styled.div`
+    display: flex;
+    justify-content: center;
 `

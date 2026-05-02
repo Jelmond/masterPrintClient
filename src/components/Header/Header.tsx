@@ -26,8 +26,8 @@ export const Header = () => {
             href: '/catalog'
         },
         {
-            text: 'Скидки и акции',
-            href: '/promotions'
+            text: 'Акции',
+            href: '/on-sale'
         },
         {
             text: 'О нас',
