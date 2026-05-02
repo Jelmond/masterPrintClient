@@ -100,6 +100,7 @@ function RichText({ value }: { value: StrapiBlock[] | string | null | undefined 
                 }
                 if (block.type === 'heading') {
                     const Tag = `h${block.level}` as keyof JSX.IntrinsicElements
+                    //@ts-expect-error
                     return <Tag key={i}>{renderInline(block.children)}</Tag>
                 }
                 if (block.type === 'list') {
