@@ -42,6 +42,7 @@ function renderStrapiBlocks(blocks: any[] | string | null | undefined): React.Re
         if (block.type === 'paragraph') return <p key={i}>{inline(block.children)}</p>
         if (block.type === 'heading') {
             const Tag = `h${block.level}` as keyof JSX.IntrinsicElements
+            //@ts-expect-error
             return <Tag key={i}>{inline(block.children)}</Tag>
         }
         if (block.type === 'list') {
@@ -301,7 +302,8 @@ export default function PromotionsView() {
                     </StyledSection>
 
                     {sales.map((item, i) => {
-                        const saleName = (item.sale as any)?.name
+                        //@ts-expect-error
+                        const saleName = (item?.sale as any)?.name
                         const href = saleName ? `/on-sale#${toAnchorId(saleName)}` : '/on-sale'
                         return (
                             <div key={i}>
