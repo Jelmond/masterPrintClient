@@ -7,6 +7,50 @@ import styled from "styled-components"
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { validateBelarusPhone } from "@/utils/validateBelarusPhone"
+import { useStrapi } from "@/hooks/useStrapi"
+
+interface SaleItem {
+    name?: string
+    description?: any[] | string | null
+}
+interface SalesPageData {
+    data: { sale?: SaleItem[] }
+}
+
+function toAnchorId(name: string): string {
+    return name
+        .toLowerCase()
+        .replace(/[«»""'']/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/[^a-zа-яёa-z0-9\-]/gi, '')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+}
+
+function renderStrapiBlocks(blocks: any[] | string | null | undefined): React.ReactNode {
+    if (!blocks) return null
+    if (typeof blocks === 'string') return <p>{blocks}</p>
+    return blocks.map((block: any, i: number) => {
+        const inline = (nodes: any[]): React.ReactNode =>
+            nodes?.map((n: any, j: number) => {
+                if (n.type === 'link') return <a key={j} href={n.url}>{inline(n.children)}</a>
+                let t: React.ReactNode = n.text
+                if (n.bold) t = <strong key={j}>{t}</strong>
+                if (n.italic) t = <em key={j}>{t}</em>
+                return <span key={j}>{t}</span>
+            })
+        if (block.type === 'paragraph') return <p key={i}>{inline(block.children)}</p>
+        if (block.type === 'heading') {
+            const Tag = `h${block.level}` as keyof JSX.IntrinsicElements
+            return <Tag key={i}>{inline(block.children)}</Tag>
+        }
+        if (block.type === 'list') {
+            const List = block.format === 'ordered' ? 'ol' : 'ul'
+            return <List key={i}>{block.children?.map((li: any, j: number) => <li key={j}>{inline(li.children)}</li>)}</List>
+        }
+        return null
+    })
+}
 
 interface FormErrors {
     name?: string
@@ -24,6 +68,9 @@ interface FormErrors {
 export default function PromotionsView() {
     const router = useRouter()
     const formRef = useRef<HTMLDivElement>(null)
+
+    const { data: salesData } = useStrapi<SalesPageData>({ path: '/api/sales-page/full' })
+    const sales = salesData?.data?.sale ?? []
 
     const [formData, setFormData] = useState({
         name: '',
@@ -253,63 +300,22 @@ export default function PromotionsView() {
                         </StyledCta>
                     </StyledSection>
 
-                    <StyledBlockTitle>Акция «На все случаи жизни!»</StyledBlockTitle>
-                    <StyledSection>
-                        <StyledList>
-                            <li>
-                                <strong>Срок проведения:</strong> с 27 апреля 2026 года по 26 апреля
-                                2027 года.
-                            </li>
-                            <li>
-                                <strong>Участники и место проведения:</strong> физические лица, а
-                                также юридические лица, индивидуальные предприниматели и лица,
-                                осуществляющие самостоятельную профессиональную деятельность,
-                                приобретающие товары по образцам, представленным в
-                                интернет-магазине <strong>https://mppshop.by</strong>.
-                            </li>
-                            <li>
-                                <strong>Условия акции:</strong> в период с 27.04.2026 по 26.04.2027
-                                на наборы по акции «На все случаи жизни!» предоставляется скидка
-                                <strong> 15%</strong> для покупателей, приобретающих наборы по
-                                образцам, представленным в интернет-магазине{' '}
-                                <strong>https://mppshop.by</strong>.
-                            </li>
-                            <li>
-                                <strong>Наборы, участвующие в акции:</strong>
-                                <br />Набор «На все случаи жизни!» Мини;
-                                <br />Набор «На все случаи жизни!» Миди;
-                                <br />Набор «На все случаи жизни!» Макси.
-                            </li>
-                        </StyledList>
-                    </StyledSection>
-
-                    <StyledBlockTitle>Акция «Готовимся к праздникам выгодно!»</StyledBlockTitle>
-                    <StyledSection>
-                        <StyledList>
-                            <li>
-                                <strong>Срок проведения:</strong> с 27 апреля 2026 года по 26 октября
-                                2026 года.
-                            </li>
-                            <li>
-                                <strong>Участники и место проведения:</strong> физические лица, а
-                                также юридические лица, индивидуальные предприниматели и лица,
-                                осуществляющие самостоятельную профессиональную деятельность,
-                                приобретающие товары по образцам, представленным в
-                                интернет-магазине <strong>https://mppshop.by</strong>.
-                            </li>
-                            <li>
-                                <strong>Условия акции:</strong> в период с 27.04.2026 по 26.10.2026
-                                на товары по акции «Готовимся к праздникам выгодно!» предоставляется
-                                скидка <strong>10%</strong> для покупателей, приобретающих товары по
-                                образцам, представленным в интернет-магазине{' '}
-                                <strong>https://mppshop.by</strong>.
-                            </li>
-                            <li>
-                                <strong>Товары, участвующие в акции:</strong> таблица с
-                                наименованиями и артикулами товаров размещается в материалах акции.
-                            </li>
-                        </StyledList>
-                    </StyledSection>
+                    {sales.map((item, i) => {
+                        const saleName = (item.sale as any)?.name
+                        const href = saleName ? `/on-sale#${toAnchorId(saleName)}` : '/on-sale'
+                        return (
+                            <div key={i}>
+                                <StyledBlockTitle>
+                                    <AnimLink href={href}>{item.name}</AnimLink>
+                                </StyledBlockTitle>
+                                <StyledSection>
+                                    <StyledSaleRichText>
+                                        {renderStrapiBlocks(item.description)}
+                                    </StyledSaleRichText>
+                                </StyledSection>
+                            </div>
+                        )
+                    })}
 
                     <StyledBlockTitle>Дополнительно</StyledBlockTitle>
                     <StyledSection>
@@ -598,6 +604,35 @@ const StyledBlockTitle = styled.h2`
     ${media.xsm`
         font-size: ${rm(20)};
     `}
+
+    a {
+        color: inherit;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: ${rm(10)};
+        border-bottom: 2px solid rgba(28, 28, 28, 0.25);
+        padding-bottom: ${rm(2)};
+        transition: border-color 0.2s ease, color 0.2s ease;
+
+        &::after {
+            content: '↗';
+            font-size: ${rm(16)};
+            opacity: 0.5;
+            flex-shrink: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        &:hover {
+            border-color: #1c1c1c;
+            color: #1c1c1c;
+
+            &::after {
+                opacity: 1;
+                transform: translate(2px, -2px);
+            }
+        }
+    }
 `
 
 const StyledSection = styled.section`
@@ -706,6 +741,44 @@ const StyledCta = styled.div`
             opacity: 0.88;
         }
     }
+`
+
+const StyledSaleRichText = styled.div`
+    ${fontGeist(400)};
+    font-size: ${rm(17)};
+    color: #1c1c1c;
+    line-height: 1.65;
+
+    ${media.md`
+        font-size: ${rm(16)};
+    `}
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
+
+    p {
+        margin: 0 0 ${rm(12)} 0;
+        &:last-child { margin-bottom: 0; }
+    }
+
+    ul, ol {
+        margin: 0 0 ${rm(12)} 0;
+        padding-left: ${rm(22)};
+        li { margin-bottom: ${rm(8)}; }
+
+        ${media.xsm`
+            padding-left: ${rm(18)};
+        `}
+    }
+
+    strong { ${fontGeist(600)}; }
+    em { font-style: italic; }
+
+    h2 { ${fontGeist(700)}; font-size: ${rm(20)}; margin: ${rm(20)} 0 ${rm(10)} 0; }
+    h3 { ${fontGeist(600)}; font-size: ${rm(18)}; margin: ${rm(16)} 0 ${rm(8)} 0; }
+
+    a { color: #1c1c1c; text-decoration: underline; &:hover { opacity: 0.7; } }
 `
 
 // ─── Loyalty section styled components ───────────────────────────────────────

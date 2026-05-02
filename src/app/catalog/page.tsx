@@ -28,9 +28,9 @@ export default function CatalogPage() {
 
     return (
         <StyledCatalogPage>
-            {data?.data?.map((category, index) => (
+            {data?.data?.filter((category) => category.icon !== 'kashpo').map((category, index) => (
                 <StyledCategory
-                    href={category.icon === 'kashpo' ? '/kashpo' : `/catalog/${category.slug || category.id}`}
+                    href={`/catalog/${category.slug || category.id}`}
                     key={index}
                 >
                     <StyledSlideImage>
@@ -38,7 +38,6 @@ export default function CatalogPage() {
                         {category.icon === 'box' && <BoxSvg />}
                         {category.icon === 'convert' && <ConvertsSvg />}
                         {category.icon === 'cards' && <CardsPostcardsSvg />}
-                        {category.icon === 'kashpo' && <KashpoSvg />}
                         {isWrappingPaperCategory(category) && <WrappingPaperSvg />}
                     </StyledSlideImage>
                     <span>{category.title}</span>

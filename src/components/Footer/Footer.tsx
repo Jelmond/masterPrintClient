@@ -65,6 +65,10 @@ const market = {
             label: 'Бестселлеры',
             url: '/bestsellers'
         },
+        {
+            label: 'Акции',
+            url: '/on-sale'
+        },
     ]
 }
 

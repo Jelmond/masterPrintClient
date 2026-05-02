@@ -41,6 +41,9 @@ export const Welcome = ({
                         <CatalogueButton link="/catalog" color="black" isArrowLeft={false}>
                             <span>Каталог</span>
                         </CatalogueButton>
+                        <CatalogueButton link="/custom-order" color="white" isArrowLeft={false}>
+                            <span>Заказать продукцию</span>
+                        </CatalogueButton>
                     </StyledButtonWrapper>
                 </StyledLeft>
             </StyledContent>
@@ -222,10 +225,12 @@ const StyledDescription = styled.p`
 
 const StyledButtonWrapper = styled.div`
     margin-top: ${rm(8)};
+    display: flex;
+    gap: ${rm(12)};
+    flex-wrap: wrap;
 
     ${media.xsm`
         width: 100%;
-        display: flex;
         justify-content: center;
     `}
 `

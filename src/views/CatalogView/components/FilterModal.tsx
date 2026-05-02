@@ -773,7 +773,7 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                 
                 {showCategories && (
                     <>
-                        <StyledSection>
+                        {/* <StyledSection>
                             <StyledSectionTitle>Теги</StyledSectionTitle>
                             <StyledCheckboxGroup>
                                 <StyledCheckboxItem>
@@ -805,7 +805,7 @@ export const FilterModal = ({ isOpen, onClose, onFilterChange, onShowResults, fi
                                     Акции
                                 </StyledCheckboxItem>
                             </StyledCheckboxGroup>
-                        </StyledSection>
+                        </StyledSection> */}
 
                         <StyledSection>
                             <StyledSectionTitle>Категории</StyledSectionTitle>
