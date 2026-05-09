@@ -25,7 +25,7 @@ export const Welcome = ({
                 <StyledBackgroundImage src={src} alt="welcomeBackground" fill sizes="100vw" priority />
                 <StyledLeft>
                     <StyledHeadline>
-                        ВАШ ПАРТНЁР В ОБЛАСТИ ПОДАРОЧНЫХ ПЕЧАТНЫХ ИЗДЕЛИЙ
+                        Полиграфическая продукция
                     </StyledHeadline>
                     <StyledFeatures>
                         <span>Высокое качество</span>

@@ -20,7 +20,14 @@ const IMAGE_ZOOM = 1.45;
 /** Размер «лупы» на экране (не зум): прямоугольник */
 const LENS_WIDTH_PX = 320;
 const LENS_HEIGHT_PX = 230;
-const LAST_CATALOG_CATEGORY_PATH_KEY = 'lastCatalogCategoryPath'
+const LAST_PRODUCT_LISTING_PATH_KEY = 'lastProductListingPath'
+/** Совместимость: раньше сохраняли только /catalog/{slug} */
+const LAST_CATALOG_CATEGORY_LEGACY_KEY = 'lastCatalogCategoryPath'
+
+function isKnownProductListingPath(path: string): boolean {
+    if (path === '/bestsellers' || path === '/catalog') return true
+    return path.startsWith('/catalog/') && path.split('/').filter(Boolean).length === 2
+}
 
 /** Главное фото с прямоугольной линзой при наведении (только fine pointer + hover) */
 function ProductMainImageWithLens({ src, alt }: { src: string; alt: string }) {
@@ -256,8 +263,10 @@ export const ProductView = ({ data }: { data: any }) => {
 
     useEffect(() => {
         if (typeof window === 'undefined') return
-        const savedPath = window.localStorage.getItem(LAST_CATALOG_CATEGORY_PATH_KEY)
-        if (savedPath && savedPath.startsWith('/catalog/')) {
+        const primary = window.localStorage.getItem(LAST_PRODUCT_LISTING_PATH_KEY)
+        const legacy = window.localStorage.getItem(LAST_CATALOG_CATEGORY_LEGACY_KEY)
+        const savedPath = primary || legacy
+        if (savedPath && isKnownProductListingPath(savedPath)) {
             setReturnCatalogHref(savedPath)
         }
     }, [])
