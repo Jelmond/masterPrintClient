@@ -1,6 +1,7 @@
 import { CatalogView } from '@/views/CatalogView/CatalogView';
 import { generateMetadata } from "@/utils/generateMetadata";
 import { Metadata } from "next";
+import { About } from '@/views/HomeView/screens/About';
 
 export const metadata: Metadata = generateMetadata({
   title: "Бестселлеры полиграфической продукции | MPPSHOP - Популярные товары",
@@ -110,13 +111,16 @@ export default async function BestsellersPage() {
     };
 
     return (
-        <CatalogView 
-            data={categoryData} 
-            products={allProducts} 
-            tags={tags} 
-            tagsProductsData={tagsProductsData}
-            showCategories={false}
-        />
+        <>
+            <CatalogView 
+                data={categoryData} 
+                products={allProducts} 
+                tags={tags} 
+                tagsProductsData={tagsProductsData}
+                showCategories={false}
+            />
+            <div style={{width: '100%'}}><About /></div>
+        </>
     );
 }
 
