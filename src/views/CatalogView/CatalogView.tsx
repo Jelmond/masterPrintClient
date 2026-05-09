@@ -18,6 +18,7 @@ interface CatalogViewProps {
     uniqueProducts?: any[];
     batchesOrder?: Array<{ id: string | number; name: string; priority?: number }>;
     showCategories?: boolean;
+    h1Override?: string;
 }
 
 const StyledCatalogView = styled.div`
@@ -31,7 +32,7 @@ const StyledCatalogView = styled.div`
     `}
 `
 
-export const  CatalogView = ({ data, products, tags, tagsProductsData, uniqueProducts = [], batchesOrder = [], showCategories = true }: CatalogViewProps) => {
+export const  CatalogView = ({ data, products, tags, tagsProductsData, uniqueProducts = [], batchesOrder = [], showCategories = true, h1Override }: CatalogViewProps) => {
     const router = useRouter()
     const searchParams = useSearchParams()
     
@@ -515,8 +516,9 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, uniquePro
                     />
                 </div>
             </StyledFiltersBarWrapper>
-            <ProductsLayout 
-                title={data.title} 
+            <ProductsLayout
+                title={data.title}
+                h1={h1Override}
                 tagsProductsData={groupedFilteredProducts}
                 hasActiveFilters={!!(filters.sales || filters.selectedTags.length > 0 || filters.searchQuery)}
                 activeFiltersCount={[

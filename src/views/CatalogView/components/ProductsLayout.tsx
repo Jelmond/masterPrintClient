@@ -5,6 +5,7 @@ import styled from "styled-components";
 
 interface ProductsLayoutProps {
     title: string
+    h1?: string
     tagsProductsData: any
     hasActiveFilters?: boolean
     activeFiltersCount?: number
@@ -34,7 +35,7 @@ const StyledProductsLayout = styled.div`
     `}
 `
 
-const StyledTitle = styled.p`
+const StyledTitle = styled.h1`
     font-size: ${rm(60)};
     ${fontGeist(400)};
     margin-bottom: ${rm(60)};
@@ -236,12 +237,12 @@ const StyledMobileClearFiltersButton = styled.button`
     }
 `
 
-export const ProductsLayout = ({ title, tagsProductsData, hasActiveFilters, activeFiltersCount = 0, onClearFilters, onOpenFilterModal }: ProductsLayoutProps) => {   
+export const ProductsLayout = ({ title, h1, tagsProductsData, hasActiveFilters, activeFiltersCount = 0, onClearFilters, onOpenFilterModal }: ProductsLayoutProps) => {
     const hasProducts = tagsProductsData.length > 0 && tagsProductsData.some((item: any) => item.products.length > 0)
-    
+
     return (
         <StyledProductsLayout>
-            <StyledTitle>{title}</StyledTitle>
+            <StyledTitle>{h1 ?? title}</StyledTitle>
             {onOpenFilterModal && (
                 <StyledMobileFiltersRow>
                     <StyledMobileFilterButton onClick={onOpenFilterModal}>

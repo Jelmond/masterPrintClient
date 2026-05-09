@@ -121,8 +121,6 @@ export const KashpoOrderForm = () => {
                         <SelectWrap>
                             <Select name="circulation" value={formData.circulation} onChange={onChange}>
                                 <option value="">Выберите тираж</option>
-                                <option value="до 100">до 100 шт.</option>
-                                <option value="100-500">100–500 шт.</option>
                                 <option value="500-1000">500–1000 шт.</option>
                                 <option value="1000+">1000+ шт.</option>
                             </Select>

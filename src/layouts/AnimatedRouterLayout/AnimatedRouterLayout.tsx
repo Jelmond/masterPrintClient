@@ -25,16 +25,30 @@ function scrollToTopIfNoHash() {
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-const LAST_CATALOG_CATEGORY_PATH_KEY = "lastCatalogCategoryPath";
+const LAST_PRODUCT_LISTING_PATH_KEY = "lastProductListingPath";
 
-function rememberLastCatalogCategoryPath(pathname: string) {
+/** Последний просмотренный список товаров: бестселлеры, каталог категории или корень каталога */
+function rememberLastProductListingPath(pathname: string) {
   if (typeof window === "undefined") return;
-  // Сохраняем только страницы конкретной категории: /catalog/{slug}
-  if (!pathname.startsWith("/catalog/")) return;
-  const withoutQuery = pathname.split("?")[0];
-  const segments = withoutQuery.split("/").filter(Boolean);
-  if (segments.length !== 2) return;
-  window.localStorage.setItem(LAST_CATALOG_CATEGORY_PATH_KEY, withoutQuery);
+  const clean = pathname.split("?")[0];
+
+  if (clean === "/bestsellers") {
+    window.localStorage.setItem(LAST_PRODUCT_LISTING_PATH_KEY, "/bestsellers");
+    return;
+  }
+
+  if (clean === "/catalog") {
+    window.localStorage.setItem(LAST_PRODUCT_LISTING_PATH_KEY, "/catalog");
+    return;
+  }
+
+  // /catalog/{slug}
+  if (clean.startsWith("/catalog/")) {
+    const segments = clean.split("/").filter(Boolean);
+    if (segments.length === 2) {
+      window.localStorage.setItem(LAST_PRODUCT_LISTING_PATH_KEY, clean);
+    }
+  }
 }
 
 const AnimatedRouterContext = createContext({});
@@ -70,7 +84,7 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     if (typeof window === "undefined") return;
     if (!isMounted) return;
 
-    rememberLastCatalogCategoryPath(window.location.pathname);
+    rememberLastProductListingPath(window.location.pathname);
     scrollToTopIfNoHash();
 
     routeChangeComplete();
@@ -81,7 +95,7 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     const handleRouteChange = () => {
       pathnameRef.current = window.location.pathname;
       searchParamsRef.current = new URLSearchParams(window.location.search);
-      rememberLastCatalogCategoryPath(window.location.pathname);
+      rememberLastProductListingPath(window.location.pathname);
 
       scrollToTopIfNoHash();
 
