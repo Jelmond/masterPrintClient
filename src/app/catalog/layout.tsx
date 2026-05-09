@@ -1,5 +1,6 @@
 import { generateMetadata } from "@/utils/generateMetadata";
 import { Metadata } from "next";
+import { About } from "@/views/HomeView/screens/About";
 
 export const metadata: Metadata = generateMetadata({
   title: "Каталог полиграфической продукции | MPPSHOP - Открытки, конверты, упаковка",
@@ -12,6 +13,9 @@ export default function CatalogLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <>
+    {children}
+    <div style={{width: '100%'}}><About /></div>
+  </>;
 }
 
