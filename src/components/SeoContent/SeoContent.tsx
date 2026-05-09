@@ -8,7 +8,9 @@ type Props = {
 export const SeoContent = ({ children }: Props) => {
     return (
         <section className={styles.section} aria-label="Дополнительная информация">
-            {children}
+            <div className={styles.list}>
+                {children}
+            </div>
         </section>
     );
 };

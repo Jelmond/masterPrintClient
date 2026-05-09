@@ -20,13 +20,20 @@ const IMAGE_ZOOM = 1.45;
 /** Размер «лупы» на экране (не зум): прямоугольник */
 const LENS_WIDTH_PX = 320;
 const LENS_HEIGHT_PX = 230;
-const LAST_PRODUCT_LISTING_PATH_KEY = 'lastProductListingPath'
-/** Совместимость: раньше сохраняли только /catalog/{slug} */
-const LAST_CATALOG_CATEGORY_LEGACY_KEY = 'lastCatalogCategoryPath'
-
-function isKnownProductListingPath(path: string): boolean {
-    if (path === '/bestsellers' || path === '/catalog') return true
-    return path.startsWith('/catalog/') && path.split('/').filter(Boolean).length === 2
+/** Первый сегмент пути категории: slug (предпочтительно) или id как fallback со Strapi */
+function getPrimaryCategoryCatalogSegment(category: unknown): string | null {
+    if (category == null || typeof category !== 'object') return null
+    const c = category as Record<string, unknown>
+    const slug = c.slug
+    if (typeof slug === 'string' && slug.trim()) return slug.trim()
+    const attrs = c.attributes
+    if (attrs && typeof attrs === 'object') {
+        const sl = (attrs as Record<string, unknown>).slug
+        if (typeof sl === 'string' && sl.trim()) return sl.trim()
+    }
+    const id = c.id
+    if (typeof id === 'number' || typeof id === 'string') return String(id)
+    return null
 }
 
 /** Главное фото с прямоугольной линзой при наведении (только fine pointer + hover) */
@@ -183,7 +190,10 @@ export const ProductView = ({ data }: { data: any }) => {
 
     const [mainSwiper, setMainSwiper] = useState<any>(null);
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
-    const [returnCatalogHref, setReturnCatalogHref] = useState('/catalog');
+    const returnCatalogHref = useMemo(() => {
+        const seg = getPrimaryCategoryCatalogSegment(data?.categories?.[0])
+        return seg ? `/catalog/${seg}` : '/catalog'
+    }, [data?.categories])
 
     const addToCart = useCartStore(state => state.addToCart);
 
@@ -261,16 +271,6 @@ export const ProductView = ({ data }: { data: any }) => {
         Array.isArray(data?.polishes) &&
         data.polishes.length > 0
 
-    useEffect(() => {
-        if (typeof window === 'undefined') return
-        const primary = window.localStorage.getItem(LAST_PRODUCT_LISTING_PATH_KEY)
-        const legacy = window.localStorage.getItem(LAST_CATALOG_CATEGORY_LEGACY_KEY)
-        const savedPath = primary || legacy
-        if (savedPath && isKnownProductListingPath(savedPath)) {
-            setReturnCatalogHref(savedPath)
-        }
-    }, [])
-    
     return (
         <StyledProductView>
             <StyledReturnToCatalog style={containerSpring}>
