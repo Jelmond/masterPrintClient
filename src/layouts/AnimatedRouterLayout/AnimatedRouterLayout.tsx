@@ -25,32 +25,6 @@ function scrollToTopIfNoHash() {
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-const LAST_PRODUCT_LISTING_PATH_KEY = "lastProductListingPath";
-
-/** Последний просмотренный список товаров: бестселлеры, каталог категории или корень каталога */
-function rememberLastProductListingPath(pathname: string) {
-  if (typeof window === "undefined") return;
-  const clean = pathname.split("?")[0];
-
-  if (clean === "/bestsellers") {
-    window.localStorage.setItem(LAST_PRODUCT_LISTING_PATH_KEY, "/bestsellers");
-    return;
-  }
-
-  if (clean === "/catalog") {
-    window.localStorage.setItem(LAST_PRODUCT_LISTING_PATH_KEY, "/catalog");
-    return;
-  }
-
-  // /catalog/{slug}
-  if (clean.startsWith("/catalog/")) {
-    const segments = clean.split("/").filter(Boolean);
-    if (segments.length === 2) {
-      window.localStorage.setItem(LAST_PRODUCT_LISTING_PATH_KEY, clean);
-    }
-  }
-}
-
 const AnimatedRouterContext = createContext({});
 export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
   children,
@@ -84,7 +58,6 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     if (typeof window === "undefined") return;
     if (!isMounted) return;
 
-    rememberLastProductListingPath(window.location.pathname);
     scrollToTopIfNoHash();
 
     routeChangeComplete();
@@ -95,8 +68,6 @@ export const AnimatedRouterLayout: NextPage<{ children: any }> = ({
     const handleRouteChange = () => {
       pathnameRef.current = window.location.pathname;
       searchParamsRef.current = new URLSearchParams(window.location.search);
-      rememberLastProductListingPath(window.location.pathname);
-
       scrollToTopIfNoHash();
 
       routeChangeComplete();
