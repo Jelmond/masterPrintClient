@@ -13,6 +13,7 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
+import { StyledSlideImage } from "@/views/HomeView/screens/StyledSlideImage"
 import { CardsSvg } from "./animatedSvgs/Cards"
 import { BoxSvg } from "./animatedSvgs/Box"
 import { ConvertsSvg } from "./animatedSvgs/Converts"
@@ -147,35 +148,6 @@ const StyledSlide = styled(AnimLink)`
         img{
             transform: scale(1.05);
         }
-    }
-`
-
-export const StyledSlideImage = styled.div`
-    position: relative;
-    width: 100%;
-    height: ${rm(500)};
-    border-radius: 10px;
-    overflow: hidden;
-
-    ${media.lg`
-        height: ${rm(400)};
-    `}
-
-    ${media.md`
-        height: ${rm(300)};
-    `}
-
-    ${media.xsm`
-        height: ${rm(200)};
-    `}
-
-    img, svg{
-        width: 100%;
-        height: 100% !important;
-        object-fit: cover;
-        position: absolute;
-
-        transition: transform 0.3s ease;
     }
 `
 

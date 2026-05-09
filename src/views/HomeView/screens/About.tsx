@@ -1,3 +1,5 @@
+'use client'
+
 import { media, rm } from "@/styles"
 import { fontGeist } from "@/styles/fonts"
 import styled, { keyframes } from "styled-components"

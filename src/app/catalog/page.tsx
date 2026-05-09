@@ -10,7 +10,7 @@ import { CardsPostcardsSvg } from "@/views/HomeView/screens/animatedSvgs/CardsPo
 import { ConvertsSvg } from "@/views/HomeView/screens/animatedSvgs/Converts";
 import { KashpoSvg } from "@/views/HomeView/screens/animatedSvgs/Kashpo";
 import { WrappingPaperSvg } from "@/views/HomeView/screens/animatedSvgs/WrappingPaper";
-import { StyledSlideImage } from "@/views/HomeView/screens/CatalogSwiper";
+import { StyledSlideImage } from "@/views/HomeView/screens/StyledSlideImage";
 import Link from "next/link";
 import styled from "styled-components";
 
