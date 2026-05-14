@@ -25,8 +25,14 @@ export function generateMetadata({
 }: MetadataProps): Metadata {
     // Получаем базовый URL из переменной окружения или используем дефолтный домен
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mppshop.by';
-    const baseUrl = url ? new URL(url) : new URL(siteUrl);
-    
+    const resolvedUrl = url || siteUrl;
+    const baseUrl = new URL(siteUrl);
+
+    // Ensure ogImage is always an absolute URL
+    const resolvedOgImage = ogImage.startsWith('http')
+        ? ogImage
+        : `${siteUrl}${ogImage.startsWith('/') ? ogImage : `/${ogImage}`}`;
+
     return {
         title,
         description,
@@ -37,16 +43,16 @@ export function generateMetadata({
         themeColor,
         metadataBase: baseUrl,
         alternates: {
-            canonical: url || undefined,
+            canonical: resolvedUrl,
         },
         openGraph: {
             title,
             description,
-            url: url || undefined,
+            url: resolvedUrl,
             siteName,
             images: [
                 {
-                    url: ogImage,
+                    url: resolvedOgImage,
                     width: 1200,
                     height: 630,
                     alt: title,
@@ -62,7 +68,7 @@ export function generateMetadata({
             description,
             site: twitterHandle,
             creator: twitterHandle,
-            images: [ogImage],
+            images: [resolvedOgImage],
         },
         icons: {
             icon: [

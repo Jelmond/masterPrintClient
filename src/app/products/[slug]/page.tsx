@@ -19,24 +19,28 @@ export async function generateMetadata({ params }: { params: { slug: string } })
             
             if (product) {
                 const productTitle = product?.title || 'Товар';
-                const price = product?.price || '';
+                const price = product?.price ? `${product.price} руб.` : '';
                 const category = product?.categories?.[0]?.title || '';
+                const size = product?.size || '';
+                const material = product?.material || '';
+                const quantityInPack = product?.quantityInPack || '';
                 const imageUrl = product?.images?.[0]?.url ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}` : '/open-graph.png';
-                
-                // Создаем SEO-оптимизированное описание
-                let description = product?.description || `${productTitle} - качественная полиграфическая продукция от MPPSHOP.`;
-                if (price) {
-                    description += ` Цена: ${price} BYN.`;
-                }
-                if (category) {
-                    description += ` Категория: ${category}.`;
-                }
-                description += ` Доставка по Беларуси. Скидки до 20%. Купить с доставкой или самовывозом в Гродно.`;
-                
+
+                // Unique per-product description built from structured fields (never rich text objects)
+                const parts: string[] = [
+                    `${productTitle} — купить в Минске и по всей Беларуси.`,
+                    price ? `Цена: ${price}.` : '',
+                    size ? `Размер: ${size}.` : '',
+                    material ? `Материал: ${material}.` : '',
+                    quantityInPack ? `В наборе: ${quantityInPack} шт.` : '',
+                    'Быстрая доставка. Производство полиграфии с 2014 года.',
+                ];
+                const description = parts.filter(Boolean).join(' ');
+
                 return generateMetadataUtil({
-                    title: `${productTitle} купить в Беларуси${price ? ` - ${price} BYN` : ''} | MPPSHOP`,
-                    description: description,
-                    keywords: `${productTitle.toLowerCase()}, купить ${productTitle.toLowerCase()}, ${productTitle.toLowerCase()} цена, ${productTitle.toLowerCase()} беларусь, ${category.toLowerCase()}, полиграфия mppshop`,
+                    title: `${productTitle} купить в Беларуси`,
+                    description,
+                    keywords: `${productTitle.toLowerCase()}, купить ${productTitle.toLowerCase()}, ${productTitle.toLowerCase()} цена, ${productTitle.toLowerCase()} беларусь${category ? `, ${category.toLowerCase()}` : ''}, полиграфия mppshop`,
                     url: `${siteUrl}/products/${product.slug}`,
                     ogImage: imageUrl,
                 });
