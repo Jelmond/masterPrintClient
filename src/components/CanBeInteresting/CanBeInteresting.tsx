@@ -16,7 +16,7 @@ export const CanBeInteresting = ({ data, title }: CanBeInterestingProps) => {
 
     return (
         <StyledCanBeInteresting>
-            <h1>{title}</h1>
+            <span className="sectionTitle">{title}</span>
             <StyledGrid>
                 {data?.data?.map((product: any) => (
                     <InterestingProduct key={product.id} product={product} />
@@ -46,13 +46,14 @@ const StyledCanBeInteresting = styled.div`
         margin-top: ${rm(40)};
     `}
 
-    h1 {
+    .sectionTitle {
         ${fontPoppins(500)};
         font-size: ${rm(50)};
         margin-bottom: ${rm(55)};
         color: ${colors.black100};
         margin-left: 0;
         grid-column: 1 / -1;
+        display: block;
 
         ${media.md`
             font-size: ${rm(40)};

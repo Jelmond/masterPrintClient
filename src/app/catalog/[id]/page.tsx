@@ -68,8 +68,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             }
 
             return generateMetadataUtil({
-                title: `${categoryTitle} | MPPSHOP - Купить полиграфию в Беларуси`,
-                description: `${categoryTitle} в интернет-магазине MPPSHOP. ${productCount > 0 ? `Более ${productCount} товаров. ` : ''}Качественная полиграфическая продукция. Доставка по Беларуси. Скидки до 20%. Производство с 2014 года. Цены производителя.`,
+                title: `${categoryTitle} — купить в Минске и Беларуси | MPPSHOP`,
+                description: `Купить ${categoryTitle.toLowerCase()} в Минске и по всей Беларуси.${productCount > 0 ? ` В каталоге ${productCount}+ товаров.` : ''} Качественная полиграфическая продукция от производителя. Доставка по всей Беларуси. Скидки до 20%.`,
                 keywords: `${categoryTitle.toLowerCase()}, купить ${categoryTitle.toLowerCase()}, ${categoryTitle.toLowerCase()} беларусь, ${categoryTitle.toLowerCase()} минск, полиграфия mppshop`,
             });
         }
@@ -176,7 +176,6 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
                 batchesOrder={batchesOrder}
                 h1Override={categoryOverride?.h1}
             />
-          <div style={{width: '100%'}}><About /></div>
             <CatalogCategorySeoContent slug={params.id} />
         </>
     );

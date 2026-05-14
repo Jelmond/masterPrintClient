@@ -357,7 +357,7 @@ export const ProductView = ({ data }: { data: any }) => {
             </Left>
             <Right>
                 <div className="content">
-                    <p className="title">{data.title}</p>
+                    <h1 className="title">{data.title}</h1>
                     <p className="price">{(data.price * quantity).toLocaleString('ru-RU')} руб.</p>
                     <RichText 
                         content={data.description} 
@@ -694,6 +694,7 @@ const Right = styled.div`
         .title{
             font-size: ${rm(36)};
             ${fontGeist(400)};
+            margin-top: 0;
             margin-bottom: ${rm(10)};
             color: ${colors.black100};
 
