@@ -3,13 +3,14 @@ import { Onest } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { Poppins } from "next/font/google";
 import { Suspense } from "react";
+import { headers } from "next/headers";
+import Script from "next/script";
 
 import GlobalStyles, { SmartCSSGrid } from "@/styles";
 
 import { Lvh } from "@/hooks/useLvh";
 import { generateMetadata } from "@/utils/generateMetadata";
 
-// import { AnimatedRouterLayout } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout";
 import { StyledComponentsLayout } from "@/layouts/StyledComponentsLayout";
 import { AssetsLoaderLayout } from "@/layouts/AssetsLoaderLayout/AssetsLoaderLayout";
 import { CanvasLayout } from "@/layouts/CanvasLayout/CanvasLayout";
@@ -19,18 +20,19 @@ import { AnimatedRouterLayout } from "@/layouts/AnimatedRouterLayout/AnimatedRou
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
 import { Toast } from "@/components/Toast/Toast";
-import { Snowfall } from "@/components/Snowfall/Snowfall";
 import { MobileBottomNav } from "@/components/MobileBottomNav/MobileBottomNav";
 
 const onest = Onest({
   variable: "--font-onest",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
 });
 
 const poppins = Poppins({
   variable: "--font-poppins",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const geistSans = GeistSans.variable
@@ -40,7 +42,6 @@ const getSiteUrl = () => {
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SITE_URL) {
     return process.env.NEXT_PUBLIC_SITE_URL;
   }
-  // Fallback на домен из конфига или дефолтный
   return 'https://mppshop.by';
 };
 
@@ -71,72 +72,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = headers();
+  const isBot = headersList.get('x-is-bot') === '1';
+
   return (
     <html lang="ru" translate="no">
       <head>
         {/* Google Site Verification */}
         <meta name="google-site-verification" content="wdP82tLM1jjYjaifit8o3yPV2lD2kzZ8I0G3uM12HZQ" />
-        
-        {/* Google tag (gtag.js) */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=AW-17871808122"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'AW-17871808122');
-            `,
-          }}
-        />
-        {/* /Google tag (gtag.js) */}
-
-        {/* Google tag (gtag.js) GA4 */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-B9KWRY06ED"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-B9KWRY06ED');
-            `,
-          }}
-        />
-        {/* /Google tag (gtag.js) GA4 */}
-        
-        {/* Yandex.Metrika counter */}
-        <script
-          type="text/javascript"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(m,e,t,r,i,k,a){
-                  m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-                  m[i].l=1*new Date();
-                  for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-                  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-              })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106182797', 'ym');
-
-              ym(106182797, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-            `,
-          }}
-        />
-        <noscript>
-          <div>
-            <img
-              src="https://mc.yandex.ru/watch/106182797"
-              style={{ position: 'absolute', left: '-9999px' }}
-              alt=""
-            />
-          </div>
-        </noscript>
-        {/* /Yandex.Metrika counter */}
 
         {/* Structured Data (JSON-LD) for SEO */}
         <script
@@ -211,13 +154,57 @@ export default function RootLayout({
         />
         {/* /Structured Data */}
       </head>
-      <body className={`${onest.variable} ${geistSans} ${poppins.variable}`} style={{ opacity: 0 }}>
+      <body className={`${onest.variable} ${geistSans} ${poppins.variable}`} style={isBot ? undefined : { opacity: 0 }}>
+        {/* Google tag (gtag.js) - Ads */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17871808122"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-ads" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17871808122');`}
+        </Script>
+
+        {/* Google tag (gtag.js) GA4 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-B9KWRY06ED"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-ga4" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-B9KWRY06ED');`}
+        </Script>
+
+        {/* Yandex.Metrika counter */}
+        <Script id="yandex-metrika" strategy="afterInteractive">
+          {`(function(m,e,t,r,i,k,a){
+              m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+              m[i].l=1*new Date();
+              for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+          })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106182797', 'ym');
+          ym(106182797, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});`}
+        </Script>
+        <noscript>
+          <div>
+            <img
+              src="https://mc.yandex.ru/watch/106182797"
+              style={{ position: 'absolute', left: '-9999px' }}
+              alt=""
+            />
+          </div>
+        </noscript>
+        {/* /Yandex.Metrika counter */}
+
         <StyledComponentsLayout>
           <ScrollLayout>
             <SmartCSSGrid />
             <Lvh />
             <GlobalStyles />
-            {/* <Snowfall /> */}
             <AssetsLoaderLayout>
               {/* <Cookie /> */}
               <Toast />

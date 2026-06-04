@@ -19,6 +19,8 @@ interface CatalogViewProps {
     batchesOrder?: Array<{ id: string | number; name: string; priority?: number }>;
     showCategories?: boolean;
     h1Override?: string;
+    catalogSlug?: string;
+    initialTagSlug?: string;
 }
 
 const StyledCatalogView = styled.div`
@@ -32,14 +34,41 @@ const StyledCatalogView = styled.div`
     `}
 `
 
-export const  CatalogView = ({ data, products, tags, tagsProductsData, uniqueProducts = [], batchesOrder = [], showCategories = true, h1Override }: CatalogViewProps) => {
+export const  CatalogView = ({ data, products, tags, tagsProductsData, uniqueProducts = [], batchesOrder = [], showCategories = true, h1Override, catalogSlug, initialTagSlug }: CatalogViewProps) => {
     const router = useRouter()
     const searchParams = useSearchParams()
     
+    // Build slug<->title mappings from tag data
+    const tagSlugToTitle = useMemo(() => {
+        const map = new Map<string, string>()
+        tagsProductsData.forEach((g: any) => {
+            if (g?.slug && g?.title) map.set(g.slug, g.title)
+        })
+        return map
+    }, [tagsProductsData])
+
+    const tagTitleToSlug = useMemo(() => {
+        const map = new Map<string, string>()
+        tagsProductsData.forEach((g: any) => {
+            if (g?.slug && g?.title) map.set(g.title, g.slug)
+        })
+        return map
+    }, [tagsProductsData])
+
     // Parse filters from URL
     const parseFiltersFromURL = useMemo(() => {
+        const queryTags = searchParams.get('tags')?.split(',').filter(Boolean) || []
+
+        // Merge initial tag from URL path with additional tags from query params
+        let selectedTags = [...queryTags]
+        if (initialTagSlug) {
+            const initialTagTitle = tagSlugToTitle.get(initialTagSlug)
+            if (initialTagTitle && !selectedTags.includes(initialTagTitle)) {
+                selectedTags = [initialTagTitle, ...selectedTags]
+            }
+        }
+
         const sales = searchParams.get('sales') || ''
-        const selectedTags = searchParams.get('tags')?.split(',').filter(Boolean) || []
         const searchQuery = searchParams.get('search') || ''
         const sortBy = searchParams.get('sort') || ''
         const cardSizes = searchParams.get('sizes')?.split(',').filter(Boolean) || []
@@ -109,11 +138,28 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, uniquePro
     // Update URL when filters change
     useEffect(() => {
         isUpdatingFromURL.current = true
-        
+
         const params = new URLSearchParams()
-        
+        const selectedTagsList = filters.selectedTags
+
+        // Build base path: use path-based routing for first tag when catalogSlug is available
+        let basePath: string
+        if (catalogSlug) {
+            if (selectedTagsList.length > 0) {
+                const firstTagSlug = tagTitleToSlug.get(selectedTagsList[0]) || selectedTagsList[0]
+                basePath = `/catalog/${catalogSlug}/${firstTagSlug}`
+                // Additional tags go into query params
+                const additionalTags = selectedTagsList.slice(1)
+                if (additionalTags.length > 0) params.set('tags', additionalTags.join(','))
+            } else {
+                basePath = `/catalog/${catalogSlug}`
+            }
+        } else {
+            basePath = window.location.pathname
+            if (selectedTagsList.length > 0) params.set('tags', selectedTagsList.join(','))
+        }
+
         if (filters.sales) params.set('sales', filters.sales)
-        if (filters.selectedTags.length > 0) params.set('tags', filters.selectedTags.join(','))
         if (filters.searchQuery) params.set('search', filters.searchQuery)
         if (filters.sortBy) params.set('sort', filters.sortBy)
         if (filters.cardSizes.length > 0) params.set('sizes', filters.cardSizes.join(','))
@@ -122,12 +168,19 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, uniquePro
         if (filters.hasDiscount) params.set('discount', 'true')
         if (filters.selectedPolishes.length > 0) params.set('polishes', filters.selectedPolishes.join(','))
         if (filters.isBestseller) params.set('bestseller', 'true')
-        
-        const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname
+
+        const newUrl = params.toString() ? `${basePath}?${params.toString()}` : basePath
         const currentUrl = window.location.pathname + window.location.search
-        
+
         if (newUrl !== currentUrl) {
-            router.replace(newUrl, { scroll: false })
+            const currentPath = window.location.pathname
+            if (basePath !== currentPath) {
+                // Path changed (tag added/removed from URL) → push new history entry
+                router.push(newUrl, { scroll: false })
+            } else {
+                // Only query params changed → replace current entry
+                router.replace(newUrl, { scroll: false })
+            }
         } else {
             isUpdatingFromURL.current = false
         }
@@ -142,6 +195,8 @@ export const  CatalogView = ({ data, products, tags, tagsProductsData, uniquePro
         filters.hasDiscount,
         filters.selectedPolishes.join(','),
         filters.isBestseller,
+        catalogSlug,
+        tagTitleToSlug,
         router
     ])
 

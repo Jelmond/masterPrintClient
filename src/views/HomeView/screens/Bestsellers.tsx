@@ -42,8 +42,7 @@ export const Bestsellers = () => {
                 setLoading(true)
                 const productsUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[isBestseller][$eq]=true&populate=*`;
                 
-                const productsRes = await fetch(productsUrl, { 
-                    cache: 'no-store',
+                const productsRes = await fetch(productsUrl, {
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -82,8 +81,6 @@ export const Bestsellers = () => {
             price: product.price,
             image: getProductImagePath(product)
         });
-        console.log('Current cart items:', items);
-        console.log('LocalStorage cart data:', localStorage.getItem('cart-storage'));
     };
     
     return (

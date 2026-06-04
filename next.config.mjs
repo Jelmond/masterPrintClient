@@ -15,8 +15,8 @@ const strapiFromEnv = strapiImageRemotePatternFromEnv();
 
 const nextConfig = {
   images: {
-    domains: ['mppshop.by', 'api.mppshop.by', '127.0.0.1', 'mppshop.by.'],
-    /* Домен из NEXT_PUBLIC_STRAPI_URL — next/image разрешает картинки с этого хоста */
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       { protocol: 'https', hostname: 'mppshop.by', pathname: '/**' },
       { protocol: 'https', hostname: 'api.mppshop.by', pathname: '/**' },

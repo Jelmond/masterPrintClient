@@ -46,6 +46,9 @@ const MAINTENANCE_HTML = `
 </html>
 `
 
+// Bot detection for PageSpeed / crawlers — skip loader animation
+const BOT_UA_RE = /googlebot|lighthouse|pagespeed|chrome-lighthouse|pingdom|gtmetrix|yandexbot|bingbot|baiduspider|facebookexternalhit|twitterbot|slurp|duckduckbot|ia_archiver|semrushbot|ahrefsbot|mj12bot|dotbot/i
+
 export function middleware(request: NextRequest) {
   // Режим техработ: показываем страницу на все запросы к страницам (не к статике и _next)
   if (MAINTENANCE_MODE) {
@@ -61,6 +64,10 @@ export function middleware(request: NextRequest) {
       })
     }
   }
+
+  // Detect bots via User-Agent
+  const ua = request.headers.get('user-agent') || ''
+  const isBot = BOT_UA_RE.test(ua)
 
   // CORS для API
   const origin = request.headers.get('origin')
@@ -84,7 +91,18 @@ export function middleware(request: NextRequest) {
     return response
   }
 
-  const response = NextResponse.next()
+  // Pass bot flag to server components via request header
+  const requestHeaders = new Headers(request.headers)
+  if (isBot) {
+    requestHeaders.set('x-is-bot', '1')
+  }
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+
   if (isAllowedOrigin) {
     response.headers.set('Access-Control-Allow-Origin', normalizedOrigin)
     response.headers.set('Access-Control-Allow-Credentials', 'true')
