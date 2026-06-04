@@ -116,7 +116,7 @@ export const InterestingProduct = ({ product }: InterestingProductProps) => {
                         ))}
                     </StyledPolishesBadge>
                 )}
-                <img src={resolvedImageSrc} alt={product.title || ''} />
+                <img src={resolvedImageSrc} alt={product.title || ''} loading="lazy" />
                 {isBestseller && (
                     <StyledBestsellerBadge>
                         <span>Бестселлер</span>

@@ -26,7 +26,7 @@ export default async function ActualPage() {
     const productsUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[isNew][$eq]=true&populate=*`;
     
     const productsRes = await fetch(productsUrl, { 
-        cache: 'no-store',
+        next: { revalidate: 60 },
         headers: {
             'Content-Type': 'application/json',
         },

@@ -89,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // Fetch products
     const productsRes = await fetch(`${strapiUrl}/api/products?populate=*&pagination[limit]=1000`, {
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     });
     
     let productPages: MetadataRoute.Sitemap = [];
@@ -107,23 +107,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Fetch categories
     const categoriesRes = await fetch(`${strapiUrl}/api/categories?populate=*`, {
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     });
     
     let categoryPages: MetadataRoute.Sitemap = [];
+    let tagPages: MetadataRoute.Sitemap = [];
     if (categoriesRes.ok) {
       const categoriesData = await categoriesRes.json();
       const categories = categoriesData?.data || [];
-      
+
       categoryPages = categories.map((category: any) => ({
         url: `${siteUrl}/catalog/${category.slug || category.id}`,
         lastModified: new Date(category.updatedAt || category.createdAt),
         changeFrequency: 'daily' as const,
         priority: 0.8,
       }));
+
+      // Fetch tag pages for each category
+      const tagFetches = await Promise.allSettled(
+        categories.map((category: any) =>
+          fetch(`${strapiUrl}/api/getTagsForCategory/${category.slug || category.id}`, { next: { revalidate: 3600 } })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => ({ categorySlug: category.slug || category.id, tags: data?.data || [] }))
+        )
+      );
+
+      tagFetches.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value) {
+          const { categorySlug, tags } = result.value;
+          tags.forEach((tag: any) => {
+            if (tag?.slug) {
+              tagPages.push({
+                url: `${siteUrl}/catalog/${categorySlug}/${tag.slug}`,
+                lastModified: new Date(),
+                changeFrequency: 'daily' as const,
+                priority: 0.7,
+              });
+            }
+          });
+        }
+      });
     }
 
-    return [...staticPages, ...categoryPages, ...productPages];
+    return [...staticPages, ...categoryPages, ...tagPages, ...productPages];
   } catch (error) {
     console.error('Error generating sitemap:', error);
     // Return static pages if dynamic fetch fails

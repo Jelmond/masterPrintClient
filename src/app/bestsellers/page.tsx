@@ -28,7 +28,7 @@ export default async function BestsellersPage() {
     const bestsellersUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[isBestseller][$eq]=true&populate=*`;
     
     const bestsellersRes = await fetch(bestsellersUrl, { 
-        cache: 'no-store',
+        next: { revalidate: 60 },
         headers: {
             'Content-Type': 'application/json',
         },

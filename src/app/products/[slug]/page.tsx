@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     try {
         const res = await fetch(
             `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products/${params.slug}`,
-            { cache: 'no-store' }
+            { next: { revalidate: 60 } }
         );
 
         if (res.ok) {
@@ -61,7 +61,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
     try {
         const res = await fetch(
             `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products/${params.slug}`,
-            { cache: 'no-store' }
+            { next: { revalidate: 60 } }
         );
         
         if (!res.ok) {
@@ -81,7 +81,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         try {
             const similarProductsRes = await fetch(
                 `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getSimilarProducts/${product.slug}`,
-                { cache: 'no-store' }
+                { next: { revalidate: 60 } }
             );
 
             if (similarProductsRes.ok) {

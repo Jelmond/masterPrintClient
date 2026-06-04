@@ -36,9 +36,6 @@ export const HomeView = ({
   const mainRef = useRef<HTMLDivElement>(null)
 
 
-  console.log('heroImageDesktopUrl', heroImageDesktopUrl)
-  console.log('heroImageMobileUrl', heroImageMobileUrl)
-
   return (
     <StyledHomeView ref={mainRef}>
       <Welcome

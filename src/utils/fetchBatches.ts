@@ -19,7 +19,7 @@ export async function fetchBatchesFromStrapi(): Promise<BatchItem[]> {
     }
     const response = await fetch(`${STRAPI_URL}/api/batches`, {
       headers,
-      cache: 'no-store',
+      next: { revalidate: 60 },
     })
     if (!response.ok) {
       console.error('[fetchBatches] Strapi error:', response.status, await response.text().then((t) => t.slice(0, 200)))

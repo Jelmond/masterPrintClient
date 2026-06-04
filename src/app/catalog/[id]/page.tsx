@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
     try {
         const categoryRes = await fetch(categoryUrl, {
-            cache: 'no-store',
+            next: { revalidate: 60 },
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -90,11 +90,11 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
 
     const [categoryRes, tagsRes, batchesOrder] = await Promise.all([
         fetch(categoryUrl, {
-            cache: 'no-store',
+            next: { revalidate: 60 },
             headers: { 'Content-Type': 'application/json' },
         }),
         fetch(tagsUrl, {
-            cache: 'no-store',
+            next: { revalidate: 60 },
             headers: { 'Content-Type': 'application/json' },
         }),
         fetchBatchesFromStrapi(),
@@ -133,35 +133,14 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
             if (!uniqueTagsMap.has(normalizedTitle)) {
                 uniqueTagsMap.set(normalizedTitle, {
                     id: tag.id,
-                    title: tag.title
+                    title: tag.title,
+                    slug: tag.slug,
                 });
             }
         }
     });
 
     const tags = Array.from(uniqueTagsMap.values());
-
-    // Логирование данных с бэкенда для отладки дубликатов
-    const productsFromCategory = (categoryData?.products || []).length;
-    const productIdsFromCategory = (categoryData?.products || []).map((p: any) => p?.id ?? p?.documentId).filter(Boolean);
-    const uniqueIdsFromCategory = new Set(productIdsFromCategory).size;
-    console.log('[Catalog] Category response:', {
-        categoryTitle: categoryData?.title,
-        productsCount: productsFromCategory,
-        uniqueProductIdsCount: uniqueIdsFromCategory,
-        hasDuplicatesInCategory: productsFromCategory !== uniqueIdsFromCategory,
-        productIds: productIdsFromCategory,
-    });
-    console.log('[Catalog] tagsProductsData (from getTagsForCategory):', {
-        groupsCount: tagsProductsData.length,
-        groups: tagsProductsData.map((g: any) => ({
-            title: g?.title,
-            productsCount: g?.products?.length ?? 0,
-            productIds: (g?.products ?? []).map((p: any) => p?.id ?? p?.documentId),
-            productSlugs: (g?.products ?? []).map((p: any) => p?.slug),
-        })),
-        totalProductsAcrossGroups: tagsProductsData.reduce((sum: number, g: any) => sum + (g?.products?.length ?? 0), 0),
-    });
 
     const categoryOverride = CATEGORY_META_OVERRIDES[categoryData?.title];
 
@@ -175,6 +154,7 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
                 uniqueProducts={uniqueProducts}
                 batchesOrder={batchesOrder}
                 h1Override={categoryOverride?.h1}
+                catalogSlug={params.id}
             />
             <CatalogCategorySeoContent slug={params.id} />
         </>

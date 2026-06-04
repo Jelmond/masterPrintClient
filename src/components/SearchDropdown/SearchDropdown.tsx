@@ -537,6 +537,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                                 <img
                                                     src={getSearchProductImageUrl(product, strapiBase, "thumbnail")}
                                                     alt={product.title}
+                                                    loading="lazy"
                                                 />
                                             </StyledProductImage>
                                             <StyledProductInfo>
@@ -581,6 +582,7 @@ export const SearchDropdown = ({ isOpen, onClose, searchQuery }: SearchDropdownP
                                             <img
                                                 src={getSearchProductImageUrl(product, strapiBase, "thumbnail")}
                                                 alt={product.title}
+                                                loading="lazy"
                                             />
                                         </StyledProductImage>
                                         <StyledProductInfo>

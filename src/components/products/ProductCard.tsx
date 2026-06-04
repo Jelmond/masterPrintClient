@@ -139,29 +139,23 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
     return (
         <StyledProductCard>
-            {(hasDiscount || isInCart) && (
-                <StyledTopBadges $stackTopBadges={hasDiscount && isInCart}>
-                    {isInCart ? (
-                        <div className="left">
-                            <StyledInCartBadge>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                <span>В корзине</span>
-                                {cartQuantity > 1 && <span className="quantity">{cartQuantity}</span>}
-                            </StyledInCartBadge>
-                        </div>
-                    ) : null}
-                    {hasDiscount ? (
-                        <div className="right">
-                            <StyledDiscountBadge>
-                                <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
-                                <div className="newPrice">{currentPrice.toLocaleString('ru-RU')} руб.</div>
-                                <div className="discountPercent">-{discountPercent}%</div>
-                            </StyledDiscountBadge>
-                        </div>
-                    ) : null}
+            {hasDiscount && (
+                <StyledTopBadges>
+                    <div className="right">
+                        <StyledDiscountBadge>
+                            <div className="oldPrice">{oldPrice?.toLocaleString('ru-RU')} руб.</div>
+                            <div className="newPrice">{currentPrice.toLocaleString('ru-RU')} руб.</div>
+                            <div className="discountPercent">-{discountPercent}%</div>
+                        </StyledDiscountBadge>
+                    </div>
                 </StyledTopBadges>
+            )}
+            {isInCart && (
+                <StyledInCartIcon>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                </StyledInCartIcon>
             )}
             <StyledImageContainer>
                 {hasPolishes && (
@@ -179,6 +173,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         <img
                             src={toDisplayUrl(galleryPaths[activeImageIndex] || galleryPaths[0])}
                             alt={product.title}
+                            loading="lazy"
+                            width={315}
+                            height={470}
                         />
 
                         {galleryPaths.length > 1 && (
@@ -262,44 +259,20 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                if (!isOutOfStock) handleAddToCart(product);
+                                if (!isOutOfStock && !isInCart) handleAddToCart(product);
                             }}
-                            aria-label={isInCart ? 'Добавить ещё' : 'Добавить в корзину'}
-                            title={isInCart ? 'Добавить ещё' : 'Добавить в корзину'}
+                            aria-label={isInCart ? 'В корзине' : 'Добавить в корзину'}
                         >
                             {isInCart ? (
-                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                                    <path d="M12 19L17 24L26 15" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             ) : (
-                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                                    <line x1="19.1667" y1="6" x2="19.1667" y2="32.3077" stroke="black"/>
-                                    <line x1="32.3077" y1="19.166" x2="6" y2="19.166" stroke="black"/>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             )}
                         </button>
-
-                        {isInCart && (
-                            <button
-                                type="button"
-                                className="removeButton"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    removeFromCart(product.slug);
-                                }}
-                                aria-label="Убрать из корзины"
-                                title="Убрать из корзины"
-                            >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                                    <path d="M3 6H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M8 6V4C8 3.44772 8.44772 3 9 3H15C15.5523 3 16 3.44772 16 4V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M19 6L18 20C17.9487 20.5523 17.4863 21 16.9318 21H7.06822C6.51373 21 6.05129 20.5523 6 20L5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M10 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M14 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                            </button>
-                        )}
                     </div>
                 </div>
             </StyledContent>
@@ -610,84 +583,66 @@ const StyledContent = styled.div`
     }
 `;
 
-const StyledTopBadges = styled.div<{ $stackTopBadges?: boolean }>`
+const StyledTopBadges = styled.div`
     position: absolute;
     top: ${rm(10)};
-    left: ${rm(10)};
     right: ${rm(10)};
     z-index: 12;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: ${rm(8)};
+    justify-content: flex-end;
     pointer-events: none;
-    isolation: isolate;
 
-    ${({ $stackTopBadges }) =>
-        $stackTopBadges
-            ? `
-        flex-direction: column;
-        align-items: stretch;
-        gap: ${rm(6)};
-    `
-            : ''}
+    ${media.xsm`
+        top: ${rm(6)};
+        right: ${rm(6)};
+    `}
+
+    .right {
+        display: flex;
+        pointer-events: none;
+    }
+`
+
+const StyledInCartIcon = styled.div`
+    position: absolute;
+    top: ${rm(10)};
+    left: ${rm(10)};
+    z-index: 12;
+    width: ${rm(30)};
+    height: ${rm(30)};
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 ${rm(2)} ${rm(8)} rgba(16, 185, 129, 0.4);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    animation: fadeIn 0.2s ease-out;
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    svg {
+        width: ${rm(16)};
+        height: ${rm(16)};
+        stroke: white;
+        stroke-width: 2.5;
+    }
 
     ${media.xsm`
         top: ${rm(6)};
         left: ${rm(6)};
-        right: ${rm(6)};
-        flex-direction: column;
-        align-items: stretch;
-        gap: ${rm(6)};
+        width: ${rm(26)};
+        height: ${rm(26)};
+
+        svg {
+            width: ${rm(14)};
+            height: ${rm(14)};
+        }
     `}
-
-    .left, .right {
-        display: flex;
-        min-width: 0;
-        position: relative;
-    }
-
-    .left {
-        z-index: 12;
-        ${({ $stackTopBadges }) =>
-            $stackTopBadges
-                ? `
-            align-self: flex-start;
-            width: fit-content;
-            max-width: 100%;
-        `
-                : ''}
-        ${media.xsm`
-            align-self: flex-start;
-            max-width: 100%;
-        `}
-    }
-
-    .right {
-        justify-content: flex-end;
-        z-index: 12;
-        ${({ $stackTopBadges }) =>
-            $stackTopBadges
-                ? `
-            align-self: flex-end;
-            width: fit-content;
-            max-width: 100%;
-        `
-                : ''}
-        ${media.xsm`
-            align-self: flex-end;
-            max-width: 100%;
-            justify-content: flex-end;
-        `}
-    }
-
-    .right:only-child {
-        margin-left: auto;
-    }
-
-    & > * {
-        pointer-events: none;
-    }
 `
 
 const StyledProductInfoBadge = styled.div`
@@ -918,74 +873,3 @@ const StyledBestsellerBadge = styled.div`
     }
 `
 
-const StyledInCartBadge = styled.div`
-    position: static;
-    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-    border-radius: ${rm(8)};
-    padding: ${rm(6)} ${rm(10)};
-    display: flex;
-    align-items: center;
-    gap: ${rm(6)};
-    box-shadow: 0 ${rm(4)} ${rm(12)} rgba(16, 185, 129, 0.4), 
-                0 ${rm(2)} ${rm(6)} rgba(0, 0, 0, 0.15);
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
-    animation: slideIn 0.3s ease-out;
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    ${media.xsm`
-        padding: ${rm(5)} ${rm(8)};
-        gap: ${rm(4)};
-        border-radius: ${rm(6)};
-    `}
-
-    svg {
-        width: ${rm(16)};
-        height: ${rm(16)};
-        flex-shrink: 0;
-        stroke: ${colors.white100};
-        stroke-width: 2.5;
-
-        ${media.xsm`
-            width: ${rm(14)};
-            height: ${rm(14)};
-        `}
-    }
-
-    span {
-        font-size: ${rm(12)};
-        ${fontGeist(600)};
-        color: ${colors.white100};
-        line-height: 1;
-        text-shadow: 0 ${rm(1)} ${rm(2)} rgba(0, 0, 0, 0.2);
-        white-space: nowrap;
-
-        ${media.xsm`
-            font-size: ${rm(11)};
-        `}
-
-        &.quantity {
-            background: rgba(255, 255, 255, 0.25);
-            padding: ${rm(2)} ${rm(6)};
-            border-radius: ${rm(4)};
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            font-weight: 700;
-            margin-left: ${rm(2)};
-
-            ${media.xsm`
-                padding: ${rm(1)} ${rm(5)};
-                font-size: ${rm(10)};
-            `}
-        }
-    }
-`

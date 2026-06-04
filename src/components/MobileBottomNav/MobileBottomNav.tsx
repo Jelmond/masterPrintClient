@@ -56,6 +56,15 @@ export const MobileBottomNav = () => {
             )
         },
         {
+            label: 'Акции',
+            href: '/on-sale',
+            icon: (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 9H9.01M15 15H15.01M16 8L8 16M7.2 4H16.8C17.9201 4 18.4802 4 18.908 4.21799C19.2843 4.40973 19.5903 4.71569 19.782 5.09202C20 5.51984 20 6.0799 20 7.2V16.8C20 17.9201 20 18.4802 19.782 18.908C19.5903 19.2843 19.2843 19.5903 18.908 19.782C18.4802 20 17.9201 20 16.8 20H7.2C6.0799 20 5.51984 20 5.09202 19.782C4.71569 19.5903 4.40973 19.2843 4.21799 18.908C4 18.4802 4 17.9201 4 16.8V7.2C4 6.0799 4 5.51984 4.21799 5.09202C4.40973 4.71569 4.71569 4.40973 5.09202 4.21799C5.51984 4 6.0799 4 7.2 4ZM9.5 9C9.5 9.27614 9.27614 9.5 9 9.5C8.72386 9.5 8.5 9.27614 8.5 9C8.5 8.72386 8.72386 8.5 9 8.5C9.27614 8.5 9.5 8.72386 9.5 9ZM15.5 15C15.5 15.2761 15.2761 15.5 15 15.5C14.7239 15.5 14.5 15.2761 14.5 15C14.5 14.7239 14.7239 14.5 15 14.5C15.2761 14.5 15.5 14.7239 15.5 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+            )
+        },
+        {
             label: 'Корзина',
             href: '/cart',
             icon: (
@@ -77,6 +86,10 @@ export const MobileBottomNav = () => {
         // Для "Каталог" проверяем, что это /catalog
         if (label === 'Каталог') {
             return pathname.startsWith('/catalog')
+        }
+        // Для "Акции"
+        if (label === 'Акции') {
+            return pathname.startsWith('/on-sale')
         }
         // Для остальных (например, Корзина) проверяем точное совпадение пути
         return pathname === href || pathname.startsWith(href + '/')
@@ -164,7 +177,7 @@ const StyledIconWrapper = styled.div<{ $isActive: boolean }>`
 `
 
 const StyledLabel = styled.span<{ $isActive: boolean }>`
-    font-size: ${rm(11)};
+    font-size: ${rm(10)};
     ${fontGeist(500)};
     color: ${props => props.$isActive ? colors.black100 : '#666666'};
     transition: color 0.2s ease;
