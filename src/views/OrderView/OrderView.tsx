@@ -178,11 +178,13 @@ export const OrderView = () => {
     // Calculate totals
     const productsTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0)
     
-    // Step 1: Apply base discount (5% or 20% based on product total)
+    // Step 1: Apply base discount (5%, 10% or 20% based on product total)
     let baseDiscountPercent = 0
     if (productsTotal >= 1500) {
         baseDiscountPercent = 20
     } else if (productsTotal >= 700) {
+        baseDiscountPercent = 10
+    } else if (productsTotal >= 300) {
         baseDiscountPercent = 5
     }
     
@@ -1024,8 +1026,9 @@ export const OrderView = () => {
                                 <StyledSummaryRow className="discount">
                                     <StyledSummaryLabel>
                                         Скидка на объем {
-                                            priceData.discount.description.includes('5%') ? '5%' :
-                                            priceData.discount.description.includes('20%') ? '20%' : '0%'
+                                            priceData.discount.description.includes('20%') ? '20%' :
+                                            priceData.discount.description.includes('10%') ? '10%' :
+                                            priceData.discount.description.includes('5%') ? '5%' : '0%'
                                         }:
                                     </StyledSummaryLabel>
                                     <StyledSummaryValue>-{priceData.discount.baseDiscount.toFixed(2)} руб.</StyledSummaryValue>
