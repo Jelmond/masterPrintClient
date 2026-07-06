@@ -14,6 +14,14 @@ function strapiImageRemotePatternFromEnv() {
 const strapiFromEnv = strapiImageRemotePatternFromEnv();
 
 const nextConfig = {
+  compiler: {
+    styledComponents: {
+      displayName: false,
+      pure: true,
+      minify: true,
+      transpileTemplateLiterals: true,
+    },
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 31536000,
@@ -36,6 +44,15 @@ const nextConfig = {
         source: '/api/strapi/:path*',
         destination: 'https://api.mppshop.by/api/:path*',
       },
+    ];
+  },
+  async redirects() {
+    return [
+      { source: '/catalog/26', destination: '/catalog/present-box', permanent: true },
+      { source: '/catalog/30', destination: '/catalog/paper', permanent: true },
+      { source: '/catalog/21', destination: '/catalog/stickers-birks', permanent: true },
+      { source: '/catalog/27', destination: '/catalog/kartochki-otkritki', permanent: true },
+      { source: '/catalog/28', destination: '/catalog/envelops', permanent: true },
     ];
   },
 };

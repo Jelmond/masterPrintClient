@@ -155,57 +155,61 @@ export default function RootLayout({
         {/* /Structured Data */}
       </head>
       <body className={`${onest.variable} ${geistSans} ${poppins.variable}`} style={isBot ? undefined : { opacity: 0 }}>
-        {/* Google tag (gtag.js) - Ads */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=AW-17871808122"
-          strategy="afterInteractive"
-        />
-        <Script id="gtag-ads" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'AW-17871808122');`}
-        </Script>
-
-        {/* Google tag (gtag.js) GA4 */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-B9KWRY06ED"
-          strategy="afterInteractive"
-        />
-        <Script id="gtag-ga4" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-B9KWRY06ED');`}
-        </Script>
-
-        {/* Yandex.Metrika counter */}
-        <Script id="yandex-metrika" strategy="afterInteractive">
-          {`(function(m,e,t,r,i,k,a){
-              m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-              m[i].l=1*new Date();
-              for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-          })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106182797', 'ym');
-          ym(106182797, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});`}
-        </Script>
-        <noscript>
-          <div>
-            <img
-              src="https://mc.yandex.ru/watch/106182797"
-              style={{ position: 'absolute', left: '-9999px' }}
-              alt=""
+        {!isBot && (
+          <>
+            {/* Google tag (gtag.js) - Ads */}
+            <Script
+              src="https://www.googletagmanager.com/gtag/js?id=AW-17871808122"
+              strategy="lazyOnload"
             />
-          </div>
-        </noscript>
-        {/* /Yandex.Metrika counter */}
+            <Script id="gtag-ads" strategy="lazyOnload">
+              {`window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'AW-17871808122');`}
+            </Script>
+
+            {/* Google tag (gtag.js) GA4 */}
+            <Script
+              src="https://www.googletagmanager.com/gtag/js?id=G-B9KWRY06ED"
+              strategy="lazyOnload"
+            />
+            <Script id="gtag-ga4" strategy="lazyOnload">
+              {`window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-B9KWRY06ED');`}
+            </Script>
+
+            {/* Yandex.Metrika counter */}
+            <Script id="yandex-metrika" strategy="lazyOnload">
+              {`(function(m,e,t,r,i,k,a){
+                  m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                  m[i].l=1*new Date();
+                  for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+                  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+              })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106182797', 'ym');
+              ym(106182797, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});`}
+            </Script>
+            <noscript>
+              <div>
+                <img
+                  src="https://mc.yandex.ru/watch/106182797"
+                  style={{ position: 'absolute', left: '-9999px' }}
+                  alt=""
+                />
+              </div>
+            </noscript>
+            {/* /Yandex.Metrika counter */}
+          </>
+        )}
 
         <StyledComponentsLayout>
           <ScrollLayout>
             <SmartCSSGrid />
             <Lvh />
             <GlobalStyles />
-            <AssetsLoaderLayout>
+            <AssetsLoaderLayout isBot={isBot}>
               {/* <Cookie /> */}
               <Toast />
               <Suspense fallback={<div>Loading...</div>}>

@@ -185,7 +185,8 @@ export default function AboutPage() {
                             <FaqAccordionItem itemId="faq-6" question="6. Какие скидки доступны?">
                                 <StyledBulletList>
                                     <li>3% при самовывозе</li>
-                                    <li>5% при заказе от 700 BYN</li>
+                                    <li>5% при заказе от 300 BYN</li>
+                                    <li>10% при заказе от 700 BYN</li>
                                     <li>20% при заказе от 1500 BYN</li>
                                 </StyledBulletList>
                                 <StyledText>

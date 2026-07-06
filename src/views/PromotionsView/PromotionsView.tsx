@@ -209,7 +209,7 @@ export default function PromotionsView() {
                         </StyledIconWrap>
                         <StyledCardTitle>Удобные цены</StyledCardTitle>
                         <StyledCardDesc>
-                            При заказах от 700 руб. и 1&nbsp;500 руб. скидки 5% и 20%, соответственно.
+                            При заказах от 300 руб., 700 руб. и 1&nbsp;500 руб. скидки 5%, 10% и 20%, соответственно.
                         </StyledCardDesc>
                     </StyledPromoCard>
                 </StyledHighlightCards>
@@ -223,7 +223,10 @@ export default function PromotionsView() {
                         </StyledText>
                         <StyledList>
                             <li>
-                                свыше <strong>700,00 BYN</strong> — скидка <strong>5%</strong>;
+                                свыше <strong>300,00 BYN</strong> — скидка <strong>5%</strong>;
+                            </li>
+                            <li>
+                                свыше <strong>700,00 BYN</strong> — скидка <strong>10%</strong>;
                             </li>
                             <li>
                                 свыше <strong>1&nbsp;500,00 BYN</strong> — скидка <strong>20%</strong>.

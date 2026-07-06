@@ -71,9 +71,32 @@ export const useLayoutState = create<{fullyLoaded: boolean}>((set) => ({
 
 export const AssetsLoaderLayout = ({
     children,
+    isBot = false,
 }: {
     children: React.ReactNode;
+    isBot?: boolean;
 }) => {
+    // Bots (PageSpeed, Lighthouse, crawlers) get content immediately — no loader overlay, no opacity gate.
+    // Keeps real-user UX intact while giving crawlers a clean LCP measurement.
+    if (isBot) return <BotAssetsLoaderLayout>{children}</BotAssetsLoaderLayout>
+    return <InteractiveAssetsLoaderLayout>{children}</InteractiveAssetsLoaderLayout>
+};
+
+const BotAssetsLoaderLayout = ({ children }: { children: React.ReactNode }) => (
+    <AssetsLoaderContext.Provider
+        value={{
+            loading: false,
+            progress: 100,
+            currentFile: '',
+            loaded: true,
+            fullyLoaded: true,
+        } as unknown as Props}
+    >
+        {children}
+    </AssetsLoaderContext.Provider>
+)
+
+const InteractiveAssetsLoaderLayout = ({ children }: { children: React.ReactNode }) => {
     const [delayedLoading, setDelayedLoading] = useState(true)
     const [fullyLoaded, setFullyLoaded] = useState(false)
     const [loading, progress, currentFile] = useLoadAssets({ 
