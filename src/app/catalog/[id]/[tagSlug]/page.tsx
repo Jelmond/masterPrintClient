@@ -4,6 +4,9 @@ import { generateMetadata as generateMetadataUtil } from "@/utils/generateMetada
 import { fetchBatchesFromStrapi } from '@/utils/fetchBatches';
 import { Metadata } from "next";
 import { CatalogCategorySeoContent } from '../CatalogCategorySeoContent';
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs';
+import { SITE_RATING } from '@/utils/siteRating';
+import { RelatedTags } from '@/components/RelatedTags/RelatedTags';
 
 interface Product {
     id: number;
@@ -98,8 +101,49 @@ export default async function TagCatalogPage({ params }: { params: { id: string;
     });
     const tags = Array.from(uniqueTagsMap.values());
 
+    const tagTitle = matchingTag.title || params.tagSlug;
+    const categoryTitle = categoryData?.title || 'Каталог';
+    const tagProducts: Array<{ price?: number | string }> = matchingTag?.products || [];
+    const tagPrices = tagProducts
+        .map((p) => Number(p?.price))
+        .filter((n) => Number.isFinite(n) && n > 0);
+    const lowPrice = tagPrices.length ? Math.min(...tagPrices) : null;
+    const highPrice = tagPrices.length ? Math.max(...tagPrices) : null;
+
+    const tagJsonLd: Record<string, unknown> = {
+        '@context': 'https://schema.org/',
+        '@type': 'Product',
+        name: tagTitle,
+        aggregateRating: {
+            '@type': 'AggregateRating',
+            bestRating: SITE_RATING.bestRating,
+            ratingValue: SITE_RATING.ratingValue,
+            ratingCount: SITE_RATING.reviewCount,
+        },
+    };
+    if (lowPrice != null && highPrice != null) {
+        tagJsonLd.offers = {
+            '@type': 'AggregateOffer',
+            priceCurrency: 'BYN',
+            lowPrice: String(lowPrice),
+            highPrice: String(highPrice),
+            offerCount: String(tagPrices.length),
+        };
+    }
+
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(tagJsonLd) }}
+            />
+            <Breadcrumbs
+                items={[
+                    { label: 'Каталог', href: '/catalog' },
+                    { label: categoryTitle, href: `/catalog/${params.id}` },
+                    { label: tagTitle },
+                ]}
+            />
             <CatalogView
                 data={categoryData}
                 products={products}
@@ -110,7 +154,13 @@ export default async function TagCatalogPage({ params }: { params: { id: string;
                 catalogSlug={params.id}
                 initialTagSlug={params.tagSlug}
             />
-            <CatalogCategorySeoContent slug={params.id} />
+            <RelatedTags
+                catalogSlug={params.id}
+                tags={tagsProductsData}
+                currentTagSlug={params.tagSlug}
+                heading="Другие подборки"
+            />
+            <CatalogCategorySeoContent slug={params.id} tagSlug={params.tagSlug} />
         </>
     );
 }

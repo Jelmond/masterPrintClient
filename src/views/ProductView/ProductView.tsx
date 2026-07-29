@@ -185,7 +185,7 @@ function buildProductGallery(data: any): { id: string | number; url: string }[] 
     return items;
 }
 
-export const ProductView = ({ data }: { data: any }) => {
+export const ProductView = ({ data, h1 }: { data: any; h1?: string }) => {
     const galleryItems = useMemo(() => buildProductGallery(data), [data]);
 
     const [mainSwiper, setMainSwiper] = useState<any>(null);
@@ -357,7 +357,7 @@ export const ProductView = ({ data }: { data: any }) => {
             </Left>
             <Right>
                 <div className="content">
-                    <h1 className="title">{data.title}</h1>
+                    <h1 className="title">{h1 || data.title}</h1>
                     <p className="price">{(data.price * quantity).toLocaleString('ru-RU')} руб.</p>
                     <RichText 
                         content={data.description} 

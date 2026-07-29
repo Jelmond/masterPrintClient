@@ -7,6 +7,7 @@ import styled from "styled-components"
 import { AnimLink } from "@/layouts/AnimatedRouterLayout/AnimatedRouterLayout"
 import Image from "next/image"
 import { useWindowWidth } from "@react-hook/window-size"
+import { SITE_RATING } from "@/utils/siteRating"
 
 const adress = {
     title: 'Наш Адрес',
@@ -206,6 +207,19 @@ export const Footer = () => {
                 </AnimLink>
             </StyledMobileContactsButtonWrapper>
             <StyledBottom>
+                <StyledRating aria-label={`Рейтинг магазина ${SITE_RATING.ratingValue} из ${SITE_RATING.bestRating} на основе ${SITE_RATING.reviewCount} отзывов`}>
+                    <StyledRatingStars aria-hidden="true">
+                        {'★★★★★'}
+                    </StyledRatingStars>
+                    <StyledRatingText>
+                        <strong>{SITE_RATING.ratingValue}</strong>
+                        {' из '}
+                        {SITE_RATING.bestRating}
+                        {' — '}
+                        {SITE_RATING.reviewCount}
+                        {' отзывов на Google Maps'}
+                    </StyledRatingText>
+                </StyledRating>
                 <StyledPriceNote>
                     * цены в каталоге указаны с НДС
                 </StyledPriceNote>
@@ -291,6 +305,46 @@ const StyledPriceNote = styled.div`
     font-size: ${rm(14)};
     ${fontGeist(400)};
     color: #666666;
+
+    ${media.xsm`
+        font-size: ${rm(12)};
+    `}
+`
+
+const StyledRating = styled.div`
+    display: inline-flex;
+    align-items: center;
+    gap: ${rm(10)};
+    padding: ${rm(8)} ${rm(14)};
+    border-radius: ${rm(999)};
+    background: #ffffff;
+    border: 1px solid rgba(28, 28, 28, 0.1);
+
+    ${media.xsm`
+        padding: ${rm(6)} ${rm(12)};
+        gap: ${rm(8)};
+    `}
+`
+
+const StyledRatingStars = styled.span`
+    font-size: ${rm(16)};
+    letter-spacing: ${rm(1)};
+    color: #f5b301;
+    line-height: 1;
+
+    ${media.xsm`
+        font-size: ${rm(14)};
+    `}
+`
+
+const StyledRatingText = styled.span`
+    font-size: ${rm(14)};
+    ${fontGeist(400)};
+    color: #1c1c1c;
+
+    strong {
+        ${fontGeist(600)};
+    }
 
     ${media.xsm`
         font-size: ${rm(12)};

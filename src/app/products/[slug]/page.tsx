@@ -3,6 +3,11 @@ import { ProductView } from '@/views/ProductView/ProductView';
 import { notFound } from 'next/navigation';
 import { generateMetadata as generateMetadataUtil } from "@/utils/generateMetadata";
 import { Metadata } from "next";
+import { PRODUCT_TITLE_OVERRIDES } from "./productTitleOverrides";
+import { PRODUCT_H1_OVERRIDES } from "./productH1Overrides";
+import { PRODUCT_DESCRIPTION_OVERRIDES } from "./productDescriptionOverrides";
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs';
+import { SITE_RATING } from '@/utils/siteRating';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mppshop.by';
@@ -35,10 +40,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
                     quantityInPack ? `В наборе: ${quantityInPack} шт.` : '',
                     'Быстрая доставка. Производство полиграфии с 2014 года.',
                 ];
-                const description = parts.filter(Boolean).join(' ');
+                const description = PRODUCT_DESCRIPTION_OVERRIDES[params.slug] || parts.filter(Boolean).join(' ');
+
+                const title = PRODUCT_TITLE_OVERRIDES[params.slug] || `${productTitle} купить в Беларуси`;
 
                 return generateMetadataUtil({
-                    title: `${productTitle} купить в Беларуси`,
+                    title,
                     description,
                     keywords: `${productTitle.toLowerCase()}, купить ${productTitle.toLowerCase()}, ${productTitle.toLowerCase()} цена, ${productTitle.toLowerCase()} беларусь${category ? `, ${category.toLowerCase()}` : ''}, полиграфия mppshop`,
                     url: `${siteUrl}/products/${product.slug}`,
@@ -91,9 +98,57 @@ export default async function ProductPage({ params }: { params: { slug: string }
             console.error('Error fetching similar products:', error);
         }
 
+        const category = product?.categories?.[0];
+        const categorySlug = category?.slug || (category?.id != null ? String(category.id) : null);
+        const categoryTitle = category?.title || '';
+        const h1Text = PRODUCT_H1_OVERRIDES[params.slug] || product.title;
+
+        const crumbs = [
+            { label: 'Каталог', href: '/catalog' },
+            ...(categorySlug && categoryTitle
+                ? [{ label: categoryTitle, href: `/catalog/${categorySlug}` }]
+                : []),
+            { label: h1Text },
+        ];
+
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mppshop.by';
+        const productImageUrl = product?.images?.[0]?.url
+            ? (product.images[0].url.startsWith('http')
+                ? product.images[0].url
+                : `${process.env.NEXT_PUBLIC_STRAPI_URL}${product.images[0].url}`)
+            : undefined;
+
+        const productJsonLd = {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: h1Text,
+            description: PRODUCT_DESCRIPTION_OVERRIDES[params.slug] || `${product.title} — купить в Минске и по всей Беларуси. Быстрая доставка. Производство полиграфии с 2014 года.`,
+            ...(productImageUrl ? { image: productImageUrl } : {}),
+            ...(product.sku ? { sku: product.sku } : {}),
+            brand: { '@type': 'Brand', name: 'MPP Shop' },
+            offers: {
+                '@type': 'Offer',
+                url: `${siteUrl}/products/${product.slug}`,
+                priceCurrency: 'BYN',
+                price: product.price != null ? String(product.price) : '0.00',
+                availability: 'https://schema.org/InStock',
+            },
+            aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: SITE_RATING.ratingValue,
+                bestRating: SITE_RATING.bestRating,
+                reviewCount: SITE_RATING.reviewCount,
+            },
+        };
+
         return (
             <div style={{display: 'flex', flexDirection: 'column'}}>
-                <ProductView data={product} />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+                />
+                <Breadcrumbs items={crumbs} />
+                <ProductView data={product} h1={PRODUCT_H1_OVERRIDES[params.slug]} />
                 <CanBeInteresting data={similarProductsData} title="Подобные товары" />
             </div>
         );
