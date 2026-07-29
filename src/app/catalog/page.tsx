@@ -13,6 +13,7 @@ import { WrappingPaperSvg } from "@/views/HomeView/screens/animatedSvgs/Wrapping
 import { StyledSlideImage } from "@/views/HomeView/screens/StyledSlideImage";
 import Link from "next/link";
 import styled from "styled-components";
+import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 
 function isWrappingPaperCategory(category: { icon?: string | null; title?: string }) {
     if (category.icon === "wrapping") return true
@@ -27,6 +28,8 @@ export default function CatalogPage() {
     });
 
     return (
+        <>
+        <Breadcrumbs items={[{ label: 'Каталог' }]} />
         <StyledCatalogPage>
             {data?.data?.filter((category) => category.icon !== 'kashpo').map((category, index) => (
                 <StyledCategory
@@ -44,6 +47,7 @@ export default function CatalogPage() {
                 </StyledCategory>
             ))}
         </StyledCatalogPage>
+        </>
     )
 }
 

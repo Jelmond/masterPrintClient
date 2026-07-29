@@ -21,6 +21,8 @@ import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
 import { Toast } from "@/components/Toast/Toast";
 import { MobileBottomNav } from "@/components/MobileBottomNav/MobileBottomNav";
+import { AutoBreadcrumbs } from "@/components/Breadcrumbs/AutoBreadcrumbs";
+import { SITE_RATING } from "@/utils/siteRating";
 
 const onest = Onest({
   variable: "--font-onest",
@@ -123,7 +125,14 @@ export default function RootLayout({
               "priceRange": "$$",
               "openingHours": "Mo-Fr 09:00-17:00",
               "email": "info@mppshop.by",
-              "taxID": "591511468"
+              "taxID": "591511468",
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": SITE_RATING.ratingValue,
+                "bestRating": SITE_RATING.bestRating,
+                "worstRating": SITE_RATING.worstRating,
+                "reviewCount": SITE_RATING.reviewCount
+              }
             })
           }}
         />
@@ -215,6 +224,7 @@ export default function RootLayout({
               <Suspense fallback={<div>Loading...</div>}>
                 <AnimatedRouterLayout>
                     <Header/>
+                    <AutoBreadcrumbs />
                     {children}
                     <Footer/>
                     <MobileBottomNav />

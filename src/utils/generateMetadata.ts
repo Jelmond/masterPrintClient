@@ -25,7 +25,11 @@ export function generateMetadata({
 }: MetadataProps): Metadata {
     // Получаем базовый URL из переменной окружения или используем дефолтный домен
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mppshop.by';
-    const resolvedUrl = url || siteUrl;
+    // If a caller doesn't pass an explicit `url`, we intentionally leave
+    // canonical unset so search engines fall back to the request URL rather
+    // than every page claiming the homepage as canonical.
+    const canonicalUrl = url && url.length > 0 ? url : undefined;
+    const ogUrl = canonicalUrl || siteUrl;
     const baseUrl = new URL(siteUrl);
 
     // Ensure ogImage is always an absolute URL
@@ -42,13 +46,13 @@ export function generateMetadata({
         publisher: author,
         themeColor,
         metadataBase: baseUrl,
-        alternates: {
-            canonical: resolvedUrl,
-        },
+        ...(canonicalUrl
+            ? { alternates: { canonical: canonicalUrl } }
+            : {}),
         openGraph: {
             title,
             description,
-            url: resolvedUrl,
+            url: ogUrl,
             siteName,
             images: [
                 {

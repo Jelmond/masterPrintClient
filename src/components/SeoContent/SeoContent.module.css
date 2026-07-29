@@ -4,6 +4,13 @@
     padding: 48px 24px 64px;
 }
 
+.lead {
+    margin: 0 0 24px;
+    font-size: 17px;
+    line-height: 1.55;
+    color: #333;
+}
+
 .list {
     display: flex;
     flex-direction: column;

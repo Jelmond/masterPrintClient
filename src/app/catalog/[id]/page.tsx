@@ -5,6 +5,9 @@ import { fetchBatchesFromStrapi } from '@/utils/fetchBatches';
 import { Metadata } from "next";
 import { About } from '@/views/HomeView/screens/About';
 import { CatalogCategorySeoContent } from './CatalogCategorySeoContent';
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs';
+import { SITE_RATING } from '@/utils/siteRating';
+import { RelatedTags } from '@/components/RelatedTags/RelatedTags';
 
 interface Product {
     id: number;
@@ -43,6 +46,8 @@ const CATEGORY_META_OVERRIDES: Record<string, { title: string; description: stri
 };
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mppshop.by';
+    const selfUrl = `${siteUrl}/catalog/${params.id}`;
     const categoryUrl = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/getPopulatedCategory/${params.id}`;
 
     try {
@@ -64,6 +69,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
                     title: override.title,
                     description: override.description,
                     keywords: override.keywords ?? `${categoryTitle.toLowerCase()}, купить ${categoryTitle.toLowerCase()}, ${categoryTitle.toLowerCase()} беларусь, ${categoryTitle.toLowerCase()} минск, полиграфия mppshop`,
+                    url: selfUrl,
                 });
             }
 
@@ -71,6 +77,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
                 title: `${categoryTitle} — купить в Минске и Беларуси | MPPSHOP`,
                 description: `Купить ${categoryTitle.toLowerCase()} в Минске и по всей Беларуси.${productCount > 0 ? ` В каталоге ${productCount}+ товаров.` : ''} Качественная полиграфическая продукция от производителя. Доставка по всей Беларуси. Скидки до 20%.`,
                 keywords: `${categoryTitle.toLowerCase()}, купить ${categoryTitle.toLowerCase()}, ${categoryTitle.toLowerCase()} беларусь, ${categoryTitle.toLowerCase()} минск, полиграфия mppshop`,
+                url: selfUrl,
             });
         }
     } catch (error) {
@@ -81,6 +88,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         title: "Категория товаров | MPPSHOP - Полиграфическая продукция",
         description: "Категория полиграфических товаров в интернет-магазине MPPSHOP. Качественная продукция, доставка по Беларуси, выгодные цены.",
         keywords: "категория полиграфия, товары mppshop, полиграфическая продукция беларусь",
+        url: selfUrl,
     });
 }
 
@@ -143,9 +151,47 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
     const tags = Array.from(uniqueTagsMap.values());
 
     const categoryOverride = CATEGORY_META_OVERRIDES[categoryData?.title];
+    const h1Text = categoryOverride?.h1 || categoryData?.title || 'Каталог';
+
+    const prices: number[] = (products as Array<{ price?: number | string }>)
+        .map((p) => Number(p?.price))
+        .filter((n) => Number.isFinite(n) && n > 0);
+    const lowPrice = prices.length ? Math.min(...prices) : null;
+    const highPrice = prices.length ? Math.max(...prices) : null;
+
+    const categoryJsonLd: Record<string, unknown> = {
+        '@context': 'https://schema.org/',
+        '@type': 'Product',
+        name: h1Text,
+        aggregateRating: {
+            '@type': 'AggregateRating',
+            bestRating: SITE_RATING.bestRating,
+            ratingValue: SITE_RATING.ratingValue,
+            ratingCount: SITE_RATING.reviewCount,
+        },
+    };
+    if (lowPrice != null && highPrice != null) {
+        categoryJsonLd.offers = {
+            '@type': 'AggregateOffer',
+            priceCurrency: 'BYN',
+            lowPrice: String(lowPrice),
+            highPrice: String(highPrice),
+            offerCount: String(prices.length),
+        };
+    }
 
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd) }}
+            />
+            <Breadcrumbs
+                items={[
+                    { label: 'Каталог', href: '/catalog' },
+                    { label: h1Text },
+                ]}
+            />
             <CatalogView
                 data={categoryData}
                 products={products}
@@ -156,7 +202,12 @@ export default async function SingleCatalogPage({ params }: { params: { id: stri
                 h1Override={categoryOverride?.h1}
                 catalogSlug={params.id}
             />
+            <RelatedTags
+                catalogSlug={params.id}
+                tags={tagsProductsData}
+                heading="Подборки в этой категории"
+            />
             <CatalogCategorySeoContent slug={params.id} />
         </>
     );
-} 
+}
