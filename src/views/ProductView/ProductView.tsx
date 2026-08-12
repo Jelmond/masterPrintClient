@@ -36,6 +36,20 @@ function getPrimaryCategoryCatalogSegment(category: unknown): string | null {
     return null
 }
 
+/** Tag slug for /catalog/{cat}/{tag} link; returns null if unresolvable */
+function getTagSlug(tag: unknown): string | null {
+    if (tag == null || typeof tag !== 'object') return null
+    const t = tag as Record<string, unknown>
+    const slug = t.slug
+    if (typeof slug === 'string' && slug.trim()) return slug.trim()
+    const attrs = t.attributes
+    if (attrs && typeof attrs === 'object') {
+        const sl = (attrs as Record<string, unknown>).slug
+        if (typeof sl === 'string' && sl.trim()) return sl.trim()
+    }
+    return null
+}
+
 /** Главное фото с прямоугольной линзой при наведении (только fine pointer + hover) */
 function ProductMainImageWithLens({ src, alt }: { src: string; alt: string }) {
     const wrapRef = useRef<HTMLDivElement>(null);
@@ -365,7 +379,28 @@ export const ProductView = ({ data, h1 }: { data: any; h1?: string }) => {
                             p: ({ children }) => <p className="description-paragraph">{children}</p>,
                         }}
                     />
-                    {data?.categories?.length > 0 && data?.tags?.length > 0 && <p className="category">Раздел: {data?.categories[0].title} {'   <   '} {data?.tags[0].title}</p>}
+                    {data?.categories?.length > 0 && data?.tags?.length > 0 && (() => {
+                        const cat = data.categories[0];
+                        const tag = data.tags[0];
+                        const catSlug = getPrimaryCategoryCatalogSegment(cat);
+                        const tagSlug = getTagSlug(tag);
+                        return (
+                            <p className="category">
+                                Раздел:{' '}
+                                {catSlug ? (
+                                    <AnimLink href={`/catalog/${catSlug}`}>{cat.title}</AnimLink>
+                                ) : (
+                                    cat.title
+                                )}
+                                {'   <   '}
+                                {catSlug && tagSlug ? (
+                                    <AnimLink href={`/catalog/${catSlug}/${tagSlug}`}>{tag.title}</AnimLink>
+                                ) : (
+                                    tag.title
+                                )}
+                            </p>
+                        );
+                    })()}
                     <p className="quantity">
                         В наличии: <span>{data.stock !== undefined && data.stock > 0 ? `${data.stock} ${getWordForCount(data.stock)}` : 'нет'}</span>
                     </p>
