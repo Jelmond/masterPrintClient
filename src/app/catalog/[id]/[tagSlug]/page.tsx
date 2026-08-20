@@ -7,6 +7,7 @@ import { CatalogCategorySeoContent } from '../CatalogCategorySeoContent';
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs';
 import { SITE_RATING } from '@/utils/siteRating';
 import { RelatedTags } from '@/components/RelatedTags/RelatedTags';
+import { CATALOG_TAG_META_OVERRIDES } from './tagMetaOverrides';
 
 interface Product {
     id: number;
@@ -37,9 +38,11 @@ export async function generateMetadata({ params }: { params: { id: string; tagSl
             const tagTitle = tagGroup?.title || params.tagSlug;
             const productCount = tagGroup?.products?.length || 0;
 
+            const override = CATALOG_TAG_META_OVERRIDES[`${params.id}/${params.tagSlug}`];
+
             return generateMetadataUtil({
-                title: `${tagTitle} — ${categoryTitle} | купить в Минске и Беларуси`,
-                description: `Купить ${tagTitle.toLowerCase()} (${categoryTitle.toLowerCase()}) в Минске и по всей Беларуси.${productCount > 0 ? ` В каталоге ${productCount}+ товаров.` : ''} Качественная полиграфическая продукция от производителя. Доставка по всей Беларуси.`,
+                title: override?.title ?? `${tagTitle} — ${categoryTitle} | купить в Минске и Беларуси`,
+                description: override?.description ?? `Купить ${tagTitle.toLowerCase()} (${categoryTitle.toLowerCase()}) в Минске и по всей Беларуси.${productCount > 0 ? ` В каталоге ${productCount}+ товаров.` : ''} Качественная полиграфическая продукция от производителя. Доставка по всей Беларуси.`,
                 keywords: `${tagTitle.toLowerCase()}, ${categoryTitle.toLowerCase()}, купить ${tagTitle.toLowerCase()}, ${tagTitle.toLowerCase()} беларусь, полиграфия mppshop`,
                 url: `${siteUrl}/catalog/${params.id}/${params.tagSlug}`,
             });
@@ -103,6 +106,8 @@ export default async function TagCatalogPage({ params }: { params: { id: string;
 
     const tagTitle = matchingTag.title || params.tagSlug;
     const categoryTitle = categoryData?.title || 'Каталог';
+    const override = CATALOG_TAG_META_OVERRIDES[`${params.id}/${params.tagSlug}`];
+    const h1Text = override?.h1 || tagTitle;
     const tagProducts: Array<{ price?: number | string }> = matchingTag?.products || [];
     const tagPrices = tagProducts
         .map((p) => Number(p?.price))
@@ -113,7 +118,7 @@ export default async function TagCatalogPage({ params }: { params: { id: string;
     const tagJsonLd: Record<string, unknown> = {
         '@context': 'https://schema.org/',
         '@type': 'Product',
-        name: tagTitle,
+        name: h1Text,
         aggregateRating: {
             '@type': 'AggregateRating',
             bestRating: SITE_RATING.bestRating,
@@ -141,7 +146,7 @@ export default async function TagCatalogPage({ params }: { params: { id: string;
                 items={[
                     { label: 'Каталог', href: '/catalog' },
                     { label: categoryTitle, href: `/catalog/${params.id}` },
-                    { label: tagTitle },
+                    { label: h1Text },
                 ]}
             />
             <CatalogView
@@ -153,6 +158,7 @@ export default async function TagCatalogPage({ params }: { params: { id: string;
                 batchesOrder={batchesOrder}
                 catalogSlug={params.id}
                 initialTagSlug={params.tagSlug}
+                h1Override={override?.h1}
             />
             <RelatedTags
                 catalogSlug={params.id}
